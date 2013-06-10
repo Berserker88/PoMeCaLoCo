@@ -1,5 +1,7 @@
 package com.example.pomecaloco;
 
+
+
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -14,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 public class MainActivity extends FragmentActivity implements
@@ -28,6 +31,7 @@ public class MainActivity extends FragmentActivity implements
 	 * {@link android.support.v4.app.FragmentStatePagerAdapter}.
 	 */
 	SectionsPagerAdapter mSectionsPagerAdapter;
+	
 
 	/**
 	 * The {@link ViewPager} that will host the section contents.
@@ -37,7 +41,10 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_main);
+		
+	     
 
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
@@ -74,6 +81,7 @@ public class MainActivity extends FragmentActivity implements
 					.setTabListener(this));
 		}
 	}
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -173,6 +181,8 @@ public class MainActivity extends FragmentActivity implements
 			return textView;
 		}
 	}
+
+    
 	
 
 }
