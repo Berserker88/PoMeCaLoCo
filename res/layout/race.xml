@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+ 
+
+        <TextView
+        android:id="@+id/camerainfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+          <FrameLayout
+    android:id="@+id/camera_stream"
+    android:layout_marginLeft="20px"
+    android:layout_marginRight="20px"
+    android:layout_width="0dp"
+    android:layout_height="fill_parent"
+    android:layout_weight="1"
+    />
+ 
+</LinearLayout>

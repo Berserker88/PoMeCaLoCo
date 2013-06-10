@@ -2,17 +2,16 @@ package com.example.pomecaloco;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -47,7 +46,7 @@ public class MainActivity extends FragmentActivity implements
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the app.
 		mSectionsPagerAdapter = new SectionsPagerAdapter(
-				getSupportFragmentManager());
+				this, getSupportFragmentManager());
 
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -106,21 +105,26 @@ public class MainActivity extends FragmentActivity implements
 	 * one of the sections/tabs/pages.
 	 */
 	public class SectionsPagerAdapter extends FragmentPagerAdapter {
+		 Context c;
 
-		public SectionsPagerAdapter(FragmentManager fm) {
+		public SectionsPagerAdapter(Context c, FragmentManager fm) {
 			super(fm);
+			this.c = c;
 		}
 
 		@Override
-		public Fragment getItem(int position) {
-			// getItem is called to instantiate the fragment for the given page.
-			// Return a DummySectionFragment (defined as a static inner class
-			// below) with the page number as its lone argument.
-			Fragment fragment = new DummySectionFragment();
-			Bundle args = new Bundle();
-			args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
-			fragment.setArguments(args);
-			return fragment;
+        public Fragment getItem(int i) {
+            Fragment fragment = null;
+            if (i == 0) {
+                fragment = new Race(c);
+            }
+            if (i == 1) {
+                fragment = new Results(c);
+            }
+            if (i == 2) {
+                fragment = new Setup(c);
+            }
+            return fragment; 
 		}
 
 		@Override
@@ -169,5 +173,6 @@ public class MainActivity extends FragmentActivity implements
 			return textView;
 		}
 	}
+	
 
 }
