@@ -28,16 +28,20 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     public void surfaceCreated(SurfaceHolder holder) {
         // The Surface has been created, now tell the camera where to draw the preview.
+    	Camera.Parameters params = mCamera.getParameters();  
+    	
+    	Size previewsize = params.getSupportedPreviewSizes().get(0);
+    	Size videosize = params.getPreferredPreviewSizeForVideo();
+    	params.setPreviewSize(480, 320);
+    	
+    	mCamera.setDisplayOrientation(90);
+    	Log.i("debug","Videosize: "+videosize);
+    	Log.i("debug","Fokusmodus: "+params.getFocusMode());
+    	Log.i("debug","Vorschaugröße: "+previewsize.width+previewsize.height);   	        	
+    	        	
+    	mCamera.setParameters(params);
         try {
-        	Camera.Parameters params = mCamera.getParameters();            	
-        	Size previewsize = params.getSupportedPreviewSizes().get(0);
-        	Log.i("debug",params.getFocusMode());
-        	Log.i("debug",previewsize.toString());
-        	
-        		
-        	params.setPreviewSize(200,100);
-        	
-        	mCamera.setParameters(params);
+
             mCamera.setPreviewDisplay(holder);
             mCamera.startPreview();
         } catch (IOException e) {
@@ -46,6 +50,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void surfaceDestroyed(SurfaceHolder holder) {
+    	mCamera.release();
         // empty. Take care of releasing the Camera preview in your activity.
     }
 

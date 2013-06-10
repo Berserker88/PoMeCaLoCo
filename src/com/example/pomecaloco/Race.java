@@ -1,23 +1,23 @@
 package com.example.pomecaloco;
-import java.io.IOException;
+
+import java.util.Set;
+
 import android.content.Context;
 import android.hardware.Camera;
-import android.hardware.Camera.CameraInfo;
-import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.Spinner;
  
 public class Race extends Fragment {
     Context c;
- 
-        public Race(){
+    
+    
+    public Race(){
          
     }
     public Race(Context c) {
@@ -35,9 +35,21 @@ public class Race extends Fragment {
 
         // Create our Preview view and set it as the content of our activity.
         mPreview = new CameraPreview(getActivity(), mCamera);
-        FrameLayout preview = (FrameLayout) v.findViewById(R.id.camera_stream);
+        FrameLayout preview = (FrameLayout) v.findViewById(R.id.camera_stream);    
+      
         preview.addView(mPreview);
-        return       v;
+
+        Spinner set_track = (Spinner) v.findViewById(R.id.choose_track);
+     // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(c,
+                R.array.tracks, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        set_track.setAdapter(adapter);
+        
+        
+        return v;
 
     }    
     public static Camera getCameraInstance(){
@@ -53,3 +65,5 @@ public class Race extends Fragment {
     }
     
 }
+
+	

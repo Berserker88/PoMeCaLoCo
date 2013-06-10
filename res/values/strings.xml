@@ -2,10 +2,18 @@
 <resources>
 
     <string name="app_name">pomecaloco</string>
-    <string name="title_section3">Section 3</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section1">Section 1</string>
+    <string name="title_section3">Setup</string>
+    <string name="title_section2">Ergebnisse</string>
+    <string name="title_section1">Rennen</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
+    
+    <string-array name="tracks">
+        <item>Track 1</item>
+        <item>Track 2</item>
+        <item>Track 3</item>
+        <item>Track 4</item>
+        <item>Hidden Track</item>
+    </string-array>
 
 </resources>
