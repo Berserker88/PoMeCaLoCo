@@ -3,14 +3,11 @@ package com.example.pomecaloco;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
-import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener;
-
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
@@ -52,10 +49,7 @@ public class Race extends Fragment implements CvCameraViewListener2 {
 		
 			mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);		
 		mOpenCvCameraView.setCvCameraViewListener(this);
-		Log.i("debug", "setCVCameraViewListener properly");
-		
-		
-		
+		Log.i("debug", "setCVCameraViewListener properly");	
 
 		Spinner set_track = (Spinner) v.findViewById(R.id.choose_track);
 		// Create an ArrayAdapter using the string array and a default spinner
@@ -99,9 +93,7 @@ public class Race extends Fragment implements CvCameraViewListener2 {
 	//Log.i("debug", "onCameraFrame");
 	mRgba = inputFrame.rgba();
 	Mat mThreshed = new Mat(mRgba.size(),mRgba.type());
-	Mat mGrayThreshed = new Mat(mRgba.size(),mThreshed.type());
-	int cols = mRgba.cols();
-	int rows = mRgba.rows();
+
 	//Log.i("debug",Integer.toString(mRgba.cols()));
 	//Core.line(mRgba, new Point(10,10), new Point(200,200), new Scalar(255, 0, 0, 255));
 	mEdges = new Mat(mRgba.size(),mRgba.type());
@@ -112,9 +104,7 @@ public class Race extends Fragment implements CvCameraViewListener2 {
 	
 	Core.inRange(mHSV, new Scalar(0,0,0,100), new Scalar(0,0,0 ,255), mThreshed);
 	mHSV.release();
-	Imgproc.cvtColor(mThreshed, mGrayThreshed, Imgproc.COLOR_GRAY2BGR, 0);
-	Imgproc.cvtColor(mGrayThreshed, mThreshed, Imgproc.COLOR_BGR2RGBA, 0);
-	Imgproc.accumulate(mThreshed, mRgba);
+
 
 /*		Imgproc.cvtColor((Mat) inputFrame, mColoredFrame, Imgproc.COLOR_RGB2HSV);
 		Log.i("debug", "Color to HSV");

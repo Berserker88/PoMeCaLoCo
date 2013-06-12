@@ -7,6 +7,13 @@
     <string name="title_section1">Rennen</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
+    <string name="racemode">Rennmodus</string>
+    <string name="one_lap">1 Runde</string>
+    <string name="five_laps">5 Runden</string>
+    <string name="ten_laps">10 Runden</string>
+    <string name="one_min">1 Minute</string>
+    <string name="five_mins">5 Minuten</string>
+    <string name="ten_mins">10 Minuten</string>
     
     <string-array name="tracks">
         <item>Track 1</item>
