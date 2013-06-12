@@ -21,7 +21,7 @@ import android.widget.TextView;
 
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener {
-
+	public static Context mContext;
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
 	 * fragments for each of the sections. We use a
@@ -43,7 +43,7 @@ public class MainActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_main);
-		
+		mContext = getApplicationContext();
 	     
 
 		// Set up the action bar.
@@ -124,7 +124,7 @@ public class MainActivity extends FragmentActivity implements
         public Fragment getItem(int i) {
             Fragment fragment = null;
             if (i == 0) {
-                fragment = new Race(c);
+                fragment = new Race();
             }
             if (i == 1) {
                 fragment = new Results(c);
