@@ -6,20 +6,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
  
-public class Results  extends Fragment {
+public class SetupFragment  extends Fragment {
     Context c;
  
-        public Results(){
+        public SetupFragment(){
          
     }
-    public Results(Context c) {
-        this.c = c;
-    }
+
  
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.results, null);
+    	c = RaceFragmentActivity.mContext;
+        View v = inflater.inflate(R.layout.setup, null);
         return       v;
     }
 }

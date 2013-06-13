@@ -19,7 +19,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-public class MainActivity extends FragmentActivity implements
+public class SettingsFragmentActivity extends FragmentActivity implements
 		ActionBar.TabListener {
 	public static Context mContext;
 	/**
@@ -86,7 +86,7 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.activity_main, menu);
+		getMenuInflater().inflate(R.menu.settings_menu, menu);
 		return true;
 	}
 
@@ -107,6 +107,12 @@ public class MainActivity extends FragmentActivity implements
 	public void onTabReselected(ActionBar.Tab tab,
 			FragmentTransaction fragmentTransaction) {
 	}
+	@Override
+	public void onBackPressed() {
+		finish();
+		
+	    return;
+	}
 
 	/**
 	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -124,32 +130,27 @@ public class MainActivity extends FragmentActivity implements
         public Fragment getItem(int i) {
             Fragment fragment = null;
             if (i == 0) {
-                fragment = new Race();
+                fragment = new ResultsFragment();
             }
             if (i == 1) {
-                fragment = new Results(c);
-            }
-            if (i == 2) {
-                fragment = new Setup(c);
+                fragment = new SetupFragment();
             }
             return fragment; 
 		}
 
 		@Override
 		public int getCount() {
-			// Show 3 total pages.
-			return 3;
+			// Show 2 total pages.
+			return 2;
 		}
 
 		@Override
 		public CharSequence getPageTitle(int position) {
 			switch (position) {
 			case 0:
-				return getString(R.string.title_section1).toUpperCase();
+				return getString(R.string.settings_section1).toUpperCase();
 			case 1:
-				return getString(R.string.title_section2).toUpperCase();
-			case 2:
-				return getString(R.string.title_section3).toUpperCase();
+				return getString(R.string.settings_section2).toUpperCase();
 			}
 			return null;
 		}
@@ -181,8 +182,4 @@ public class MainActivity extends FragmentActivity implements
 			return textView;
 		}
 	}
-
-    
-	
-
-}
+	}

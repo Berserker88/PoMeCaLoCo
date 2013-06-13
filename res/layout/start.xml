@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:opencv="http://schemas.android.com/apk/res-auto"    
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+    	<Spinner
+	    android:id="@+id/choose_track"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignLeft="@+id/scan_track"
+	    android:layout_alignParentTop="true"
+	     />
+    
+<org.opencv.android.JavaCameraView
+	     android:layout_marginTop="100dp"
+	     android:layout_marginLeft="20dp"
+	     android:layout_marginRight="20dp"
+	     android:layout_width="wrap_content"
+	     android:layout_height="250dp"
+	     android:visibility="gone"
+	     android:id="@+id/camera_stream"
+	     opencv:show_fps="true"        
+	     opencv:camera_id="any" />
+
+	<Button
+	    android:id="@+id/one_lap"
+	    android:layout_width="120dp"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:layout_alignParentLeft="true"
+	    android:layout_marginBottom="100dp"
+	    android:layout_marginLeft="40dp"
+	    android:text="@string/one_lap" />
+
+	<Button
+	    android:id="@+id/ten_laps"
+	    android:layout_width="120dp"
+	    android:layout_height="wrap_content"
+	    android:layout_alignLeft="@+id/five_laps"
+	    android:layout_below="@+id/five_laps"
+	    android:text="@string/ten_laps" />
+
+	<Button
+	    android:id="@+id/one_min"
+	    android:layout_width="120dp"
+	    android:layout_height="wrap_content"
+	    android:layout_alignBaseline="@+id/one_lap"
+	    android:layout_alignBottom="@+id/one_lap"
+	    android:layout_marginLeft="32dp"
+	    android:layout_toRightOf="@+id/one_lap"
+	    android:text="@string/one_min" />
+
+	<Button
+	    android:id="@+id/five_mins"
+	    android:layout_width="120dp"
+	    android:layout_height="wrap_content"
+	    android:layout_alignBaseline="@+id/five_laps"
+	    android:layout_alignBottom="@+id/five_laps"
+	    android:layout_alignLeft="@+id/one_min"
+	    android:text="@string/five_mins" />
+
+	<Button
+	    android:id="@+id/ten_mins"
+	    android:layout_width="120dp"
+	    android:layout_height="wrap_content"
+	    android:layout_alignBaseline="@+id/ten_laps"
+	    android:layout_alignBottom="@+id/ten_laps"
+	    android:layout_alignLeft="@+id/five_mins"
+	    android:text="@string/ten_mins" />
+
+	<TextView
+	    android:id="@+id/textView1"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_above="@+id/one_lap"
+	    android:layout_centerHorizontal="true"
+	    android:text="@string/racemode"
+	    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+	<Button
+	    android:id="@+id/results"
+	    style="?android:attr/buttonStyleSmall"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentRight="true"
+	    android:layout_alignParentTop="true"
+	    android:text="@string/results" />
+
+	<Button
+	    android:id="@+id/scan_cars"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignBaseline="@+id/scan_track"
+	    android:layout_alignBottom="@+id/scan_track"
+	    android:layout_toRightOf="@+id/scan_track"	    
+	    android:text="@string/scan_cars" />
+
+	<Button
+	    android:id="@+id/scan_track"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_marginLeft="20dp"
+	    android:layout_alignParentLeft="true"
+	    android:layout_below="@+id/results"
+	    android:text="@string/scan_track" />
+
+	<Button
+	    android:id="@+id/five_laps"
+	    android:layout_width="120dp"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@+id/one_min"
+	    android:layout_toLeftOf="@+id/one_min"
+	    android:text="@string/five_laps" />
+
+
+
+</RelativeLayout>

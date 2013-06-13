@@ -2,11 +2,11 @@
 <resources>
 
     <string name="app_name">pomecaloco</string>
-    <string name="title_section3">Setup</string>
-    <string name="title_section2">Ergebnisse</string>
-    <string name="title_section1">Rennen</string>
+    <string name="race_section3">Rennende</string>
+    <string name="race_section2">Rennen</string>
+    <string name="race_section1">Vorbereitung</string>
     <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Settings</string>
+    <string name="menu_settings">Einstellungen</string>
     <string name="racemode">Rennmodus</string>
     <string name="one_lap">1 Runde</string>
     <string name="five_laps">5 Runden</string>
@@ -14,6 +14,10 @@
     <string name="one_min">1 Minute</string>
     <string name="five_mins">5 Minuten</string>
     <string name="ten_mins">10 Minuten</string>
+    <string name="scan_track">Bahn scannen</string>
+    <string name="scan_cars">Fahrzeuge scannen</string>
+    <string name="results">Ergebnisse</string>
+       
     
     <string-array name="tracks">
         <item>Track 1</item>
@@ -22,5 +26,12 @@
         <item>Track 4</item>
         <item>Hidden Track</item>
     </string-array>
+    <string name="settings_section1">Ergebnisse</string>
+    <string name="settings_section2">Setup</string>
+    <string name="go_to_results">Zu den Ergebnissen</string>
+    <string name="race_menu_exit">Beenden</string>
+    <string name="settings_menu_new_race">Neues Rennen</string>
+    <string name="race_menu">Rennmenü</string>
+    <string name="settings_menu">Einstellungen</string>
 
 </resources>
