@@ -25,7 +25,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2{
 	
 
 	private Context c;
-	private CameraBridgeViewBase mOpenCvCameraView;
+	public static CameraBridgeViewBase mOpenCvCameraView;
 	ObjectDetector mFrame_to_process;
 	
 	@Override
@@ -36,9 +36,11 @@ public class StartFragment extends Fragment implements CvCameraViewListener2{
 		
 
 		mOpenCvCameraView = (CameraBridgeViewBase) v
-				.findViewById(R.id.camera_stream);		
-		
-			mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);		
+				.findViewById(R.id.camera_stream_prepare);		
+		if((RaceFragment.mOpenCvCameraView == null) ||(RaceFragment.mOpenCvCameraView.getVisibility() != SurfaceView.VISIBLE))
+			mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
+		else
+			mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);		
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		Log.i("debug", "setCVCameraViewListener properly");	
 

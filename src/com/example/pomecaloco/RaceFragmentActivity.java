@@ -1,7 +1,4 @@
 package com.example.pomecaloco;
-
-
-
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -11,9 +8,11 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -67,6 +66,20 @@ public class RaceFragmentActivity extends FragmentActivity implements
 					@Override
 					public void onPageSelected(int position) {
 						actionBar.setSelectedNavigationItem(position);
+						Log.i("debug","tab changed to"+position);
+						if(position == 1){
+						StartFragment.mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);	
+						RaceFragment.mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
+						}else if(position == 0)
+						{
+							RaceFragment.mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);
+							StartFragment.mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);							
+						}else if (position == 2)
+						{
+							RaceFragment.mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);
+							StartFragment.mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);	
+						}
+							
 					}
 				});
 
@@ -95,6 +108,7 @@ public class RaceFragmentActivity extends FragmentActivity implements
 			FragmentTransaction fragmentTransaction) {
 		// When the given tab is selected, switch to the corresponding page in
 		// the ViewPager.
+		Log.i("debug","hallo"+tab.getPosition());
 		mViewPager.setCurrentItem(tab.getPosition());
 	}
 
@@ -122,6 +136,8 @@ public class RaceFragmentActivity extends FragmentActivity implements
 
 		@Override
         public Fragment getItem(int i) {
+			
+			
             Fragment fragment = null;
             if (i == 0) {
                 fragment = new StartFragment();

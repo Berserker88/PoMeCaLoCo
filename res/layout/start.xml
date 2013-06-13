@@ -20,7 +20,7 @@
 	     android:layout_width="wrap_content"
 	     android:layout_height="250dp"
 	     android:visibility="gone"
-	     android:id="@+id/camera_stream"
+	     android:id="@+id/camera_stream_prepare"
 	     opencv:show_fps="true"        
 	     opencv:camera_id="any" />
 
