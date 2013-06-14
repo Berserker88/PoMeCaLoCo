@@ -27,6 +27,15 @@ import android.widget.TabHost.OnTabChangeListener;
 public class StartFragment extends Fragment implements CvCameraViewListener2{	
 	
 	public static boolean mScanningComplete = false; 	
+	
+	public static final int ROUND_MODE = 1;
+	public static final int TIMER_MODE = 2;
+	public static final int LEFT_LANE = 1;
+	public static final int RIGHT_LANE = 2;
+	
+	
+	
+	
 	private Context c;
 	public static CameraBridgeViewBase mOpenCvCameraView;
 	ObjectDetector mFrame_to_process;
@@ -128,12 +137,20 @@ public class StartFragment extends Fragment implements CvCameraViewListener2{
             }
         });
 		one_min.setOnClickListener(new View.OnClickListener(){
+			
+			
 
 			@Override
 			public void onClick(View v) {
-				Log.i("debug", "Scroll smoooooth to Race!");
-				((RaceFragmentActivity) getActivity()).getViewPager().setCurrentItem(1);
+				
+				if(){
 					
+				}
+				
+				Player p = new Player(LEFT_LANE,TIMER_MODE, new Scalar(255,0,0,255));
+				Log.i("debug", "Player created ");
+				((RaceFragmentActivity) getActivity()).getViewPager().setCurrentItem(1);
+				Log.i("debug", "Moved to Race!");	
 				
 				
 			}
