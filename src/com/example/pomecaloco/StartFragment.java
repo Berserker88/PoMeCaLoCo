@@ -143,9 +143,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2{
 			@Override
 			public void onClick(View v) {
 				
-				if(){
-					
-				}
+			
 				
 				Player p = new Player(LEFT_LANE,TIMER_MODE, new Scalar(255,0,0,255));
 				Log.i("debug", "Player created ");
