@@ -58,7 +58,10 @@ public class RaceFragmentActivity extends FragmentActivity implements
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (MyViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
+		
+		//Disable the Swipe feature
 		mViewPager.setPagingEnabled(false);
+		
 		// When swiping between different sections, select the corresponding
 		// tab. We can also use ActionBar.Tab#select() to do this if we have
 		// a reference to the Tab.
@@ -115,7 +118,8 @@ public class RaceFragmentActivity extends FragmentActivity implements
 		// When the given tab is selected, switch to the corresponding page in
 		// the ViewPager.
 		
-		mViewPager.setCurrentItem(tab.getPosition());
+		//This would enable the Page seletion via the Tabs. 
+		//mViewPager.setCurrentItem(tab.getPosition());
 	}
 
 	@Override
@@ -204,7 +208,10 @@ public class RaceFragmentActivity extends FragmentActivity implements
 			return textView;
 		}
 	}
-
+	@Override
+	public void onBackPressed() {		
+		android.os.Process.killProcess(android.os.Process.myPid());
+	}
     
 	
 
