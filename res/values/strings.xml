@@ -14,8 +14,7 @@
     <string name="one_min">1 Minute</string>
     <string name="five_mins">5 Minuten</string>
     <string name="ten_mins">10 Minuten</string>
-    <string name="scan_track">Bahn scannen</string>
-    <string name="scan_cars">Fahrzeuge scannen</string>
+    <string name="scan_track">Strecke scannen</string>
     <string name="results">Ergebnisse</string>
        
     
@@ -33,5 +32,8 @@
     <string name="settings_menu_new_race">Neues Rennen</string>
     <string name="race_menu">Rennmenü</string>
     <string name="settings_menu">Einstellungen</string>
+    <string name="scan_cars">Fahrzeuge scannen</string>
+    <string name="complete">Fertig</string>
+    <string name="rescan">Neuer Scan</string>
 
 </resources>

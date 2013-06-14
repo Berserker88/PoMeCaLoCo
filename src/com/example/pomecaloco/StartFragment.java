@@ -18,6 +18,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 
 public class StartFragment extends Fragment implements CvCameraViewListener2{
@@ -46,14 +47,58 @@ public class StartFragment extends Fragment implements CvCameraViewListener2{
 
 		Spinner set_track = (Spinner) v.findViewById(R.id.choose_track);
 		// Create an ArrayAdapter using the string array and a default spinner
-		// layout
-		
+		// layout		
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(c,
 				R.array.tracks, android.R.layout.simple_spinner_item);
 		// Specify the layout to use when the list of choices appears
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		// Apply the adapter to the spinner
 		set_track.setAdapter(adapter);
+		
+		
+		//Adding Layout Buttons to this onCreate to interact with them (fetching and setting data)
+		Button one_lap = (Button) v.findViewById(R.id.one_lap);
+		Button five_laps = (Button) v.findViewById(R.id.five_laps);
+		Button ten_laps = (Button) v.findViewById(R.id.ten_laps);
+		Button one_min = (Button) v.findViewById(R.id.one_min);
+		Button five_mins = (Button) v.findViewById(R.id.five_mins);
+		Button ten_mins = (Button) v.findViewById(R.id.ten_mins);		
+		Button results = (Button) v.findViewById(R.id.results);		
+		final Button scanner = (Button) v.findViewById(R.id.scanner);
+		//Set Scanner- Button Text for first Start
+		scanner.setText(R.string.scan_track);
+		final Button rescan = (Button) v.findViewById(R.id.rescan);
+		rescan.setVisibility(View.GONE);
+		
+		scanner.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if(scanner.getText() == getString(R.string.scan_track)){
+					Log.i("debug", "Track scanned!");					
+					scanner.setText(R.string.scan_cars);
+				}else if(scanner.getText() == getString(R.string.scan_cars)){
+					Log.i("debug", "Cars scanned!");
+					scanner.setEnabled(false);
+					scanner.setText(R.string.complete);
+					Log.i("debug", "Scanning COMPLETED!");
+					rescan.setVisibility(View.VISIBLE);
+				}				
+			}
+		});
+		rescan.setOnClickListener(new View.OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				rescan.setVisibility(View.GONE);
+				scanner.setEnabled(true);
+				scanner.setText(R.string.scan_track);
+				
+				
+			}
+			
+		});
+		
 			
 		return v;
 

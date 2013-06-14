@@ -27,6 +27,7 @@ public class ObjectDetector {
 		//Imgproc.Canny(mRgba, mEdges, 50, 200);
 		Imgproc.cvtColor(mRgba, mHSV, Imgproc.COLOR_BGR2HSV);	
 		Core.inRange(mHSV, lowerLimit, upperLimit, mThreshed);
+		
 		mHSV.release();
 	/*		Imgproc.cvtColor((Mat) inputFrame, mColoredFrame, Imgproc.COLOR_RGB2HSV);
 			Log.i("debug", "Color to HSV");

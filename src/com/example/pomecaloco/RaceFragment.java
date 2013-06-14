@@ -73,8 +73,7 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 		}
 
 		@Override
-		public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-			
+		public Mat onCameraFrame(CvCameraViewFrame inputFrame) {		
 			
 			
 			return inputFrame.rgba();

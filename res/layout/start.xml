@@ -9,7 +9,7 @@
 	    android:id="@+id/choose_track"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
-	    android:layout_alignLeft="@+id/scan_track"
+	    
 	    android:layout_alignParentTop="true"
 	     />
     
@@ -80,6 +80,22 @@
 	    android:textAppearance="?android:attr/textAppearanceLarge" />
 
 	<Button
+	    android:id="@+id/five_laps"
+	    android:layout_width="120dp"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@+id/one_min"
+	    android:layout_toLeftOf="@+id/one_min"
+	    android:text="@string/five_laps" />
+
+	<Button
+	    android:id="@+id/scanner"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@+id/results"
+	    android:layout_centerHorizontal="true"
+	     />
+
+	<Button
 	    android:id="@+id/results"
 	    style="?android:attr/buttonStyleSmall"
 	    android:layout_width="wrap_content"
@@ -89,31 +105,13 @@
 	    android:text="@string/results" />
 
 	<Button
-	    android:id="@+id/scan_cars"
+	    android:id="@+id/rescan"
+	    style="?android:attr/buttonStyleSmall"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
-	    android:layout_alignBaseline="@+id/scan_track"
-	    android:layout_alignBottom="@+id/scan_track"
-	    android:layout_toRightOf="@+id/scan_track"	    
-	    android:text="@string/scan_cars" />
-
-	<Button
-	    android:id="@+id/scan_track"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_marginLeft="20dp"
-	    android:layout_alignParentLeft="true"
-	    android:layout_below="@+id/results"
-	    android:text="@string/scan_track" />
-
-	<Button
-	    android:id="@+id/five_laps"
-	    android:layout_width="120dp"
-	    android:layout_height="wrap_content"
-	    android:layout_below="@+id/one_min"
-	    android:layout_toLeftOf="@+id/one_min"
-	    android:text="@string/five_laps" />
-
-
+	    android:layout_alignBaseline="@+id/scanner"
+	    android:layout_alignBottom="@+id/scanner"
+	    android:layout_alignParentRight="true"
+	    android:text="@string/rescan" />
 
 </RelativeLayout>

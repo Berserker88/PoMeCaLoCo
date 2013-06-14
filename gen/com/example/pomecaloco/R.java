@@ -45,26 +45,26 @@ containing a value of this type.
     public static final class id {
         public static final int any=0x7f040000;
         public static final int back=0x7f040001;
-        public static final int camera_stream_prepare=0x7f04000a;
+        public static final int camera_stream_prepare=0x7f040009;
         public static final int camera_stream_race=0x7f040005;
         public static final int choose_track=0x7f040008;
         public static final int exit=0x7f040015;
-        public static final int five_laps=0x7f04000d;
-        public static final int five_mins=0x7f04000f;
+        public static final int five_laps=0x7f04000c;
+        public static final int five_mins=0x7f04000e;
         public static final int front=0x7f040002;
         public static final int go_to_results=0x7f040004;
         public static final int new_race=0x7f040017;
-        public static final int one_lap=0x7f04000b;
-        public static final int one_min=0x7f04000e;
+        public static final int one_lap=0x7f04000a;
+        public static final int one_min=0x7f04000d;
         public static final int pager=0x7f040003;
         public static final int race_menu=0x7f040014;
+        public static final int rescan=0x7f040013;
         public static final int results=0x7f040012;
-        public static final int scan_cars=0x7f040013;
-        public static final int scan_track=0x7f040009;
+        public static final int scanner=0x7f040011;
         public static final int settings_menu=0x7f040016;
-        public static final int ten_laps=0x7f04000c;
-        public static final int ten_mins=0x7f040010;
-        public static final int textView1=0x7f040011;
+        public static final int ten_laps=0x7f04000b;
+        public static final int ten_mins=0x7f04000f;
+        public static final int textView1=0x7f040010;
         public static final int textView2=0x7f040006;
         public static final int textView3=0x7f040007;
     }
@@ -82,26 +82,28 @@ containing a value of this type.
     }
     public static final class string {
         public static final int app_name=0x7f050000;
+        public static final int complete=0x7f050017;
         public static final int five_laps=0x7f050008;
         public static final int five_mins=0x7f05000b;
-        public static final int go_to_results=0x7f050012;
+        public static final int go_to_results=0x7f050011;
         public static final int hello_world=0x7f050004;
         public static final int menu_settings=0x7f050005;
         public static final int one_lap=0x7f050007;
         public static final int one_min=0x7f05000a;
-        public static final int race_menu=0x7f050015;
-        public static final int race_menu_exit=0x7f050013;
+        public static final int race_menu=0x7f050014;
+        public static final int race_menu_exit=0x7f050012;
         public static final int race_section1=0x7f050003;
         public static final int race_section2=0x7f050002;
         public static final int race_section3=0x7f050001;
         public static final int racemode=0x7f050006;
-        public static final int results=0x7f05000f;
-        public static final int scan_cars=0x7f05000e;
+        public static final int rescan=0x7f050018;
+        public static final int results=0x7f05000e;
+        public static final int scan_cars=0x7f050016;
         public static final int scan_track=0x7f05000d;
-        public static final int settings_menu=0x7f050016;
-        public static final int settings_menu_new_race=0x7f050014;
-        public static final int settings_section1=0x7f050010;
-        public static final int settings_section2=0x7f050011;
+        public static final int settings_menu=0x7f050015;
+        public static final int settings_menu_new_race=0x7f050013;
+        public static final int settings_section1=0x7f05000f;
+        public static final int settings_section2=0x7f050010;
         public static final int ten_laps=0x7f050009;
         public static final int ten_mins=0x7f05000c;
     }
