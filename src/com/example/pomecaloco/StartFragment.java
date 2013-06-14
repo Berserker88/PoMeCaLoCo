@@ -9,7 +9,9 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 
+import android.app.ActionBar;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -20,11 +22,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TabHost.OnTabChangeListener;
 
-public class StartFragment extends Fragment implements CvCameraViewListener2{
+public class StartFragment extends Fragment implements CvCameraViewListener2{	
 	
-	
-
+	public static boolean mScanningComplete = false; 	
 	private Context c;
 	public static CameraBridgeViewBase mOpenCvCameraView;
 	ObjectDetector mFrame_to_process;
@@ -57,21 +59,30 @@ public class StartFragment extends Fragment implements CvCameraViewListener2{
 		
 		
 		//Adding Layout Buttons to this onCreate to interact with them (fetching and setting data)
-		Button one_lap = (Button) v.findViewById(R.id.one_lap);
-		Button five_laps = (Button) v.findViewById(R.id.five_laps);
-		Button ten_laps = (Button) v.findViewById(R.id.ten_laps);
-		Button one_min = (Button) v.findViewById(R.id.one_min);
-		Button five_mins = (Button) v.findViewById(R.id.five_mins);
-		Button ten_mins = (Button) v.findViewById(R.id.ten_mins);		
-		Button results = (Button) v.findViewById(R.id.results);		
+		final Button one_lap = (Button) v.findViewById(R.id.one_lap);		
+		final Button five_laps = (Button) v.findViewById(R.id.five_laps);		
+		final Button ten_laps = (Button) v.findViewById(R.id.ten_laps);		
+		final Button one_min = (Button) v.findViewById(R.id.one_min);		
+		final Button five_mins = (Button) v.findViewById(R.id.five_mins);		
+		final Button ten_mins = (Button) v.findViewById(R.id.ten_mins);	
+		//Making these Button disables so user can't interact with them before scanning is complete.
+		one_lap.setEnabled(false);
+		five_laps.setEnabled(false);
+		ten_laps.setEnabled(false);
+		one_min.setEnabled(false);
+		five_mins.setEnabled(false);
+		ten_mins.setEnabled(false);
+		
+		final Button results = (Button) v.findViewById(R.id.results);		
 		final Button scanner = (Button) v.findViewById(R.id.scanner);
+
 		//Set Scanner- Button Text for first Start
 		scanner.setText(R.string.scan_track);
 		final Button rescan = (Button) v.findViewById(R.id.rescan);
 		rescan.setVisibility(View.GONE);
 		
 		scanner.setOnClickListener(new View.OnClickListener() {
-			
+	
 			@Override
 			public void onClick(View v) {
 				if(scanner.getText() == getString(R.string.scan_track)){
@@ -81,7 +92,14 @@ public class StartFragment extends Fragment implements CvCameraViewListener2{
 					Log.i("debug", "Cars scanned!");
 					scanner.setEnabled(false);
 					scanner.setText(R.string.complete);
+					mScanningComplete = true;
 					Log.i("debug", "Scanning COMPLETED!");
+					one_lap.setEnabled(true);
+					five_laps.setEnabled(true);
+					ten_laps.setEnabled(true);
+					one_min.setEnabled(true);
+					five_mins.setEnabled(true);
+					ten_mins.setEnabled(true);
 					rescan.setVisibility(View.VISIBLE);
 				}				
 			}
@@ -92,13 +110,35 @@ public class StartFragment extends Fragment implements CvCameraViewListener2{
 			public void onClick(View v) {
 				rescan.setVisibility(View.GONE);
 				scanner.setEnabled(true);
-				scanner.setText(R.string.scan_track);
+				mScanningComplete = false;
+				one_lap.setEnabled(false);
+				five_laps.setEnabled(false);
+				ten_laps.setEnabled(false);
+				one_min.setEnabled(false);
+				five_mins.setEnabled(false);
+				ten_mins.setEnabled(false);
+				scanner.setText(R.string.scan_track);				
+			}			
+		});
+		results.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	Intent myIntent = new Intent(c, SettingsFragmentActivity.class);     
+            	getActivity().finish();
+            	getActivity().startActivity(myIntent);            	
+            }
+        });
+		one_min.setOnClickListener(new View.OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				Log.i("debug", "Scroll smoooooth to Race!");
+				((RaceFragmentActivity) getActivity()).getViewPager().setCurrentItem(1);
+					
 				
 				
 			}
 			
 		});
-		
 			
 		return v;
 
