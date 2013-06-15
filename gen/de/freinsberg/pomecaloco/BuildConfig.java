@@ -1,5 +1,5 @@
 /** Automatically generated file. DO NOT MODIFY */
-package com.example.pomecaloco;
+package de.freinsberg.pomecaloco;
 
 public final class BuildConfig {
     public final static boolean DEBUG = true;

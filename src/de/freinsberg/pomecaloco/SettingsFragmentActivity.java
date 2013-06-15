@@ -2,7 +2,7 @@ package de.freinsberg.pomecaloco;
 
 
 
-import com.example.pomecaloco.R;
+
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;

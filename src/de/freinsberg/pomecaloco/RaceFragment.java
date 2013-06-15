@@ -7,9 +7,6 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.core.Mat;
-
-import com.example.pomecaloco.R;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package com.example.pomecaloco;
+package de.freinsberg.pomecaloco;
 
 public final class R {
     public static final class array {
@@ -145,8 +145,8 @@ containing a value of this type.
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #CameraBridgeViewBase_camera_id com.example.pomecaloco:camera_id}</code></td><td></td></tr>
-           <tr><td><code>{@link #CameraBridgeViewBase_show_fps com.example.pomecaloco:show_fps}</code></td><td></td></tr>
+           <tr><td><code>{@link #CameraBridgeViewBase_camera_id de.freinsberg.pomecaloco:camera_id}</code></td><td></td></tr>
+           <tr><td><code>{@link #CameraBridgeViewBase_show_fps de.freinsberg.pomecaloco:show_fps}</code></td><td></td></tr>
            </table>
            @see #CameraBridgeViewBase_camera_id
            @see #CameraBridgeViewBase_show_fps
@@ -155,7 +155,7 @@ containing a value of this type.
             0x7f010000, 0x7f010001
         };
         /**
-          <p>This symbol is the offset where the {@link com.example.pomecaloco.R.attr#camera_id}
+          <p>This symbol is the offset where the {@link de.freinsberg.pomecaloco.R.attr#camera_id}
           attribute's value can be found in the {@link #CameraBridgeViewBase} array.
 
 
@@ -179,7 +179,7 @@ containing a value of this type.
         */
         public static final int CameraBridgeViewBase_camera_id = 1;
         /**
-          <p>This symbol is the offset where the {@link com.example.pomecaloco.R.attr#show_fps}
+          <p>This symbol is the offset where the {@link de.freinsberg.pomecaloco.R.attr#show_fps}
           attribute's value can be found in the {@link #CameraBridgeViewBase} array.
 
 

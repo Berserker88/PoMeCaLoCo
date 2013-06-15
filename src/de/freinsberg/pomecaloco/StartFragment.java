@@ -8,9 +8,6 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
-
-import com.example.pomecaloco.R;
-
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
@@ -143,18 +140,12 @@ public class StartFragment extends Fragment implements CvCameraViewListener2{
 			
 
 			@Override
-			public void onClick(View v) {
-				
-			
-				
+			public void onClick(View v) {				
 				Player p = new Player(LEFT_LANE,TIMER_MODE, new Scalar(255,0,0,255));
 				Log.i("debug", "Player created ");
 				((RaceFragmentActivity) getActivity()).getViewPager().setCurrentItem(1);
-				Log.i("debug", "Moved to Race!");	
-				
-				
-			}
-			
+				Log.i("debug", "Moved to Race!");					
+			}			
 		});
 			
 		return v;
@@ -195,7 +186,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2{
 		
 		mFrame_to_process = new ObjectDetector(inputFrame);
 		
-		return mFrame_to_process.draw_colorrange_on_frame(new Scalar(0,0,0,100), new Scalar(100,100,100,255));
+		return mFrame_to_process.draw_colorrange_on_frame(((RaceFragmentActivity) getActivity()).getDisplay(), new Scalar(0,0,0,100), new Scalar(100,100,100,255));
 	}
 	@Override
 	public void onResume() {

@@ -1,7 +1,5 @@
 package de.freinsberg.pomecaloco;
 
-import com.example.pomecaloco.R;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;

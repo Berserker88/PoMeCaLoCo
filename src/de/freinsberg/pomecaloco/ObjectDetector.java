@@ -4,10 +4,19 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-public class ObjectDetector {
+import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.Display;
+
+
+public class ObjectDetector{
 	
+	private static final int ORIENTATION_0 = 0;
+	private static final int ORIENTATION_90 = 90;
+	private static final int ORIENTATION_270 = 270;
 	private CvCameraViewFrame inputFrame;	
 	private Mat mRgba, mHSV, mEdges, removed_track_overlay;
 	
@@ -16,9 +25,47 @@ public class ObjectDetector {
 		
 	}
 	
-	public Mat draw_colorrange_on_frame (Scalar lowerLimit, Scalar upperLimit){
+	private Mat correct_rotation(Display d, Mat m){
+		Log.i("debug", "Jetzt wird rotiert!");
+		Mat gray = new Mat(m.size(), m.type());
+		Mat rotated = new Mat();
+		
+		Imgproc.cvtColor(m, gray, Imgproc.COLOR_RGB2GRAY);
+
+		Log.i("debug", "Found rotation: "+d.getRotation());
+	    int screenOrientation = d.getRotation();
+	    switch (screenOrientation){
+	        default:
+	        case ORIENTATION_0: // Portrait	
+	        	Log.i("debug", "Original Channels: "+m.channels());
+	        	Log.i("debug", "Original Size: "+m.size().toString());
+	        	Log.i("debug", "Original Type: "+m.type());
+	        	Log.i("debug", "Grayscale Channels: "+gray.channels());
+	        	Log.i("debug", "Grayscale Size: "+gray.size().toString());
+	        	Log.i("debug", "Grayscale Type: "+gray.type());
+	            Core.flip(gray.t(), gray, 1);
+	            Log.i("debug", "Grayscale after transpose Channels: "+gray.channels());
+	        	Log.i("debug", "Grayscale after transpose Size: "+gray.size().toString());
+	        	Log.i("debug", "Grayscale after transpose Type: "+gray.type());
+	            Imgproc.cvtColor(gray, rotated, Imgproc.COLOR_GRAY2RGB, 4);
+	        	Log.i("debug", "Rotated after cvt Channels: "+rotated.channels());
+	        	Log.i("debug", "Rotated after cvt Size: "+rotated.size().toString());
+	        	Log.i("debug", "Rotated after cvt Type: "+rotated.type());
+	            Log.i("debug", "to Portrait");
+	            break;
+	        case ORIENTATION_90: // Landscape right
+	            // do smth.
+	            break;
+	        case ORIENTATION_270: // Landscape left
+	            // do smth.
+	            break;
+	    }
+	    return m;
+	}
+		
+	public Mat draw_colorrange_on_frame (Display d, Scalar lowerLimit, Scalar upperLimit){
 		//Log.i("debug", "onCameraFrame");
-		mRgba = inputFrame.rgba();
+		mRgba = correct_rotation(d, inputFrame.rgba());
 		Mat mThreshed = new Mat(mRgba.size(),mRgba.type());
 		//Log.i("debug",Integer.toString(mRgba.cols()));
 		//Core.line(mRgba, new Point(10,10), new Point(200,200), new Scalar(255, 0, 0, 255));

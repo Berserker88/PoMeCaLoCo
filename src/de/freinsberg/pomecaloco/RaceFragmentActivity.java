@@ -1,5 +1,5 @@
 package de.freinsberg.pomecaloco;
-import com.example.pomecaloco.R;
+
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -105,6 +106,10 @@ public class RaceFragmentActivity extends FragmentActivity implements
 	//getter to make my Fragments use the Pager to control movement between tabs.
 	public MyViewPager getViewPager(){
 		return mViewPager;
+	}
+	public Display getDisplay(){
+		Display display = ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+		return display;
 	}
 	
 	@Override
