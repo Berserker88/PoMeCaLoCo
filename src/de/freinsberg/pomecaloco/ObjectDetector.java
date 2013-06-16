@@ -27,17 +27,17 @@ public class ObjectDetector{
 	
 	private Mat correct_rotation(Display d, Mat m){
 		Log.i("debug", "Jetzt wird rotiert!");
-		Mat gray = new Mat(m.size(), m.type());
-		Mat rotated = new Mat();
+		//Mat gray = new Mat(m.size(), m.type());
+		Mat rotated = new Mat(new Size(m.rows(),m.cols()), m.type());
 		
-		Imgproc.cvtColor(m, gray, Imgproc.COLOR_RGB2GRAY);
+		//Imgproc.cvtColor(m, gray, Imgproc.COLOR_RGB2GRAY);
 
 		Log.i("debug", "Found rotation: "+d.getRotation());
 	    int screenOrientation = d.getRotation();
 	    switch (screenOrientation){
 	        default:
 	        case ORIENTATION_0: // Portrait	
-	        	Log.i("debug", "Original Channels: "+m.channels());
+	        	/*Log.i("debug", "Original Channels: "+m.channels());
 	        	Log.i("debug", "Original Size: "+m.size().toString());
 	        	Log.i("debug", "Original Type: "+m.type());
 	        	Log.i("debug", "Grayscale Channels: "+gray.channels());
@@ -50,8 +50,13 @@ public class ObjectDetector{
 	            Imgproc.cvtColor(gray, rotated, Imgproc.COLOR_GRAY2RGB, 4);
 	        	Log.i("debug", "Rotated after cvt Channels: "+rotated.channels());
 	        	Log.i("debug", "Rotated after cvt Size: "+rotated.size().toString());
-	        	Log.i("debug", "Rotated after cvt Type: "+rotated.type());
+	        	Log.i("debug", "Rotated after cvt Type: "+rotated.type());*/
+	        	
+	            Log.i("debug", "Depth: "+m.depth()+ "Height: "+m.height()+"Width: "+m.width());
+	            Core.flip(m.t(), rotated, 1);
+	            Log.i("debug", "Depth: "+rotated.depth()+ "Height: "+rotated.height()+"Width: "+rotated.width());
 	            Log.i("debug", "to Portrait");
+	            rotated.release();
 	            break;
 	        case ORIENTATION_90: // Landscape right
 	            // do smth.
@@ -72,7 +77,7 @@ public class ObjectDetector{
 		mEdges = new Mat(mRgba.size(),mRgba.type());
 		mHSV = new Mat(mRgba.size(),mRgba.type());	
 		//Imgproc.Canny(mRgba, mEdges, 50, 200);
-		Imgproc.cvtColor(mRgba, mHSV, Imgproc.COLOR_BGR2HSV);	
+		Imgproc.cvtColor(mRgba, mHSV, Imgproc.COLOR_RGB2HSV);	
 		Core.inRange(mHSV, lowerLimit, upperLimit, mThreshed);
 		
 		mHSV.release();
