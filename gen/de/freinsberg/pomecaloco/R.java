@@ -9,7 +9,7 @@ package de.freinsberg.pomecaloco;
 
 public final class R {
     public static final class array {
-        public static final int tracks=0x7f060000;
+        public static final int tracks=0x7f070000;
     }
     public static final class attr {
         /** <p>May be an integer value, such as "<code>100</code>".
@@ -39,42 +39,52 @@ containing a value of this type.
          */
         public static final int show_fps=0x7f010000;
     }
+    public static final class color {
+        public static final int dummy_gray=0x7f050000;
+        public static final int loosing_red=0x7f050002;
+        public static final int winning_green=0x7f050001;
+    }
     public static final class drawable {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
         public static final int any=0x7f040000;
         public static final int back=0x7f040001;
-        public static final int best_time=0x7f04000f;
-        public static final int camera_stream_prepare=0x7f040013;
+        public static final int best_time=0x7f040012;
+        public static final int best_time_updater=0x7f040013;
+        public static final int camera_stream_prepare=0x7f040018;
         public static final int camera_stream_race=0x7f040006;
-        public static final int choose_track=0x7f040012;
-        public static final int exit=0x7f04001e;
+        public static final int choose_track=0x7f040017;
+        public static final int exit=0x7f040023;
         public static final int faster=0x7f040007;
-        public static final int five_laps=0x7f040016;
-        public static final int five_mins=0x7f040018;
+        public static final int five_laps=0x7f04001b;
+        public static final int five_mins=0x7f04001d;
         public static final int front=0x7f040002;
         public static final int go_to_results=0x7f040004;
-        public static final int new_race=0x7f040020;
-        public static final int one_lap=0x7f040014;
-        public static final int one_min=0x7f040017;
+        public static final int manual_end_race=0x7f040014;
+        public static final int new_race=0x7f040025;
+        public static final int one_lap=0x7f040019;
+        public static final int one_min=0x7f04001c;
         public static final int pager=0x7f040003;
-        public static final int race_menu=0x7f04001d;
-        public static final int raceview_round=0x7f04000b;
-        public static final int raceview_speed=0x7f04000d;
+        public static final int race_menu=0x7f040022;
+        public static final int raceview_round=0x7f04000d;
+        public static final int raceview_round_updater=0x7f04000e;
+        public static final int raceview_speed=0x7f040010;
+        public static final int raceview_speed_updater=0x7f040011;
         public static final int raceview_time=0x7f040009;
-        public static final int rescan=0x7f04001c;
-        public static final int results=0x7f04001b;
-        public static final int round_speed_separator=0x7f04000c;
-        public static final int scanner=0x7f04001a;
-        public static final int settings_menu=0x7f04001f;
+        public static final int raceview_time_updater=0x7f04000a;
+        public static final int rescan=0x7f040021;
+        public static final int results=0x7f040020;
+        public static final int round_speed_separator=0x7f04000f;
+        public static final int scanner=0x7f04001f;
+        public static final int settings_menu=0x7f040024;
         public static final int slower=0x7f040008;
-        public static final int ten_laps=0x7f040015;
-        public static final int ten_mins=0x7f040019;
-        public static final int textView2=0x7f040010;
-        public static final int textView3=0x7f040011;
-        public static final int time_round_separator=0x7f04000a;
-        public static final int value_separator=0x7f04000e;
+        public static final int ten_laps=0x7f04001a;
+        public static final int ten_mins=0x7f04001e;
+        public static final int textView2=0x7f040015;
+        public static final int textView3=0x7f040016;
+        public static final int time_round_separator=0x7f04000c;
+        public static final int value_separator=0x7f04000b;
         public static final int view1=0x7f040005;
     }
     public static final class layout {
@@ -86,41 +96,46 @@ containing a value of this type.
         public static final int start=0x7f030005;
     }
     public static final class menu {
-        public static final int race_menu=0x7f080000;
-        public static final int settings_menu=0x7f080001;
+        public static final int race_menu=0x7f090000;
+        public static final int settings_menu=0x7f090001;
     }
     public static final class string {
-        public static final int app_name=0x7f050000;
-        public static final int best_time=0x7f05001e;
-        public static final int complete=0x7f050017;
-        public static final int faster=0x7f050019;
-        public static final int five_laps=0x7f050008;
-        public static final int five_mins=0x7f05000b;
-        public static final int go_to_results=0x7f050011;
-        public static final int hello_world=0x7f050004;
-        public static final int menu_settings=0x7f050005;
-        public static final int one_lap=0x7f050007;
-        public static final int one_min=0x7f05000a;
-        public static final int race_menu=0x7f050014;
-        public static final int race_menu_exit=0x7f050012;
-        public static final int race_section1=0x7f050003;
-        public static final int race_section2=0x7f050002;
-        public static final int race_section3=0x7f050001;
-        public static final int racemode=0x7f050006;
-        public static final int raceview_round=0x7f05001c;
-        public static final int raceview_speed=0x7f05001d;
-        public static final int raceview_time=0x7f05001b;
-        public static final int rescan=0x7f050018;
-        public static final int results=0x7f05000e;
-        public static final int scan_cars=0x7f050016;
-        public static final int scan_track=0x7f05000d;
-        public static final int settings_menu=0x7f050015;
-        public static final int settings_menu_new_race=0x7f050013;
-        public static final int settings_section1=0x7f05000f;
-        public static final int settings_section2=0x7f050010;
-        public static final int slower=0x7f05001a;
-        public static final int ten_laps=0x7f050009;
-        public static final int ten_mins=0x7f05000c;
+        public static final int app_name=0x7f060000;
+        public static final int best_time=0x7f06001e;
+        public static final int best_time_updater=0x7f060022;
+        public static final int complete=0x7f060017;
+        public static final int faster=0x7f060019;
+        public static final int five_laps=0x7f060008;
+        public static final int five_mins=0x7f06000b;
+        public static final int go_to_results=0x7f060011;
+        public static final int hello_world=0x7f060004;
+        public static final int manual_end_race=0x7f060023;
+        public static final int menu_settings=0x7f060005;
+        public static final int one_lap=0x7f060007;
+        public static final int one_min=0x7f06000a;
+        public static final int race_menu=0x7f060014;
+        public static final int race_menu_exit=0x7f060012;
+        public static final int race_section1=0x7f060003;
+        public static final int race_section2=0x7f060002;
+        public static final int race_section3=0x7f060001;
+        public static final int racemode=0x7f060006;
+        public static final int raceview_round=0x7f06001c;
+        public static final int raceview_round_updater=0x7f060020;
+        public static final int raceview_speed=0x7f06001d;
+        public static final int raceview_speed_updater=0x7f060021;
+        public static final int raceview_time=0x7f06001b;
+        public static final int raceview_time_updater=0x7f06001f;
+        public static final int rescan=0x7f060018;
+        public static final int results=0x7f06000e;
+        public static final int scan_cars=0x7f060016;
+        public static final int scan_track=0x7f06000d;
+        public static final int settings_menu=0x7f060015;
+        public static final int settings_menu_new_race=0x7f060013;
+        public static final int settings_section1=0x7f06000f;
+        public static final int settings_section2=0x7f060010;
+        public static final int slower=0x7f06001a;
+        public static final int ten_laps=0x7f060009;
+        public static final int ten_mins=0x7f06000c;
     }
     public static final class style {
         /** 
@@ -144,11 +159,11 @@ containing a value of this type.
     
  API 14 theme customizations can go here. 
          */
-        public static final int AppBaseTheme=0x7f070000;
+        public static final int AppBaseTheme=0x7f080000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f070001;
+        public static final int AppTheme=0x7f080001;
     }
     public static final class styleable {
         /** Attributes that can be used with a CameraBridgeViewBase.

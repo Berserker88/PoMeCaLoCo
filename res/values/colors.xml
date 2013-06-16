@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+   <color name="dummy_gray">#ffb5b5b5</color>
+   <color name="winning_green">#ff02b005</color>
+   <color name="loosing_red">#ffe63939</color>
+</resources>

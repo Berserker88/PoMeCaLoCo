@@ -31,6 +31,9 @@ public class StartFragment extends Fragment implements CvCameraViewListener2{
 	public static final int TIMER_MODE = 2;
 	public static final int LEFT_LANE = 1;
 	public static final int RIGHT_LANE = 2;
+	final public static int PREPARE_RACE = 0;
+	final public static int RACE = 1;
+	final public static int END_RACE = 2;
 	
 	
 	
@@ -143,7 +146,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2{
 			public void onClick(View v) {				
 				Player p = new Player(LEFT_LANE,TIMER_MODE, new Scalar(255,0,0,255));
 				Log.i("debug", "Player created ");
-				((RaceFragmentActivity) getActivity()).getViewPager().setCurrentItem(1);
+				((RaceFragmentActivity) getActivity()).getViewPager().setCurrentItem(RACE);
 				Log.i("debug", "Moved to Race!");					
 			}			
 		});

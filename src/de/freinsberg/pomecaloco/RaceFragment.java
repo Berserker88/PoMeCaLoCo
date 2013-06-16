@@ -14,12 +14,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 public class RaceFragment extends Fragment implements CvCameraViewListener2{
 	
-	
-		
+		final public static int PREPARE_RACE = 0;
+		final public static int RACE = 1;
+		final public static int END_RACE = 2;
 		private Context c;
 		public static CameraBridgeViewBase mOpenCvCameraView;
 		
@@ -29,14 +32,24 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 				Bundle savedInstanceState) {
 			c = RaceFragmentActivity.mContext;
 			View v = inflater.inflate(R.layout.race, null);
-			
-
 			mOpenCvCameraView = (CameraBridgeViewBase) v
-					.findViewById(R.id.camera_stream_race);		
-			
+					.findViewById(R.id.camera_stream_race);					
 				mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);		
 			mOpenCvCameraView.setCvCameraViewListener(this);
 			Log.i("debug", "setCVCameraViewListener for Race properly");	
+			
+			//Making View and Button from XML-View adjustable via Java Code
+			
+			Button manual_end_race = (Button) v.findViewById(R.id.manual_end_race);
+			
+			manual_end_race.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					Log.i("debug", "go to end race manually");
+					((RaceFragmentActivity) getActivity()).getViewPager().setCurrentItem(END_RACE);
+				}
+			});
 			
 				
 			return v;
@@ -102,6 +115,8 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 				}
 			}
 		};
+		
+		
 	}
 	
 
