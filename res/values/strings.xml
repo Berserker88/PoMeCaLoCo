@@ -35,5 +35,11 @@
     <string name="scan_cars">Fahrzeuge scannen</string>
     <string name="complete">Fertig</string>
     <string name="rescan">Neuer Scan</string>
+    <string name="faster">Schneller</string>
+    <string name="slower">Langsamer</string>
+    <string name="raceview_time">Zeit</string>
+    <string name="raceview_round">Runde</string>
+    <string name="raceview_speed">Speed</string>
+    <string name="best_time">Schnellste Runde</string>
 
 </resources>

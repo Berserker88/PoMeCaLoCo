@@ -71,7 +71,7 @@
 	    android:text="@string/ten_mins" />
 
 	<TextView
-	    android:id="@+id/textView1"
+	    android:id="@+id/best_time"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_above="@+id/one_lap"
