@@ -38,7 +38,7 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 			mOpenCvCameraView.setCvCameraViewListener(this);
 			Log.i("debug", "setCVCameraViewListener for Race properly");	
 			
-			//Making View and Button from XML-View adjustable via Java Code
+			//Making Views and Buttons from XML-View accessible via Java Code
 			
 			Button manual_end_race = (Button) v.findViewById(R.id.manual_end_race);
 			
