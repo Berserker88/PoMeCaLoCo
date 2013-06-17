@@ -47,5 +47,23 @@
     <string name="best_time_updater">*00.00.00*</string>
     <string name="manual_end_race">Manuelles Rennende</string>
     <string name="new_race">Neues Rennen</string>
+    <string name="finish_heading">heading</string>
+    <string name="finish_track">Strecke</string>
+    <string name="finish_mode">Spielmodus</string>
+    <string name="finish_new_record">Neuer Rekord!!</string>
+    <string name="attemp">Versuch</string>
+    <string name="finish_meters">gefahrene Meter</string>
+    <string name="finish_roundmode_fastest">Schnellste Runde</string>
+    <string name="finish_roundmode_avg_speed">Ø km/h</string>
+    <string name="finish_roundmode_driven_time">Gesamtzeit</string>
+    <string name="finish_timemode_driven_rounds">vollendete Runden</string>
+    <string name="finish_track_view">track</string>
+    <string name="finish_mode_view">mode</string>
+    <string name="finish_attempt_view">attempt</string>
+    <string name="finish_meters_view">driven meters</string>
+    <string name="finish_fastest_view">fastest round</string>
+    <string name="finish_avg_speed_view">avg. speed</string>
+    <string name="finish_timemode_driven_rounds_view">driven rounds</string>
+    <string name="finish_roundmode_driven_time_view">whole time</string>
 
 </resources>
