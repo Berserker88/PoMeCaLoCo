@@ -14,6 +14,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +23,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Chronometer;
+import android.widget.Chronometer.OnChronometerTickListener;
 import android.widget.TextView;
 
 public class RaceFragment extends Fragment implements CvCameraViewListener2{
@@ -30,7 +33,11 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 		final public static int RACE = 1;
 		final public static int END_RACE = 2;
 		private Context c;		
-		private CountDownTimer mCountdown_updater;
+		private MyTimer mCountdown_updater;
+		private Chronometer mCountup_updater;
+		private TextView race_time_updater;
+		private long mSystem_time;
+		private long mUp_counter;
 		private int mCountdown;		
 		private Race race;
 		private List<String> countdown = new ArrayList<String>();
@@ -48,52 +55,40 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 				mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);		
 			mOpenCvCameraView.setCvCameraViewListener(this);
 			Log.i("debug", "setCVCameraViewListener for Race properly");
+			
+			
 			final TextView race_countdown = (TextView) v.findViewById(R.id.race_countdown);
 			countdown.add("3");
 			countdown.add("2");
 			countdown.add("1");	
 			countdown.add("Los!!!!!");
 			mCountdown = 0;
-			mCountdown_updater = new CountDownTimer(6000, 1000) {
+			mCountdown_updater = new MyTimer(6000, 1000, countdown, race_countdown);
+			
+			
+			race_time_updater = (TextView) v.findViewById(R.id.raceview_time_updater);
+			race_time_updater.setTextColor(getResources().getColor(R.color.winning_green));
+			mCountup_updater = (Chronometer) v.findViewById(R.id.raceview_chronometer);
+			
+			
+			mSystem_time = SystemClock.elapsedRealtime();
+			
+			mCountup_updater.setOnChronometerTickListener(new OnChronometerTickListener() {
 				
 				@Override
-				public void onTick(long millisUntilFinished) {
-						Log.i("debug", "Size: "+countdown.size()+", Counter: "+mCountdown);
-						if(mCountdown >= countdown.size()) {
-							onFinish();
-							return;
-						}
-						race_countdown.setTextColor(getResources().getColor(R.color.winning_green));
-						race_countdown.setText(countdown.get(mCountdown));						
-						mCountdown++;
-						
-				}
-				
-				@Override
-				public void onFinish() {
-					race_countdown.setText(" Fertig!");
+				public void onChronometerTick(Chronometer chronometer) {
 					
-				}				
-			};
+					mUp_counter = (SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000;
+					race_time_updater.setText((mUp_counter % 60) + ":" + (mUp_counter % 3600));
+					
+				}
+			});
+			mCountup_updater.start();
+			
+	
 			
 			
-//			mCountdown_updater = new GUIUpdater(new Runnable() {
-//				
-//				@Override
-//				public void run() {
-//					
-//					if(mCountdown < countdown.size()){
-//					race_countdown.setText(countdown.get(mCountdown));
-//					mCountdown++;
-//					}
-//					else
-//					{
-//						race_countdown.setText(" Fertig!");
-//					}
-//					
-//				}
-//			});
-//			mCountdown_updater.startUpdates();
+			
 			
 			//Making Views and Buttons from XML-View accessible via Java Code
 			
@@ -106,14 +101,9 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 					Log.i("debug", "go to end race manually");
 					((RaceFragmentActivity) getActivity()).getViewPager().setCurrentItem(END_RACE);
 				}
-			});
-			
-				
+			});				
 			return v;
-
-		}
-		
-		
+		}				
 		@Override
 		public void onPause() {
 			super.onPause();
@@ -177,6 +167,7 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 		};
 		
 		public void startCountdown(){
+			mCountdown = 0;
 			mCountdown_updater.start();
 		}
 		

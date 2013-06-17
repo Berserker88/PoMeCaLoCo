@@ -4,4 +4,5 @@
    <color name="winning_green">#ff02b005</color>
    <color name="loosing_red">#ffe63939</color>
    <color name="record_yellow">#FFF7F300</color>
+   <color name="white">#FFFFFFFF</color>
 </resources>
