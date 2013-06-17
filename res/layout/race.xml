@@ -72,7 +72,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/camera_stream_race"
         android:layout_alignLeft="@+id/value_separator"
-        android:layout_marginLeft="5dp"
+        android:layout_marginLeft="10dp"
         android:text="@string/raceview_time_updater"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/dummy_gray"
@@ -107,7 +107,7 @@
         android:layout_below="@+id/raceview_time"
         android:layout_alignLeft="@+id/value_separator"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="5dp"
+        android:layout_marginLeft="10dp"
         android:text="@string/raceview_round_updater"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/dummy_gray"
@@ -141,7 +141,7 @@
         android:layout_below="@+id/raceview_round"
         android:layout_alignLeft="@+id/value_separator"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="5dp"
+        android:layout_marginLeft="10dp"
         android:text="@string/raceview_speed_updater"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/dummy_gray"
@@ -183,5 +183,15 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:text="@string/manual_end_race" />
+
+    <TextView
+        android:id="@+id/race_countdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="@string/race_countdown"
+        android:textColor="@color/dummy_gray"
+        android:textSize="50sp" />
 
 </RelativeLayout>

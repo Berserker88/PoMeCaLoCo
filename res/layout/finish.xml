@@ -152,6 +152,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/finish_track"
         android:layout_alignLeft="@+id/results_separator"
+        android:layout_marginLeft="10dp"
         android:text="@string/finish_track_view"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/dummy_gray" />
@@ -162,6 +163,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/finish_mode"
         android:layout_alignLeft="@+id/results_separator"
+        android:layout_marginLeft="10dp"
         android:text="@string/finish_mode_view"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/dummy_gray" />
@@ -172,6 +174,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/finish_attempt"
         android:layout_alignLeft="@+id/results_separator"
+        android:layout_marginLeft="10dp"
         android:text="@string/finish_attempt_view"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/dummy_gray" />
@@ -182,6 +185,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/finish_meters"
         android:layout_alignLeft="@+id/results_separator"
+        android:layout_marginLeft="10dp"
         android:text="@string/finish_meters_view"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/dummy_gray" />
@@ -192,6 +196,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/finish_fastest"
         android:layout_alignLeft="@+id/results_separator"
+        android:layout_marginLeft="10dp"
         android:text="@string/finish_fastest_view"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/dummy_gray" />
@@ -202,6 +207,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/finish_avg_speed"
         android:layout_alignLeft="@+id/results_separator"
+        android:layout_marginLeft="10dp"
         android:text="@string/finish_avg_speed_view"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/dummy_gray" />
@@ -213,6 +219,7 @@
         android:layout_alignBaseline="@+id/finish_timemode_driven_rounds"
         android:layout_alignBottom="@+id/finish_timemode_driven_rounds"
         android:layout_alignLeft="@+id/results_separator"
+        android:layout_marginLeft="10dp"
         android:visibility="invisible"
         android:text="@string/finish_timemode_driven_rounds_view"
         android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -224,6 +231,7 @@
         android:layout_alignBaseline="@+id/finish_timemode_driven_rounds"
         android:layout_alignBottom="@+id/finish_timemode_driven_rounds"
         android:layout_alignLeft="@+id/results_separator"
+        android:layout_marginLeft="10dp"
         android:visibility="invisible"
         android:text="@string/finish_roundmode_driven_time_view"
         android:textAppearance="?android:attr/textAppearanceLarge" />

@@ -65,5 +65,10 @@
     <string name="finish_avg_speed_view">avg. speed</string>
     <string name="finish_timemode_driven_rounds_view">driven rounds</string>
     <string name="finish_roundmode_driven_time_view">whole time</string>
+    <string-array name="racemodes">
+        <item >Rundenrennen</item>
+        <item >Zeitfahren</item>
+    </string-array>
+    <string name="race_countdown">countdown</string>
 
 </resources>
