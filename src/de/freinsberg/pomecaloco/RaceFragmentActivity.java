@@ -1,6 +1,8 @@
 package de.freinsberg.pomecaloco;
 
 
+import java.util.Locale;
+
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -23,6 +25,7 @@ import android.widget.TextView;
 
 public class RaceFragmentActivity extends FragmentActivity implements
 		ActionBar.TabListener {
+	
 	public static Context mContext;
 	
 	/**
@@ -33,21 +36,19 @@ public class RaceFragmentActivity extends FragmentActivity implements
 	 * intensive, it may be best to switch to a
 	 * {@link android.support.v4.app.FragmentStatePagerAdapter}.
 	 */
-	SectionsPagerAdapter mSectionsPagerAdapter;
-	
+	SectionsPagerAdapter mSectionsPagerAdapter;	
 
 	/**
 	 * The {@link ViewPager} that will host the section contents.
 	 */
-	public MyViewPager mViewPager;
+	public MyViewPager mMyViewPager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_main);
-		mContext = getApplicationContext();
-	     
+		mContext = getApplicationContext();	     
 
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
@@ -55,20 +56,19 @@ public class RaceFragmentActivity extends FragmentActivity implements
 
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the app.
-		mSectionsPagerAdapter = new SectionsPagerAdapter(
-				this, getSupportFragmentManager());
+		mSectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
 
 		// Set up the ViewPager with the sections adapter.
-		mViewPager = (MyViewPager) findViewById(R.id.pager);
-		mViewPager.setAdapter(mSectionsPagerAdapter);
+		mMyViewPager = (MyViewPager) findViewById(R.id.pager);
+		mMyViewPager.setAdapter(mSectionsPagerAdapter);
 		
 		//Disable the Swipe feature
-		mViewPager.setPagingEnabled(false);
+		mMyViewPager.setPagingEnabled(false);
 		
-		// When swiping between different sections, select the corresponding
+		// When switching between different sections, select the corresponding
 		// tab. We can also use ActionBar.Tab#select() to do this if we have
 		// a reference to the Tab.
-		mViewPager
+		mMyViewPager
 				.setOnPageChangeListener(new MyViewPager.SimpleOnPageChangeListener() {
 					@Override
 					public void onPageSelected(int position) {
@@ -85,8 +85,7 @@ public class RaceFragmentActivity extends FragmentActivity implements
 						{
 							RaceFragment.mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);
 							StartFragment.mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);	
-						}
-							
+						}							
 					}
 				});
 		
@@ -102,11 +101,11 @@ public class RaceFragmentActivity extends FragmentActivity implements
 		}
 	}
 
-
-	//getter to make my Fragments use the Pager to control movement between tabs.
+	//getter to make my Fragments use of the Pager to control movement between tabs.
 	public MyViewPager getViewPager(){
-		return mViewPager;
+		return mMyViewPager;
 	}
+	//getter to make classes use of the current display for futher calculations 
 	public Display getDisplay(){
 		Display display = ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 		return display;
@@ -138,7 +137,6 @@ public class RaceFragmentActivity extends FragmentActivity implements
 	public void onTabReselected(ActionBar.Tab tab,
 			FragmentTransaction fragmentTransaction) {
 	}
-
 
 	/**
 	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -179,11 +177,11 @@ public class RaceFragmentActivity extends FragmentActivity implements
 		public CharSequence getPageTitle(int position) {
 			switch (position) {
 			case 0:
-				return getString(R.string.race_section1).toUpperCase();
+				return getString(R.string.race_section1).toUpperCase(Locale.getDefault());
 			case 1:
-				return getString(R.string.race_section2).toUpperCase();
+				return getString(R.string.race_section2).toUpperCase(Locale.getDefault());
 			case 2:
-				return getString(R.string.race_section3).toUpperCase();
+				return getString(R.string.race_section3).toUpperCase(Locale.getDefault());
 			}
 			return null;
 		}
@@ -219,7 +217,4 @@ public class RaceFragmentActivity extends FragmentActivity implements
 	public void onBackPressed() {		
 		android.os.Process.killProcess(android.os.Process.myPid());
 	}
-    
-	
-
 }

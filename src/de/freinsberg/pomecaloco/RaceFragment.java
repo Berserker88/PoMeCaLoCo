@@ -28,55 +28,53 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 		final public static int PREPARE_RACE = 0;
 		final public static int RACE = 1;
 		final public static int END_RACE = 2;
-		private Context c;		
-		private MyTimer mCountdown_updater;
-		private Bundle data = null;
-		private List<String> countdown = new ArrayList<String>();
-
+		private Context mContext;		
+		private MyTimer mCountdown;
+		private Bundle mData = null;
+		private List<String> mCountdownValues = new ArrayList<String>();
+		private Integer mMinLapCount;
+		private TextView raceview_countdown = null;
+		private ImageView faster = null;
+		private ImageView slower = null;
+		private TextView raceview_time_updater = null;
+		private TextView raceview_round_updater = null;
+		private TextView raceview_speed_updater = null;
+		private TextView raceview_best_time_updater = null;
+		private Button manual_end_race = null;
 		public static CameraBridgeViewBase mOpenCvCameraView;
-		
 		
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			c = RaceFragmentActivity.mContext;
+			//filling static array for the race- countdown
+			mCountdownValues.add("3");
+			mCountdownValues.add("2");
+			mCountdownValues.add("1");	
+			mCountdownValues.add("Los!!!!!");
+			
+			mContext = RaceFragmentActivity.mContext;
 			View v = inflater.inflate(R.layout.race, null);
-			mOpenCvCameraView = (CameraBridgeViewBase) v
-					.findViewById(R.id.camera_stream_race);					
-				mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);		
+			mOpenCvCameraView = (CameraBridgeViewBase) v.findViewById(R.id.camera_stream_race);					
+			mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);		
 			mOpenCvCameraView.setCvCameraViewListener(this);
 			Log.i("debug", "setCVCameraViewListener for Race properly");
-			data = getArguments();
-			//int counter = Integer.parseInt(data.getString("Anzahl"));
-			//Log.i("debug", "Counter from Start Race: "+counter);
-			//fill array for Countdown Values
-			countdown.add("3");
-			countdown.add("2");
-			countdown.add("1");	
-			countdown.add("Los!!!!!");
+			
+			//get arguments from previous Fragment
+			mData = getArguments();
+			if(mMinLapCount != null)
+				mMinLapCount = Integer.parseInt(mData.getString("Anzahl"));
+			Log.i("debug", "Anzahl aus Editext: "+mMinLapCount);
 			
 			//Making Views and Buttons from XML-View accessible via Java Code
 			
-			final TextView raceview_countdown = (TextView) v.findViewById(R.id.raceview_countdown);
-			
-			
-			ImageView faster = (ImageView) v.findViewById(R.id.faster);
-			ImageView slower = (ImageView) v.findViewById(R.id.slower);
-			
-			TextView raceview_time_updater = (TextView) v.findViewById(R.id.raceview_time_updater);
-			TextView raceview_round_updater = (TextView) v.findViewById(R.id.raceview_round_updater);
-			TextView raceview_speed_updater = (TextView) v.findViewById(R.id.raceview_speed_updater);
-			TextView raceview_best_time_updater = (TextView) v.findViewById(R.id.raceview_best_time_updater);
-			Button manual_end_race = (Button) v.findViewById(R.id.manual_end_race);
-			
-
-			mCountdown_updater = new MyTimer(6000, 1000, countdown, raceview_countdown);
-			
-			
-			
-			
-			
-			
+			raceview_countdown = (TextView) v.findViewById(R.id.raceview_countdown);			
+			faster = (ImageView) v.findViewById(R.id.faster);
+			slower = (ImageView) v.findViewById(R.id.slower);			
+			raceview_time_updater = (TextView) v.findViewById(R.id.raceview_time_updater);
+			raceview_round_updater = (TextView) v.findViewById(R.id.raceview_round_updater);
+			raceview_speed_updater = (TextView) v.findViewById(R.id.raceview_speed_updater);
+			raceview_best_time_updater = (TextView) v.findViewById(R.id.raceview_best_time_updater);			
+			manual_end_race = (Button) v.findViewById(R.id.manual_end_race);
 			
 			manual_end_race.setOnClickListener(new OnClickListener() {
 				
@@ -85,55 +83,52 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 					Log.i("debug", "go to end race manually");
 					((RaceFragmentActivity) getActivity()).getViewPager().setCurrentItem(END_RACE);
 				}
-			});				
+			});
+			
+			mCountdown = new MyTimer(6000, 1000, mCountdownValues, raceview_countdown);	
+							
 			return v;
 		}				
 		@Override
 		public void onPause() {
 			super.onPause();
-			mCountdown_updater.cancel();
+			mCountdown.cancel();
 			if (mOpenCvCameraView != null)
-				mOpenCvCameraView.disableView();
-				
+				mOpenCvCameraView.disableView();				
 		}
-
+	
 		public void onDestroy() {
 			super.onDestroy();
 			if (mOpenCvCameraView != null)
-				mOpenCvCameraView.disableView();
-				
+				mOpenCvCameraView.disableView();				
 		}
-
-
+	
 		@Override
 		public void onCameraViewStarted(int width, int height) {
-			// TODO Automatisch generierter Methodenstub
-			
+			// TODO Automatisch generierter Methodenstub			
 		}
-
+	
 		@Override
 		public void onCameraViewStopped() {
-			// TODO Automatisch generierter Methodenstub
-			
+			// TODO Automatisch generierter Methodenstub			
 		}
-
+	
 		@Override
-		public Mat onCameraFrame(CvCameraViewFrame inputFrame) {		
-			
+		public Mat onCameraFrame(CvCameraViewFrame inputFrame) {			
 			
 			return inputFrame.rgba();
 		}
+		
 		@Override
 		public void onResume() {
-			super.onResume();
 			
+			super.onResume();			
 			Log.i("debug", "Race Fragment onResume()");
-			OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, c,
-					mLoaderCallback);
-			
+			OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, mContext,
+					mLoaderCallback);			
 		}
-
-		private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(c) {
+	
+		private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(mContext) {
 			@Override
 			public void onManagerConnected(int status) {
 				switch (status) {
@@ -151,10 +146,8 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 		};
 		
 		public void startCountdown(){
-			mCountdown_updater.start();
-		}
-		
-		
-	}
+			mCountdown.start();
+		}		
+}
 	
 

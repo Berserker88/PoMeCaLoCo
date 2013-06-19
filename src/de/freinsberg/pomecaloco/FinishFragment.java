@@ -11,36 +11,32 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class FinishFragment extends Fragment {
+public class FinishFragment extends Fragment {	
 	
-	
-	final public static int PREPARE_RACE = 0;
-	final public static int RACE = 1;
-	final public static int END_RACE = 2;
-	Context c;
-	String value = null;
+	public static int PREPARE_RACE = 0;
+	public static int RACE = 1;
+	public static int END_RACE = 2;
+	private Context mContext;
+	private Button go_to_results = null;
+	private Button new_race = null;	
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		c = RaceFragmentActivity.mContext;
-		View v = inflater.inflate(R.layout.finish, null);
-		
+		mContext = RaceFragmentActivity.mContext;
+		View v = inflater.inflate(R.layout.finish, null);		
 		
 		//Making Views and Buttons from XML-View accessible via Java Code
-		Button go_to_results = (Button) v.findViewById(R.id.go_to_results);
-		Button new_race = (Button) v.findViewById(R.id.new_race);
-		
+		go_to_results = (Button) v.findViewById(R.id.go_to_results);		
         go_to_results.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            	Intent myIntent = new Intent(c, SettingsFragmentActivity.class);     
+            	Intent myIntent = new Intent(mContext, SettingsFragmentActivity.class);     
             	getActivity().finish();
-            	getActivity().startActivity(myIntent);
-            	
-            	
+            	getActivity().startActivity(myIntent);            	
             }
         });	
-		
+        
+        new_race = (Button) v.findViewById(R.id.new_race);
 		new_race.setOnClickListener(new OnClickListener() {
 			
 			@Override

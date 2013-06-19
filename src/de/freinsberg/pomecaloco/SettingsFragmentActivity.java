@@ -1,9 +1,5 @@
 package de.freinsberg.pomecaloco;
 
-
-
-
-
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -83,7 +79,6 @@ public class SettingsFragmentActivity extends FragmentActivity implements
 					.setTabListener(this));
 		}
 	}
-
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

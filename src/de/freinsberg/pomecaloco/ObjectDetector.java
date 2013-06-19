@@ -18,9 +18,14 @@ public class ObjectDetector{
 	private static final int ORIENTATION_90 = 90;
 	private static final int ORIENTATION_270 = 270;
 	private CvCameraViewFrame inputFrame;	
-	private Mat mRgba, mHSV, mEdges, mThreshed, removed_track_overlay;
+	private Mat mRgba = null;
+	private Mat mHSV = null; 
+	private Mat mEdges = null; 
+	private Mat mThreshed = null; 
+	private Mat removed_track_overlay = null;
 	
 	public ObjectDetector(CvCameraViewFrame inputFrame){
+		
 		this.inputFrame = inputFrame;	
 		
 	}

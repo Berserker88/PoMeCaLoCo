@@ -10,9 +10,9 @@ import android.widget.TextView;
 
 public class MyTimer extends CountDownTimer{
 	
-	public int mCountdowncounter;
+	public int mCountdown;
 	public TextView mTv;
-	public List<String> mCountdownvalues;
+	public List<String> mCountdownValues;
 
 	private MyTimer(long millisInFuture, long countDownInterval) {
 		super(millisInFuture, countDownInterval);
@@ -20,7 +20,7 @@ public class MyTimer extends CountDownTimer{
 	}
 	public MyTimer(long millisInFuture, long countDownInterval, List<String> countdownvalues, TextView tv) {
 		super(millisInFuture, countDownInterval);
-		mCountdownvalues = countdownvalues;		
+		mCountdownValues = countdownvalues;		
 		mTv = tv;
 	}
 	public MyTimer(long millisInFuture, long countDownInterval, TextView tv) {
@@ -34,25 +34,20 @@ public class MyTimer extends CountDownTimer{
 
 	@Override
 	public void onTick(long millisUntilFinished) {
-		if(mCountdownvalues != null){
-			Log.i("debug", "Size: "+mCountdownvalues.size()+", Counter: "+mCountdowncounter);
-			if(mCountdowncounter >= mCountdownvalues.size()) {
+		if(mCountdownValues != null){
+			Log.i("debug", "Size: "+mCountdownValues.size()+", Counter: "+mCountdown);
+			if(mCountdown >= mCountdownValues.size()) {
 				cancel();
 				return;
-			}
-			mTv.setTextColor(mTv.getResources().getColor(R.color.winning_green));
-			mTv.setText(mCountdownvalues.get(mCountdowncounter));						
-			mCountdowncounter++;
+			}			
+			mTv.setTextColor(mTv.getResources().getColor(R.color.record_yellow));
+			mTv.setText(mCountdownValues.get(mCountdown));						
+			mCountdown++;
 		}
 		else
 		{
-			Time timer = new Time();
-			timer.set(0, 0, 17, 0, 0, 0);
 			mTv.setTextColor(mTv.getResources().getColor(R.color.white));
-			mTv.setText(timer.format("%H:%M:%S"));
-		}
-		
-	}
-	
-	
+			mTv.setText("%H:%M:%S");
+		}		
+	}	
 }

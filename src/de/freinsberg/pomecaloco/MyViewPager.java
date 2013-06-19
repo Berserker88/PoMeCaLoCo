@@ -27,8 +27,7 @@ public class MyViewPager extends ViewPager {
     public boolean onInterceptTouchEvent(MotionEvent event) {
         if (this.enabled) {
             return super.onInterceptTouchEvent(event);
-        }
- 
+        } 
         return false;
     }
  

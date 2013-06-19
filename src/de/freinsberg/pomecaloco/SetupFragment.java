@@ -9,18 +9,18 @@ import android.view.View;
 import android.view.ViewGroup;
  
 public class SetupFragment  extends Fragment {
-    Context c;
+	
+    private Context mContext;
  
         public SetupFragment(){
          
     }
-
  
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-    	c = RaceFragmentActivity.mContext;
+    	mContext = RaceFragmentActivity.mContext;
         View v = inflater.inflate(R.layout.setup, null);
-        return       v;
+        return v;
     }
 }
