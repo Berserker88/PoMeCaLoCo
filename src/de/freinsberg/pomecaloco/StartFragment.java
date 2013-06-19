@@ -18,10 +18,13 @@ import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TabHost.OnTabChangeListener;
+import android.widget.Toast;
 
 public class StartFragment extends Fragment implements CvCameraViewListener2 {
 
@@ -67,20 +70,16 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 
 		// Adding Layout Buttons to this onCreate to interact with them
 		// (fetching and setting data)
-		final Button one_lap = (Button) v.findViewById(R.id.one_lap);
-		final Button five_laps = (Button) v.findViewById(R.id.five_laps);
-		final Button ten_laps = (Button) v.findViewById(R.id.ten_laps);
-		final Button one_min = (Button) v.findViewById(R.id.one_min);
-		final Button five_mins = (Button) v.findViewById(R.id.five_mins);
-		final Button ten_mins = (Button) v.findViewById(R.id.ten_mins);
+		final Button lap_mode = (Button) v.findViewById(R.id.lap_mode);
+		final EditText lap_count = (EditText) v.findViewById(R.id.lap_count);
+		final Button min_mode = (Button) v.findViewById(R.id.min_mode);
+		final EditText min_count = (EditText) v.findViewById(R.id.min_count);
 		// Making these Button disables so user can't interact with them before
 		// scanning is complete.
-		one_lap.setEnabled(false);
-		five_laps.setEnabled(false);
-		ten_laps.setEnabled(false);
-		one_min.setEnabled(false);
-		five_mins.setEnabled(false);
-		ten_mins.setEnabled(false);
+		lap_mode.setEnabled(false);
+		lap_count.setEnabled(false);
+		min_mode.setEnabled(false);
+		min_count.setEnabled(false);
 
 		final Button results = (Button) v.findViewById(R.id.results);
 		final Button scanner = (Button) v.findViewById(R.id.scanner);
@@ -103,12 +102,10 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 					scanner.setText(R.string.complete);
 					mScanningComplete = true;
 					Log.i("debug", "Scanning COMPLETED!");
-					one_lap.setEnabled(true);
-					five_laps.setEnabled(true);
-					ten_laps.setEnabled(true);
-					one_min.setEnabled(true);
-					five_mins.setEnabled(true);
-					ten_mins.setEnabled(true);
+					lap_mode.setEnabled(true);
+					lap_count.setEnabled(true);
+					min_mode.setEnabled(true);
+					min_count.setEnabled(true);
 					rescan.setVisibility(View.VISIBLE);
 				}
 			}
@@ -120,12 +117,10 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 				rescan.setVisibility(View.GONE);
 				scanner.setEnabled(true);
 				mScanningComplete = false;
-				one_lap.setEnabled(false);
-				five_laps.setEnabled(false);
-				ten_laps.setEnabled(false);
-				one_min.setEnabled(false);
-				five_mins.setEnabled(false);
-				ten_mins.setEnabled(false);
+				lap_mode.setEnabled(false);
+				lap_count.setEnabled(false);
+				min_mode.setEnabled(false);
+				min_count.setEnabled(false);
 				scanner.setText(R.string.scan_track);
 			}
 		});
@@ -137,22 +132,61 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 			}
 		});
 
-		one_min.setOnClickListener(new View.OnClickListener() {
+		lap_mode.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				Player p = new Player(LEFT_LANE, TIMER_MODE, new Scalar(255, 0,
-						0, 255));
-				Log.i("debug", "Player created ");
-				((RaceFragmentActivity) getActivity()).getViewPager()
-						.setCurrentItem(RACE);
-				race = new Race();
+				InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+				inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+				String count = lap_count.getText().toString();
+				if(count.equals("")){					
+					Toast.makeText(v.getContext(), "Bitte Rundenanzahl angeben!", Toast.LENGTH_SHORT).show();
+					return;
+				}
+				Player p = new Player(LEFT_LANE, ROUND_MODE, new Scalar(255, 0,	0, 255));
+				race = new Race(Integer.parseInt(count), ROUND_MODE);	
+				Bundle data = new Bundle();
+				data.putString("Anzahl", count);
+				Fragment racefragment = new RaceFragment();
+				racefragment.setArguments(data);
+			
+				((RaceFragmentActivity) getActivity()).getViewPager().setCurrentItem(RACE);				
 				((RaceFragment) ((RaceFragmentActivity) getActivity())
 						.getSupportFragmentManager().findFragmentByTag(
 								"android:switcher:" + R.id.pager + ":1"))
 						.startCountdown();
-				Log.i("debug", "Race created ");
-				Log.i("debug", "Moved to Race!");
+					
+				
+				Log.i("debug", "Moved to Race-Tab!");
+			}
+		});
+		min_mode.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+				inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+				
+				String count = min_count.getText().toString();
+				if(count.equals("")){					
+					Toast.makeText(v.getContext(), "Bitte Minutenanzahl angeben!", Toast.LENGTH_SHORT).show();
+					return;
+				}
+				Player p = new Player(LEFT_LANE, TIMER_MODE, new Scalar(255, 0,	0, 255));
+				race = new Race(Integer.parseInt(count), TIMER_MODE);	
+				Bundle data = new Bundle();
+				data.putString("Anzahl", count);
+				Fragment racefragment = new RaceFragment();
+				racefragment.setArguments(data);
+			
+				((RaceFragmentActivity) getActivity()).getViewPager().setCurrentItem(RACE);				
+				((RaceFragment) ((RaceFragmentActivity) getActivity())
+						.getSupportFragmentManager().findFragmentByTag(
+								"android:switcher:" + R.id.pager + ":1"))
+						.startCountdown();
+					
+				
+				Log.i("debug", "Moved to Race-Tab!");
 			}
 		});
 

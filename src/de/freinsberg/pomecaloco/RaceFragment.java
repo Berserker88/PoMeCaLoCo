@@ -12,9 +12,6 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.core.Mat;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,8 +20,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Chronometer;
-import android.widget.Chronometer.OnChronometerTickListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class RaceFragment extends Fragment implements CvCameraViewListener2{
@@ -34,12 +30,7 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 		final public static int END_RACE = 2;
 		private Context c;		
 		private MyTimer mCountdown_updater;
-		private Chronometer mCountup_updater;
-		private TextView race_time_updater;
-		private long mSystem_time;
-		private long mUp_counter;
-		private int mCountdown;		
-		private Race race;
+		private Bundle data = null;
 		private List<String> countdown = new ArrayList<String>();
 
 		public static CameraBridgeViewBase mOpenCvCameraView;
@@ -55,44 +46,37 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 				mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);		
 			mOpenCvCameraView.setCvCameraViewListener(this);
 			Log.i("debug", "setCVCameraViewListener for Race properly");
-			
-			
-			final TextView race_countdown = (TextView) v.findViewById(R.id.race_countdown);
+			data = getArguments();
+			//int counter = Integer.parseInt(data.getString("Anzahl"));
+			//Log.i("debug", "Counter from Start Race: "+counter);
+			//fill array for Countdown Values
 			countdown.add("3");
 			countdown.add("2");
 			countdown.add("1");	
 			countdown.add("Los!!!!!");
-			mCountdown = 0;
-			mCountdown_updater = new MyTimer(6000, 1000, countdown, race_countdown);
-			
-			
-			race_time_updater = (TextView) v.findViewById(R.id.raceview_time_updater);
-			race_time_updater.setTextColor(getResources().getColor(R.color.winning_green));
-			mCountup_updater = (Chronometer) v.findViewById(R.id.raceview_chronometer);
-			
-			
-			mSystem_time = SystemClock.elapsedRealtime();
-			
-			mCountup_updater.setOnChronometerTickListener(new OnChronometerTickListener() {
-				
-				@Override
-				public void onChronometerTick(Chronometer chronometer) {
-					
-					mUp_counter = (SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000;
-					race_time_updater.setText((mUp_counter % 60) + ":" + (mUp_counter % 3600));
-					
-				}
-			});
-			mCountup_updater.start();
-			
-	
-			
-			
-			
 			
 			//Making Views and Buttons from XML-View accessible via Java Code
 			
+			final TextView raceview_countdown = (TextView) v.findViewById(R.id.raceview_countdown);
+			
+			
+			ImageView faster = (ImageView) v.findViewById(R.id.faster);
+			ImageView slower = (ImageView) v.findViewById(R.id.slower);
+			
+			TextView raceview_time_updater = (TextView) v.findViewById(R.id.raceview_time_updater);
+			TextView raceview_round_updater = (TextView) v.findViewById(R.id.raceview_round_updater);
+			TextView raceview_speed_updater = (TextView) v.findViewById(R.id.raceview_speed_updater);
+			TextView raceview_best_time_updater = (TextView) v.findViewById(R.id.raceview_best_time_updater);
 			Button manual_end_race = (Button) v.findViewById(R.id.manual_end_race);
+			
+
+			mCountdown_updater = new MyTimer(6000, 1000, countdown, raceview_countdown);
+			
+			
+			
+			
+			
+			
 			
 			manual_end_race.setOnClickListener(new OnClickListener() {
 				
@@ -167,7 +151,6 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 		};
 		
 		public void startCountdown(){
-			mCountdown = 0;
 			mCountdown_updater.start();
 		}
 		

@@ -157,7 +157,7 @@
         android:background="@android:color/white" />
 
     <TextView
-        android:id="@+id/best_time"
+        android:id="@+id/raceview_best_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -166,14 +166,14 @@
         android:textColor="@android:color/white" />
     
     <TextView
-        android:id="@+id/best_time_updater"
+        android:id="@+id/raceview_best_time_updater"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/best_time"    
+        android:layout_below="@+id/raceview_best_time"    
         android:layout_alignParentRight="true"    
         android:layout_marginTop="5dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/best_time_updater"
+        android:text="@string/raceview_best_time_updater"
         android:textColor="@color/dummy_gray" />
 
     <Button
@@ -185,7 +185,7 @@
         android:text="@string/manual_end_race" />
 
     <TextView
-        android:id="@+id/race_countdown"
+        android:id="@+id/raceview_countdown"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"

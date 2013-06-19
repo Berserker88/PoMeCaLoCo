@@ -26,13 +26,13 @@ public class ObjectDetector{
 	}
 	
 	private Mat correct_rotation(Display d, Mat m){
-		Log.i("debug", "Jetzt wird rotiert!");
+		//Log.i("debug", "Jetzt wird rotiert!");
 		//Mat gray = new Mat(m.size(), m.type());
 		Mat rotated = new Mat(new Size(m.rows(),m.cols()), m.type());
 		
 		//Imgproc.cvtColor(m, gray, Imgproc.COLOR_RGB2GRAY);
 
-		Log.i("debug", "Found rotation: "+d.getRotation());
+		//Log.i("debug", "Found rotation: "+d.getRotation());
 	    int screenOrientation = d.getRotation();
 	    switch (screenOrientation){
 	        default:
@@ -52,10 +52,10 @@ public class ObjectDetector{
 	        	Log.i("debug", "Rotated after cvt Size: "+rotated.size().toString());
 	        	Log.i("debug", "Rotated after cvt Type: "+rotated.type());*/
 	        	
-	            Log.i("debug", "Depth: "+m.depth()+ "Height: "+m.height()+"Width: "+m.width());
+	            //Log.i("debug", "Depth: "+m.depth()+ "Height: "+m.height()+"Width: "+m.width());
 	            Core.flip(m.t(), rotated, 1);
-	            Log.i("debug", "Depth: "+rotated.depth()+ "Height: "+rotated.height()+"Width: "+rotated.width());
-	            Log.i("debug", "to Portrait");
+	            //Log.i("debug", "Depth: "+rotated.depth()+ "Height: "+rotated.height()+"Width: "+rotated.width());
+	            //Log.i("debug", "to Portrait");
 	            rotated.release();
 	            break;
 	        case ORIENTATION_90: // Landscape right

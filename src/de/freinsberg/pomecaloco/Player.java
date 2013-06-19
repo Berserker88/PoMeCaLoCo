@@ -2,6 +2,8 @@ package de.freinsberg.pomecaloco;
 
 import org.opencv.core.Scalar;
 
+import android.util.Log;
+
 public class Player {
 	
 	public static final int ROUND_MODE = 1;
@@ -15,7 +17,8 @@ public class Player {
 	public Player(int lane, int mode, Scalar color){
 		this.mLane = lane;
 		this.mMode = mode;
-		this.mColor = color;		
+		this.mColor = color;
+		Log.i("debug", "Neuer Spieler: Spur "+mLane+", Spielmodus "+mMode+" ,Farbe "+mColor.toString());
 	}
 	
 	public int getLane(){

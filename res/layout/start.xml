@@ -23,68 +23,6 @@
 	     opencv:show_fps="true"        
 	     opencv:camera_id="any" />
 
-	<Button
-	    android:id="@+id/one_lap"
-	    android:layout_width="120dp"
-	    android:layout_height="wrap_content"
-	    android:layout_alignParentBottom="true"
-	    android:layout_alignParentLeft="true"
-	    android:layout_marginBottom="100dp"
-	    android:layout_marginLeft="40dp"
-	    android:text="@string/one_lap" />
-
-	<Button
-	    android:id="@+id/ten_laps"
-	    android:layout_width="120dp"
-	    android:layout_height="wrap_content"
-	    android:layout_alignLeft="@+id/five_laps"
-	    android:layout_below="@+id/five_laps"
-	    android:text="@string/ten_laps" />
-
-	<Button
-	    android:id="@+id/one_min"
-	    android:layout_width="120dp"
-	    android:layout_height="wrap_content"
-	    android:layout_alignBaseline="@+id/one_lap"
-	    android:layout_alignBottom="@+id/one_lap"
-	    android:layout_marginLeft="32dp"
-	    android:layout_toRightOf="@+id/one_lap"
-	    android:text="@string/one_min" />
-
-	<Button
-	    android:id="@+id/five_mins"
-	    android:layout_width="120dp"
-	    android:layout_height="wrap_content"
-	    android:layout_alignBaseline="@+id/five_laps"
-	    android:layout_alignBottom="@+id/five_laps"
-	    android:layout_alignLeft="@+id/one_min"
-	    android:text="@string/five_mins" />
-
-	<Button
-	    android:id="@+id/ten_mins"
-	    android:layout_width="120dp"
-	    android:layout_height="wrap_content"
-	    android:layout_alignBaseline="@+id/ten_laps"
-	    android:layout_alignBottom="@+id/ten_laps"
-	    android:layout_alignLeft="@+id/five_mins"
-	    android:text="@string/ten_mins" />
-
-	<TextView
-	    android:id="@+id/best_time"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_above="@+id/one_lap"
-	    android:layout_centerHorizontal="true"
-	    android:text="@string/racemode"
-	    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-	<Button
-	    android:id="@+id/five_laps"
-	    android:layout_width="120dp"
-	    android:layout_height="wrap_content"
-	    android:layout_below="@+id/one_min"
-	    android:layout_toLeftOf="@+id/one_min"
-	    android:text="@string/five_laps" />
 
 	<Button
 	    android:id="@+id/scanner"
@@ -112,5 +50,55 @@
 	    android:layout_alignBottom="@+id/scanner"
 	    android:layout_alignParentRight="true"
 	    android:text="@string/rescan" />
+
+	<EditText
+	    android:id="@+id/lap_count"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignBaseline="@+id/lap_mode"
+	    android:layout_alignBottom="@+id/lap_mode"
+	    android:layout_toLeftOf="@+id/lap_mode"
+	    android:hint="@string/lap_count_hint"
+	    android:inputType="number"
+	    android:ems="10" />
+	
+
+	<EditText
+	    android:id="@+id/min_count"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignBaseline="@+id/min_mode"
+	    android:layout_alignBottom="@+id/min_mode"
+	    android:layout_toLeftOf="@+id/min_mode"
+	    android:hint="@string/min_count_hint"
+	    android:inputType="number"
+	    android:ems="10" />
+
+	<Button
+	    android:id="@+id/min_mode"
+	    android:layout_width="120dp"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:layout_alignParentRight="true"
+	    android:layout_marginBottom="24dp"
+	    android:text="@string/min_mode" />
+
+	<Button
+	    android:id="@+id/lap_mode"
+	    android:layout_width="120dp"
+	    android:layout_height="wrap_content"
+	    android:layout_above="@+id/min_mode"
+	    android:layout_alignParentRight="true"
+	    android:text="@string/lap_mode" />
+
+	<TextView
+	    android:id="@+id/racemode"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_above="@+id/lap_mode"
+	    android:layout_centerHorizontal="true"
+	    android:layout_marginBottom="15dp"
+	    android:text="@string/racemode"
+	    android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>
