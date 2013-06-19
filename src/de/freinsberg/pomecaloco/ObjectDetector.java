@@ -18,7 +18,7 @@ public class ObjectDetector{
 	private static final int ORIENTATION_90 = 90;
 	private static final int ORIENTATION_270 = 270;
 	private CvCameraViewFrame inputFrame;	
-	private Mat mRgba, mHSV, mEdges, removed_track_overlay;
+	private Mat mRgba, mHSV, mEdges, mThreshed, removed_track_overlay;
 	
 	public ObjectDetector(CvCameraViewFrame inputFrame){
 		this.inputFrame = inputFrame;	
@@ -28,7 +28,7 @@ public class ObjectDetector{
 	private Mat correct_rotation(Display d, Mat m){
 		//Log.i("debug", "Jetzt wird rotiert!");
 		//Mat gray = new Mat(m.size(), m.type());
-		Mat rotated = new Mat(new Size(m.rows(),m.cols()), m.type());
+		//Mat rotated = new Mat(new Size(m.rows(),m.cols()), m.type());
 		
 		//Imgproc.cvtColor(m, gray, Imgproc.COLOR_RGB2GRAY);
 
@@ -53,10 +53,10 @@ public class ObjectDetector{
 	        	Log.i("debug", "Rotated after cvt Type: "+rotated.type());*/
 	        	
 	            //Log.i("debug", "Depth: "+m.depth()+ "Height: "+m.height()+"Width: "+m.width());
-	            Core.flip(m.t(), rotated, 1);
+	            //Core.flip(m.t(), rotated, 1);
 	            //Log.i("debug", "Depth: "+rotated.depth()+ "Height: "+rotated.height()+"Width: "+rotated.width());
 	            //Log.i("debug", "to Portrait");
-	            rotated.release();
+	            //rotated.release();
 	            break;
 	        case ORIENTATION_90: // Landscape right
 	            // do smth.
@@ -71,10 +71,12 @@ public class ObjectDetector{
 	public Mat draw_colorrange_on_frame (Display d, Scalar lowerLimit, Scalar upperLimit){
 		//Log.i("debug", "onCameraFrame");
 		mRgba = correct_rotation(d, inputFrame.rgba());
-		Mat mThreshed = new Mat(mRgba.size(),mRgba.type());
+		if(mThreshed != null)
+			mThreshed.release();
+		mThreshed = new Mat(mRgba.size(),mRgba.type());
 		//Log.i("debug",Integer.toString(mRgba.cols()));
 		//Core.line(mRgba, new Point(10,10), new Point(200,200), new Scalar(255, 0, 0, 255));
-		mEdges = new Mat(mRgba.size(),mRgba.type());
+		//mEdges = new Mat(mRgba.size(),mRgba.type());
 		mHSV = new Mat(mRgba.size(),mRgba.type());	
 		//Imgproc.Canny(mRgba, mEdges, 50, 200);
 		Imgproc.cvtColor(mRgba, mHSV, Imgproc.COLOR_RGB2HSV);	
