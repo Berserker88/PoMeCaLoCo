@@ -1,5 +1,6 @@
 package de.freinsberg.pomecaloco;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,8 +9,10 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.Display;
@@ -25,11 +28,15 @@ public class ObjectDetector{
 	private Mat mGray = null;
 	private Mat mHSV = null; 
 	private Mat mEdges = null; 
+	private Mat mHoughLines = null;
 	private int mLowerThreshold;
 	private int mUpperThreshold;
 	private Mat mThreshed = null; 
 	private Mat removed_track_overlay = null;
 	private int avg_gray;
+	private File mStorageDir;
+	private File mHoughLinesImage;
+	private String mPath;
 	
 	
 	public ObjectDetector(CvCameraViewFrame inputFrame){
@@ -108,9 +115,10 @@ public class ObjectDetector{
 		return mThreshed;
 	}
 	
-	public Mat remove_track_overlay (){
+	public void generate_track_overlay (){
 		mGray = new Mat();
 		mEdges = new Mat();
+		mHoughLines = new Mat();
 		Imgproc.cvtColor(mInputFrame.rgba(), mGray, Imgproc.COLOR_RGBA2GRAY);
 			
 			double[] grays = null;
@@ -139,8 +147,21 @@ public class ObjectDetector{
 		
 		Imgproc.Canny(mGray, mEdges, mLowerThreshold, mUpperThreshold);
 		mGray.release();		
+		int threshold = 50;
+	    int minLineSize = 20;
+	    int lineGap = 20;
+	    Imgproc.HoughLinesP(mEdges, mHoughLines, 1, Math.PI/180, threshold, minLineSize, lineGap);
+	    //Highgui.imwrite("/houghlines.png", mHoughLines);
+	    Log.i("debug", "Status Externer Speciher: "+Environment.getExternalStorageState());
+	    mStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+	    mHoughLinesImage = new File(mStorageDir, "testimage.bmp");
+	    mPath = mHoughLinesImage.toString();
+	    Boolean bool = Highgui.imwrite(mPath, mEdges);
+	   if (bool)
+	     Log.i("debug", "SUCCESS writing image to external storage");
+	    else
+	     Log.i("debug", "Fail writing image to external storage");
 		
-		return mEdges;
 	}
 	
 	public Mat get_position_and_colors (Mat m){

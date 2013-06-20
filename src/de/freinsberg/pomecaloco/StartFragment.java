@@ -158,7 +158,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 			public void onClick(View v) {
 				if (scanner.getText() == getString(R.string.scan_track)) {
 					mAlphacounter = 100;
-					mFrameToProcess.remove_track_overlay();
+					mFrameToProcess.generate_track_overlay();
 					Log.i("debug", "Track scanned!");
 					scanner.setText(R.string.scan_cars);					
 					mShotTask = new TimerTask() {						
