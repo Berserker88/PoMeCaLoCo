@@ -27,7 +27,7 @@ public class ObjectDetector{
 	private static final int ORIENTATION_0 = 0;
 	private static final int ORIENTATION_90 = 90;
 	private static final int ORIENTATION_270 = 270;
-	private CvCameraViewFrame mInputFrame;	
+	private static CvCameraViewFrame mInputFrame;	
 	private Mat mStaticImage = null;
 	private Mat mRgba = null;
 	private Mat mGray = null;
@@ -38,6 +38,7 @@ public class ObjectDetector{
     private int mHLminLineSize = 300;
     private int mHLlineGap = 60;
     private boolean mFoundSeparatorLine;
+    private boolean mDrawedLinesOnFrame;
 	private int mLowerThreshold;
 	private int mUpperThreshold;
 	private Mat mThreshed = null; 
@@ -46,14 +47,18 @@ public class ObjectDetector{
 	private int avg_gray;
 	private File mStorageDir;
 	private File mHoughLinesImage;
-		private File mCannyEdgeImage;
+	private File mCannyEdgeImage;
 	private String mPath;
+	private static ObjectDetector mObjectDetector = new ObjectDetector();
 	
+	private ObjectDetector(){				
+		
+	}
 	
-	public ObjectDetector(CvCameraViewFrame inputFrame){
+	public static ObjectDetector getInstance(CvCameraViewFrame inputFrame){
 		
-		this.mInputFrame = inputFrame;	
-		
+		mInputFrame = inputFrame;		
+		return mObjectDetector;
 	}
 	
 	private Mat correct_rotation(Display d, Mat m){
@@ -125,100 +130,119 @@ public class ObjectDetector{
 //			//Log.i("debug", "Grayscaled");
 //		return mThreshed;
 //	}
+	public boolean getFoundSeparatorLines(){
+		return mFoundSeparatorLine;
+	}
 	
-	public Bitmap generate_track_overlay (){
-		//Load an Image to try operations on local stored files
-		mStaticImage = Highgui.imread(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"track.jpg");
-		
-		
-		track_overlay = new Mat(new Size(mInputFrame.rgba().cols(),mInputFrame.rgba().rows()), mInputFrame.rgba().type(), new Scalar (0,0,0,0));
-		Log.i("debug","Channels: "+track_overlay.channels());
+	public Bitmap generate_track_overlay() {
+		// Load an Image to try operations on local stored files
+		mFoundSeparatorLine = false;
+		mStaticImage = Highgui
+				.imread(Environment
+						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+						+ "track.jpg");
+
+		track_overlay = new Mat(new Size(mInputFrame.rgba().cols(), mInputFrame
+				.rgba().rows()), mInputFrame.rgba().type(), new Scalar(0, 0, 0,
+				0));
+		Log.i("debug", "Channels: " + track_overlay.channels());
 		mGray = new Mat();
 		mEdges = new Mat();
 		mHoughLines = new Mat();
 		Imgproc.cvtColor(mInputFrame.rgba(), mGray, Imgproc.COLOR_RGBA2GRAY);
-			
-			double[] grays = null;
-			double wert;
-			double count = 0;
-			double divider = 0;
-		for(int i = 0; i < mGray.rows(); i++)
-			{			
-			for(int j = 0; j < mGray.cols();j++){
-				if(grays != null)
+
+		double[] grays = null;
+		double wert;
+		double count = 0;
+		double divider = 0;
+		for (int i = 0; i < mGray.rows(); i++) {
+			for (int j = 0; j < mGray.cols(); j++) {
+				if (grays != null)
 					grays = null;
 				grays = mGray.get(i, j);
-				wert = grays[0];				
-								
+				wert = grays[0];
+
 				divider++;
-				count = count + wert;				
+				count = count + wert;
 			}
 		}
-		avg_gray = (int) (count / divider);	
-		Log.i("debug", "avg_gray: "+avg_gray);
-		
-		mLowerThreshold = (int) (avg_gray*0.66);
-		mUpperThreshold = (int) (avg_gray*1.33);
+		avg_gray = (int) (count / divider);
+		Log.i("debug", "avg_gray: " + avg_gray);
 
-		
+		mLowerThreshold = (int) (avg_gray * 0.66);
+		mUpperThreshold = (int) (avg_gray * 1.33);
+
 		Imgproc.Canny(mGray, mEdges, mLowerThreshold, mUpperThreshold);
-		mGray.release();		    
-	    //Highgui.imwrite("/houghlines.png", mHoughLines);
-	    Log.i("debug", "Status Externer Speciher: "+Environment.getExternalStorageState());
-	    mStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
-	    
-	    mCannyEdgeImage = new File(mStorageDir, "canny.bmp");	    	   
-	    mPath = mCannyEdgeImage.toString();
-	    Boolean bool = Highgui.imwrite(mPath, mEdges);
-	   if (bool)
-	     Log.i("debug", "SUCCESS writing canny.bmp to external storage");
-	    else
-	     Log.i("debug", "Fail writing canny.bmp to external storage");		
-	
-	   
-	Imgproc.HoughLinesP(mEdges, mHoughLines, 1, Math.PI/180, mHLthreshold, mHLminLineSize, mHLlineGap);
-	for (int x = 0; x < mHoughLines.cols(); x++) 
-    {
-          double[] vec = mHoughLines.get(0, x);
-          double x1 = vec[0], 
-                 y1 = vec[1],
-                 x2 = vec[2],
-                 y2 = vec[3];
+		mGray.release();
+		// Highgui.imwrite("/houghlines.png", mHoughLines);
+		Log.i("debug",
+				"Status Externer Speciher: "
+						+ Environment.getExternalStorageState());
+		mStorageDir = Environment
+				.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
 
-          if(y1 > mInputFrame.rgba().rows()/2 -30 && y1 < mInputFrame.rgba().rows()/2 +30 &&  y2 > mInputFrame.rgba().rows()/2 -30 && y2 < mInputFrame.rgba().rows()/2 +30 )
-          {
-        	  mFoundSeparatorLine = true;
-        	  Point start = new Point(x1, y1);
-        	  Point end = new Point(x2, y2);          
-          Core.line(track_overlay, start, end, new Scalar(0,0,255,255), 3);
-          Log.i("debug","Line: "+x);
-          Log.i("debug","x1 :"+x1);
-          Log.i("debug","y1 :"+y1);
-          Log.i("debug","x2 :"+x2);
-          Log.i("debug","y2 :"+y2);
-          }
-    }
+		mCannyEdgeImage = new File(mStorageDir, "canny.bmp");
+		mPath = mCannyEdgeImage.toString();
+		Boolean bool = Highgui.imwrite(mPath, mEdges);
+		if (bool)
+			Log.i("debug", "SUCCESS writing canny.bmp to external storage");
+		else
+			Log.i("debug", "Fail writing canny.bmp to external storage");
+
+		Imgproc.HoughLinesP(mEdges, mHoughLines, 1, Math.PI / 180,
+				mHLthreshold, mHLminLineSize, mHLlineGap);
+		for (int x = 0; x < mHoughLines.cols(); x++) {
+			double[] vec = mHoughLines.get(0, x);
+			double x1 = vec[0], y1 = vec[1], x2 = vec[2], y2 = vec[3];
+
+			if (y1 > mInputFrame.rgba().rows() / 2 - 30
+					&& y1 < mInputFrame.rgba().rows() / 2 + 30
+					&& y2 > mInputFrame.rgba().rows() / 2 - 30
+					&& y2 < mInputFrame.rgba().rows() / 2 + 30) {
+				mFoundSeparatorLine = true;
+				Point start = new Point(x1, y1);
+				Point end = new Point(x2, y2);
+				mDrawedLinesOnFrame = true;
+				Core.line(track_overlay, start, end,
+						new Scalar(0, 0, 255, 255), 3);
+				Log.i("debug", "Line: " + x);
+				Log.i("debug", "x1 :" + x1);
+				Log.i("debug", "y1 :" + y1);
+				Log.i("debug", "x2 :" + x2);
+				Log.i("debug", "y2 :" + y2);
+			}
+		}
 		mHoughLinesImage = new File(mStorageDir, "houghed.png");
-    	mPath = mHoughLinesImage.toString();
-	    bool = Highgui.imwrite(mPath, track_overlay);
-	   if (bool)
-		     Log.i("debug", "SUCCESS writing houghed.png to external storage");
-		    else
-		     Log.i("debug", "Fail writing houghed.png to external storage");	
-	   
-	   if(!mFoundSeparatorLine)
-		   return null;
-	   mTrackOverlay = Bitmap.createBitmap(track_overlay.cols(), track_overlay.rows(), Bitmap.Config.ARGB_8888);
-	    Utils.matToBitmap(track_overlay, mTrackOverlay);
-	   return mTrackOverlay;
+		mPath = mHoughLinesImage.toString();
+		bool = Highgui.imwrite(mPath, track_overlay);
+		if (bool)
+			Log.i("debug", "SUCCESS writing houghed.png to external storage");
+		else
+			Log.i("debug", "Fail writing houghed.png to external storage");
+
+		mTrackOverlay = Bitmap.createBitmap(track_overlay.cols(),
+				track_overlay.rows(), Bitmap.Config.ARGB_8888);
+		Utils.matToBitmap(track_overlay, mTrackOverlay);
+
+		return mTrackOverlay;
 	}
 	
 	public Mat get_position_and_colors (Mat m){
+		
+		
+		
 		//Hier muss ein Bild mit den Fahrzeugen auf dem Streckenausschnitt ankommen
 		//Dann werden die Positionen gesetzt.
 		
 		
 		return m;
+	}
+	
+	public void draw_lanes(){
+		
+		
+		
+		
 	}
 	
 	

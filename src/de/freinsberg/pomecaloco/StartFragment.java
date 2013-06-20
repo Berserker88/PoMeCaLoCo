@@ -163,11 +163,12 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 					
 					if(frame_track_overlay == null)
 						Log.i("debug","kein Overlay :-(");
-					if(mFrameToProcess.generate_track_overlay() == null){
+					frame_track_overlay.setImageBitmap(mFrameToProcess.generate_track_overlay());
+					if(mFrameToProcess.getFoundSeparatorLines() == false){
 						Toast.makeText(v.getContext(), "Bitte das Smartphone mittig über der Bahn platzieren.", Toast.LENGTH_LONG).show();
 						return;
 					}
-					frame_track_overlay.setImageBitmap(mFrameToProcess.generate_track_overlay());
+					
 					
 					Log.i("debug", "Track scanned!");
 					scanner.setText(R.string.scan_cars);					
@@ -179,7 +180,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 								public void run() {
 									if(mAlphacounter>=1){										
 										mAlpha = (float) (mAlphacounter/100.0);
-										Log.i("debug","Alpha: "+mAlpha);
+										//Log.i("debug","Alpha: "+mAlpha);
 										alpha_overlay.setAlpha(mAlpha);											
 									frame_border_top.setBackgroundResource(R.color.record_yellow);	
 									frame_border_bottom.setBackgroundResource(R.color.record_yellow);	
@@ -322,7 +323,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		
-		mFrameToProcess = new ObjectDetector(inputFrame);
+		mFrameToProcess = ObjectDetector.getInstance(inputFrame);
 		
 		return inputFrame.rgba();
 	
