@@ -1,5 +1,8 @@
 package de.freinsberg.pomecaloco;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -17,16 +20,21 @@ public class ObjectDetector{
 	private static final int ORIENTATION_0 = 0;
 	private static final int ORIENTATION_90 = 90;
 	private static final int ORIENTATION_270 = 270;
-	private CvCameraViewFrame inputFrame;	
+	private CvCameraViewFrame mInputFrame;	
 	private Mat mRgba = null;
+	private Mat mGray = null;
 	private Mat mHSV = null; 
 	private Mat mEdges = null; 
+	private int mLowerThreshold;
+	private int mUpperThreshold;
 	private Mat mThreshed = null; 
 	private Mat removed_track_overlay = null;
+	private int avg_gray;
+	
 	
 	public ObjectDetector(CvCameraViewFrame inputFrame){
 		
-		this.inputFrame = inputFrame;	
+		this.mInputFrame = inputFrame;	
 		
 	}
 	
@@ -75,7 +83,7 @@ public class ObjectDetector{
 		
 	public Mat draw_colorrange_on_frame (Display d, Scalar lowerLimit, Scalar upperLimit){
 		//Log.i("debug", "onCameraFrame");
-		mRgba = correct_rotation(d, inputFrame.rgba());
+		mRgba = correct_rotation(d, mInputFrame.rgba());
 		if(mThreshed != null)
 			mThreshed.release();
 		mThreshed = new Mat(mRgba.size(),mRgba.type());
@@ -100,12 +108,39 @@ public class ObjectDetector{
 		return mThreshed;
 	}
 	
-	public Mat remove_track_overlay (Mat m){
+	public Mat remove_track_overlay (){
+		mGray = new Mat();
+		mEdges = new Mat();
+		Imgproc.cvtColor(mInputFrame.rgba(), mGray, Imgproc.COLOR_RGBA2GRAY);
+			
+			double[] grays = null;
+			double wert;
+			double count = 0;
+			double divider = 0;
+		for(int i = 0; i < mGray.rows(); i++)
+			{			
+			for(int j = 0; j < mGray.cols();j++){
+				if(grays != null)
+					grays = null;
+				grays = mGray.get(i, j);
+				wert = grays[0];				
+								
+				divider++;
+				count = count + wert;				
+			}
+		}
+		avg_gray = (int) (count / divider);	
+		Log.i("debug", "avg_gray: "+avg_gray);
+		
+		mLowerThreshold = (int) (avg_gray*0.66);
+		mUpperThreshold = (int) (avg_gray*1.33);
 		//Hier muss ein Bild des leeren Streckenausschnitts ankommen
-				//Dann muss für die Weiterverarbeitung das Bild von ankommenden Frames abgezogen werden.
+		//Dann muss für die Weiterverarbeitung ein Bild mit den gefundenen Linien zurückgegeben werden.
 		
+		Imgproc.Canny(mGray, mEdges, mLowerThreshold, mUpperThreshold);
+		mGray.release();		
 		
-		return m;
+		return mEdges;
 	}
 	
 	public Mat get_position_and_colors (Mat m){

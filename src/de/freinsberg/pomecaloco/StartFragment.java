@@ -15,6 +15,8 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -156,6 +158,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 			public void onClick(View v) {
 				if (scanner.getText() == getString(R.string.scan_track)) {
 					mAlphacounter = 100;
+					mFrameToProcess.remove_track_overlay();
 					Log.i("debug", "Track scanned!");
 					scanner.setText(R.string.scan_cars);					
 					mShotTask = new TimerTask() {						
@@ -190,6 +193,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 					};	
 					mShotTimer = new Timer();
 					mShotTimer.schedule(mShotTask, 50,5);
+					
 			
 				} else if (scanner.getText() == getString(R.string.scan_cars)) {
 					Log.i("debug", "Cars scanned!");
@@ -307,9 +311,11 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-
+		
 		mFrameToProcess = new ObjectDetector(inputFrame);
+		
 		return mFrameToProcess.draw_colorrange_on_frame(((RaceFragmentActivity) getActivity()).getDisplay(), new Scalar(0, 0, 0, 100), new Scalar(100, 100, 100, 255));
+	
 	}
 
 	@Override
