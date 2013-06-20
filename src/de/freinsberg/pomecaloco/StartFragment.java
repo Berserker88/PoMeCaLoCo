@@ -163,6 +163,10 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 					
 					if(frame_track_overlay == null)
 						Log.i("debug","kein Overlay :-(");
+					if(mFrameToProcess.generate_track_overlay() == null){
+						Toast.makeText(v.getContext(), "Bitte das Smartphone mittig über der Bahn platzieren.", Toast.LENGTH_LONG).show();
+						return;
+					}
 					frame_track_overlay.setImageBitmap(mFrameToProcess.generate_track_overlay());
 					
 					Log.i("debug", "Track scanned!");
@@ -320,7 +324,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 		
 		mFrameToProcess = new ObjectDetector(inputFrame);
 		
-		return mFrameToProcess.draw_colorrange_on_frame(((RaceFragmentActivity) getActivity()).getDisplay(), new Scalar(0, 0, 0, 100), new Scalar(100, 100, 100, 255));
+		return inputFrame.rgba();
 	
 	}
 
