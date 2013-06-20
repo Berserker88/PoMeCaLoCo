@@ -5,13 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
+import android.graphics.Bitmap;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -24,6 +27,7 @@ public class ObjectDetector{
 	private static final int ORIENTATION_90 = 90;
 	private static final int ORIENTATION_270 = 270;
 	private CvCameraViewFrame mInputFrame;	
+	private Mat mStaticImage = null;
 	private Mat mRgba = null;
 	private Mat mGray = null;
 	private Mat mHSV = null; 
@@ -32,10 +36,12 @@ public class ObjectDetector{
 	private int mLowerThreshold;
 	private int mUpperThreshold;
 	private Mat mThreshed = null; 
-	private Mat removed_track_overlay = null;
+	private Mat track_overlay = null;
+	private Bitmap mTrackOverlay= null;
 	private int avg_gray;
 	private File mStorageDir;
 	private File mHoughLinesImage;
+	private File mCannyEdgeImage;
 	private String mPath;
 	
 	
@@ -115,7 +121,13 @@ public class ObjectDetector{
 		return mThreshed;
 	}
 	
-	public void generate_track_overlay (){
+	public Bitmap generate_track_overlay (){
+		//Load an Image to try operations on local stored files
+		mStaticImage = Highgui.imread(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"track.jpg");
+		
+		
+		track_overlay = new Mat(new Size(mInputFrame.rgba().cols(),mInputFrame.rgba().rows()), mInputFrame.rgba().type(), new Scalar (0,0,0,0));
+		Log.i("debug","Channels: "+track_overlay.channels());
 		mGray = new Mat();
 		mEdges = new Mat();
 		mHoughLines = new Mat();
@@ -142,26 +154,50 @@ public class ObjectDetector{
 		
 		mLowerThreshold = (int) (avg_gray*0.66);
 		mUpperThreshold = (int) (avg_gray*1.33);
-		//Hier muss ein Bild des leeren Streckenausschnitts ankommen
-		//Dann muss für die Weiterverarbeitung ein Bild mit den gefundenen Linien zurückgegeben werden.
+
 		
 		Imgproc.Canny(mGray, mEdges, mLowerThreshold, mUpperThreshold);
-		mGray.release();		
-		int threshold = 50;
-	    int minLineSize = 20;
-	    int lineGap = 20;
-	    Imgproc.HoughLinesP(mEdges, mHoughLines, 1, Math.PI/180, threshold, minLineSize, lineGap);
+		mGray.release();		    
 	    //Highgui.imwrite("/houghlines.png", mHoughLines);
 	    Log.i("debug", "Status Externer Speciher: "+Environment.getExternalStorageState());
 	    mStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
-	    mHoughLinesImage = new File(mStorageDir, "testimage.bmp");
-	    mPath = mHoughLinesImage.toString();
+	    
+	    mCannyEdgeImage = new File(mStorageDir, "canny.bmp");	    	   
+	    mPath = mCannyEdgeImage.toString();
 	    Boolean bool = Highgui.imwrite(mPath, mEdges);
 	   if (bool)
-	     Log.i("debug", "SUCCESS writing image to external storage");
+	     Log.i("debug", "SUCCESS writing canny.bmp to external storage");
 	    else
-	     Log.i("debug", "Fail writing image to external storage");
-		
+	     Log.i("debug", "Fail writing canny.bmp to external storage");		
+	
+	   
+	int threshold = 100;
+    int minLineSize = 300;
+    int lineGap = 60;
+	Imgproc.HoughLinesP(mEdges, mHoughLines, 1, Math.PI/180, threshold, minLineSize, lineGap);
+	for (int x = 0; x < mHoughLines.cols(); x++) 
+    {
+          double[] vec = mHoughLines.get(0, x);
+          double x1 = vec[0], 
+                 y1 = vec[1],
+                 x2 = vec[2],
+                 y2 = vec[3];
+          Point start = new Point(x1, y1);
+          Point end = new Point(x2, y2);
+
+          Core.line(track_overlay, start, end, new Scalar(0,0,255,255), 3);
+    }
+		mHoughLinesImage = new File(mStorageDir, "houghed.png");
+    	mPath = mHoughLinesImage.toString();
+	    bool = Highgui.imwrite(mPath, track_overlay);
+	   if (bool)
+		     Log.i("debug", "SUCCESS writing houghed.png to external storage");
+		    else
+		     Log.i("debug", "Fail writing houghed.png to external storage");	
+	   
+	   mTrackOverlay = Bitmap.createBitmap(track_overlay.cols(), track_overlay.rows(), Bitmap.Config.ARGB_8888);
+	    Utils.matToBitmap(track_overlay, mTrackOverlay);
+	   return mTrackOverlay;
 	}
 	
 	public Mat get_position_and_colors (Mat m){

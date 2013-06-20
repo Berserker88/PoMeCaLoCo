@@ -69,5 +69,6 @@
     <string name="min_count_hint"># Minuten</string>
     <string name="lap_count_hint"># Runden</string>
     <string name="alpha_overlay">Alpha Overlay</string>
+    <string name="frame_track_overlay">Streckenoverlay</string>
 
 </resources>

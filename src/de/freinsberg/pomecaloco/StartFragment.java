@@ -77,6 +77,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 	private View frame_border_bottom = null;
 	private View frame_border_left = null;
 	private View frame_border_right = null;
+	private ImageView frame_track_overlay;
 	private int mCount;
 	private ArrayAdapter<String> mTracksAdapter;
 
@@ -145,6 +146,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 		frame_border_left = (View) v.findViewById(R.id.frame_border_left);
 		frame_border_right = (View) v.findViewById(R.id.frame_border_right);
 		alpha_overlay = (ImageView) v.findViewById(R.id.alpha_overlay);
+		frame_track_overlay = (ImageView) v.findViewById(R.id.frame_track_overlay);
 		mAlphacounter = 0;
 		
 		// Set Scanner- Button Text for first Start
@@ -157,8 +159,12 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 			@Override
 			public void onClick(View v) {
 				if (scanner.getText() == getString(R.string.scan_track)) {
-					mAlphacounter = 100;
-					mFrameToProcess.generate_track_overlay();
+					mAlphacounter = 100;					;		
+					
+					if(frame_track_overlay == null)
+						Log.i("debug","kein Overlay :-(");
+					frame_track_overlay.setImageBitmap(mFrameToProcess.generate_track_overlay());
+					
 					Log.i("debug", "Track scanned!");
 					scanner.setText(R.string.scan_cars);					
 					mShotTask = new TimerTask() {						

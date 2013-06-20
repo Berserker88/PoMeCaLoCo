@@ -145,5 +145,15 @@
 	    android:alpha=".00"
 	    android:contentDescription="@string/alpha_overlay"
 	    android:src="@drawable/alpha_overlay" />
+	
+	<ImageView
+	    android:id="@+id/frame_track_overlay"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"	    
+	    android:layout_alignTop="@+id/frame_border_right"
+	    android:layout_marginTop="4dp"
+	    android:layout_toLeftOf="@+id/frame_border_right"
+	    android:layout_toRightOf="@+id/frame_border_left"	    
+	    android:contentDescription="@string/frame_track_overlay" />
 
 </RelativeLayout>
