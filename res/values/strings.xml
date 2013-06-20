@@ -68,5 +68,6 @@
     <string name="race_countdown">countdown</string>
     <string name="min_count_hint"># Minuten</string>
     <string name="lap_count_hint"># Runden</string>
+    <string name="alpha_overlay">Alpha Overlay</string>
 
 </resources>

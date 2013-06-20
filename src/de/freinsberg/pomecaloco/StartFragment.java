@@ -3,6 +3,8 @@ package de.freinsberg.pomecaloco;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -13,43 +15,42 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
-import org.opencv.imgproc.Imgproc;
-
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TabHost.OnTabChangeListener;
 import android.widget.Toast;
 
 public class StartFragment extends Fragment implements CvCameraViewListener2 {
 
 	public static boolean mScanningComplete = false;
 	public static boolean mFirstInitialization = true;
-	public static int ROUND_MODE = 1;
-	public static int TIMER_MODE = 2;
-	public static int LEFT_LANE = 1;
-	public static int RIGHT_LANE = 2;
-	public static int PREPARE_RACE = 0;
-	public static int RACE = 1;
-	public static int END_RACE = 2;
+	final public static int ROUND_MODE = 1;
+	final public static int TIMER_MODE = 2;
+	final public static int LEFT_LANE = 1;
+	final public static int RIGHT_LANE = 2;
+	final public static int PREPARE_RACE = 0;
+	final public static int RACE = 1;
+	final public static int END_RACE = 2;
+	private Handler mHandler = new Handler();
+	private Timer mShotTimer = new Timer();
+	private TimerTask mShotTask;
+	private int mAlphacounter;
+	private float mAlpha;
 	private Race race;
 	private Context mContext;
 	public static CameraBridgeViewBase mOpenCvCameraView;
@@ -69,7 +70,12 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 	private Button rescan = null;
 	private EditText min_count = null;
 	private EditText lap_count = null;
-	private Integer mCount = null;
+	private ImageView alpha_overlay = null;
+	private View frame_border_top = null;
+	private View frame_border_bottom = null;
+	private View frame_border_left = null;
+	private View frame_border_right = null;
+	private int mCount;
 	private ArrayAdapter<String> mTracksAdapter;
 
 	@Override
@@ -106,12 +112,12 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View v,
 					int pos, long id) {
-				Log.i("debug", "Spinner Position "+pos+" gewählt.");				
+				Log.i("debug", "Spinner Position "+pos+" gewÃ¤hlt.");				
 			}
 
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
-				Log.i("debug", "Spinner keine Position ausgewählt.");				
+				Log.i("debug", "Spinner keine Position ausgewÃ¤hlt.");				
 			}			
 		});	
 
@@ -130,7 +136,15 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 		results = (Button) v.findViewById(R.id.results);
 		scanner = (Button) v.findViewById(R.id.scanner);
 		rescan = (Button) v.findViewById(R.id.rescan);
-
+		
+		//the Views for interactive frame- border
+		frame_border_top = (View) v.findViewById(R.id.frame_border_top);
+		frame_border_bottom = (View) v.findViewById(R.id.frame_border_bottom);
+		frame_border_left = (View) v.findViewById(R.id.frame_border_left);
+		frame_border_right = (View) v.findViewById(R.id.frame_border_right);
+		alpha_overlay = (ImageView) v.findViewById(R.id.alpha_overlay);
+		mAlphacounter = 0;
+		
 		// Set Scanner- Button Text for first Start
 		scanner.setText(R.string.scan_track);		
 		
@@ -141,8 +155,42 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 			@Override
 			public void onClick(View v) {
 				if (scanner.getText() == getString(R.string.scan_track)) {
+					mAlphacounter = 100;
 					Log.i("debug", "Track scanned!");
-					scanner.setText(R.string.scan_cars);
+					scanner.setText(R.string.scan_cars);					
+					mShotTask = new TimerTask() {						
+						@Override
+						public void run() {
+						mHandler.post(new Runnable() {								
+								@Override
+								public void run() {
+									if(mAlphacounter>=1){										
+										mAlpha = (float) (mAlphacounter/100.0);
+										Log.i("debug","Alpha: "+mAlpha);
+										alpha_overlay.setAlpha(mAlpha);											
+									frame_border_top.setBackgroundResource(R.color.record_yellow);	
+									frame_border_bottom.setBackgroundResource(R.color.record_yellow);	
+									frame_border_left.setBackgroundResource(R.color.record_yellow);	
+									frame_border_right.setBackgroundResource(R.color.record_yellow);	
+									mAlphacounter--;
+									}else{
+										frame_border_top.setBackgroundResource(R.color.white);	
+										frame_border_bottom.setBackgroundResource(R.color.white);	
+										frame_border_left.setBackgroundResource(R.color.white);	
+										frame_border_right.setBackgroundResource(R.color.white);
+										
+										mShotTimer.cancel();
+										mShotTimer.purge();
+										
+									}
+														
+									}								
+								});							
+						}
+					};	
+					mShotTimer = new Timer();
+					mShotTimer.schedule(mShotTask, 50,5);
+			
 				} else if (scanner.getText() == getString(R.string.scan_cars)) {
 					Log.i("debug", "Cars scanned!");
 					scanner.setEnabled(false);
@@ -157,6 +205,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 				}
 			}
 		});
+		
 		
 		rescan.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -178,18 +227,19 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 				getActivity().finish();
 				getActivity().startActivity(myIntent);
 			}
-		});
+		});	
 
 		lap_mode.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 				inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-				mCount = Integer.parseInt(lap_count.getText().toString());
-				if(mCount.equals("")){					
+				if(lap_count.getText().toString().equals("")){					
 					Toast.makeText(v.getContext(), "Bitte Rundenanzahl angeben!", Toast.LENGTH_SHORT).show();
 					return;
 				}
+				mCount = Integer.parseInt(lap_count.getText().toString());
+
 				Player p = new Player(LEFT_LANE, ROUND_MODE, new Scalar(255, 0,	0, 255));
 				race = new Race(mCount, ROUND_MODE);	
 				mRaceBundle.putLong("Anzahl", mCount);
@@ -209,12 +259,11 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 			public void onClick(View v) {
 				inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 				inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-				
-				mCount = Integer.parseInt(min_count.getText().toString());
-				if(mCount.equals("")){					
+				if(min_count.getText().toString().equals("")){					
 					Toast.makeText(v.getContext(), "Bitte Minutenanzahl angeben!", Toast.LENGTH_SHORT).show();
 					return;
 				}
+				mCount = Integer.parseInt(min_count.getText().toString());
 				Player p = new Player(LEFT_LANE, TIMER_MODE, new Scalar(255, 0,	0, 255));
 				race = new Race(mCount, TIMER_MODE);	
 				
@@ -260,8 +309,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 
 		mFrameToProcess = new ObjectDetector(inputFrame);
-		return mFrameToProcess.draw_colorrange_on_frame(
-				((RaceFragmentActivity) getActivity()).getDisplay(), new Scalar(0, 0, 0, 100), new Scalar(100, 100, 100, 255));
+		return mFrameToProcess.draw_colorrange_on_frame(((RaceFragmentActivity) getActivity()).getDisplay(), new Scalar(0, 0, 0, 100), new Scalar(100, 100, 100, 255));
 	}
 
 	@Override
@@ -290,7 +338,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 				     e.printStackTrace(); 
 				    }
 				
-				bridge = new Track("Brückenbahn", false, 500, bridge_image);
+				bridge = new Track("BrÃ¼ckenbahn", false, 500, bridge_image);
 				crossed = new Track("Kreuzungsbahn", true, 700, crossed_image);		
 				tracks.add(bridge.getName());
 				tracks.add(crossed.getName());

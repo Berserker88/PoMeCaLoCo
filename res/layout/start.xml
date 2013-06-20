@@ -16,7 +16,6 @@
 	     opencv:show_fps="true"        
 	     opencv:camera_id="any" />
 
-
 	<Button
 	    android:id="@+id/scanner"
 	    android:layout_width="wrap_content"
@@ -100,5 +99,51 @@
 	    android:layout_height="48dp"
 	    android:layout_alignParentLeft="true"
 	    android:layout_alignParentTop="true" />
+	
+	 <View
+        android:id="@+id/frame_border_top"
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_marginLeft="19dp"
+        android:layout_marginRight="19dp"
+        android:layout_marginTop="99dp"
+        android:background="@android:color/white" />
+
+	<View
+	    android:id="@+id/frame_border_right"
+	    android:layout_width="2dp"
+	    android:layout_height="252dp"
+	    android:layout_alignRight="@+id/frame_border_top"
+	    android:layout_below="@+id/frame_border_top"
+	    android:background="@android:color/white" />
+
+	<View
+	    android:id="@+id/frame_border_left"
+	    android:layout_width="2dp"
+	    android:layout_height="252dp"
+	    android:layout_alignLeft="@+id/frame_border_top"
+	    android:layout_below="@+id/frame_border_top"
+	    android:background="@android:color/white" />
+
+	<View
+	    android:id="@+id/frame_border_bottom"
+	    android:layout_width="wrap_content"
+	    android:layout_height="2dp"
+	    android:layout_alignLeft="@+id/frame_border_left"
+	    android:layout_alignRight="@+id/frame_border_right"
+	    android:layout_below="@+id/frame_border_right"
+	    android:background="@android:color/white" />
+
+	<ImageView
+	    android:id="@+id/alpha_overlay"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"	    
+	    android:layout_alignTop="@+id/frame_border_right"
+	    android:layout_marginTop="4dp"
+	    android:layout_toLeftOf="@+id/frame_border_right"
+	    android:layout_toRightOf="@+id/frame_border_left"
+	    android:alpha=".00"
+	    android:contentDescription="@string/alpha_overlay"
+	    android:src="@drawable/alpha_overlay" />
 
 </RelativeLayout>

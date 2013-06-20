@@ -48,18 +48,20 @@ containing a value of this type.
         public static final int winning_green=0x7f050001;
     }
     public static final class drawable {
-        public static final int bridge_image=0x7f020000;
-        public static final int crossed_image=0x7f020001;
-        public static final int ic_launcher=0x7f020002;
+        public static final int alpha_overlay=0x7f020000;
+        public static final int bridge_image=0x7f020001;
+        public static final int crossed_image=0x7f020002;
+        public static final int ic_launcher=0x7f020003;
     }
     public static final class id {
+        public static final int alpha_overlay=0x7f04003d;
         public static final int any=0x7f040000;
         public static final int attempt_meters_separator=0x7f04000c;
         public static final int back=0x7f040001;
         public static final int camera_stream_prepare=0x7f04002f;
         public static final int camera_stream_race=0x7f04001b;
         public static final int choose_track=0x7f040038;
-        public static final int exit=0x7f04003a;
+        public static final int exit=0x7f04003f;
         public static final int faster=0x7f04001c;
         public static final int finish_attempt=0x7f04000b;
         public static final int finish_attempt_view=0x7f040014;
@@ -79,6 +81,10 @@ containing a value of this type.
         public static final int finish_timemode_driven_rounds_view=0x7f040018;
         public static final int finish_track=0x7f040008;
         public static final int finish_track_view=0x7f040012;
+        public static final int frame_border_bottom=0x7f04003c;
+        public static final int frame_border_left=0x7f04003b;
+        public static final int frame_border_right=0x7f04003a;
+        public static final int frame_border_top=0x7f040039;
         public static final int front=0x7f040002;
         public static final int go_to_results=0x7f040004;
         public static final int lap_count=0x7f040033;
@@ -88,7 +94,7 @@ containing a value of this type.
         public static final int min_mode=0x7f040036;
         public static final int new_race=0x7f040005;
         public static final int pager=0x7f040003;
-        public static final int race_menu=0x7f040039;
+        public static final int race_menu=0x7f04003e;
         public static final int racemode=0x7f040037;
         public static final int raceview_best_time=0x7f040027;
         public static final int raceview_best_time_updater=0x7f040028;
@@ -107,7 +113,7 @@ containing a value of this type.
         public static final int results_separator=0x7f040006;
         public static final int round_speed_separator=0x7f040024;
         public static final int scanner=0x7f040030;
-        public static final int settings_menu=0x7f04003b;
+        public static final int settings_menu=0x7f040040;
         public static final int slower=0x7f04001d;
         public static final int textView3=0x7f04002e;
         public static final int time_round_separator=0x7f040021;
@@ -127,6 +133,7 @@ containing a value of this type.
         public static final int settings_menu=0x7f090001;
     }
     public static final class string {
+        public static final int alpha_overlay=0x7f060036;
         public static final int app_name=0x7f060000;
         public static final int attemp=0x7f060025;
         public static final int best_time=0x7f06001a;
