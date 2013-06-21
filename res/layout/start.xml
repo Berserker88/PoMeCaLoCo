@@ -155,5 +155,25 @@
 	    android:layout_toLeftOf="@+id/frame_border_right"
 	    android:layout_toRightOf="@+id/frame_border_left"	    
 	    android:contentDescription="@string/frame_track_overlay" />
+	
+	<ImageView
+	    android:id="@+id/upper_lane_overlay"
+	    android:layout_width="40dp"
+	    android:layout_height="25dp"	    
+	    android:layout_alignTop="@+id/frame_border_top"	    
+	   	android:layout_centerHorizontal="true"	    
+	   	android:alpha=".00"	   	
+	    android:contentDescription="@string/frame_track_overlay"
+	    android:src="@drawable/alpha_overlay" />
+	
+	<ImageView
+	    android:id="@+id/lower_lane_overlay"
+	    android:layout_width="40dp"
+	    android:layout_height="25dp"	    
+	    android:layout_alignTop="@+id/frame_border_top"	    
+	   	android:layout_centerHorizontal="true"	
+	   	android:alpha=".00"    
+	    android:contentDescription="@string/frame_track_overlay"
+	    android:src="@drawable/alpha_overlay" />
 
 </RelativeLayout>

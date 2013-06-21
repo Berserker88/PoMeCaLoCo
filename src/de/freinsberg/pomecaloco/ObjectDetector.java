@@ -9,6 +9,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Range;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
@@ -34,20 +35,31 @@ public class ObjectDetector{
 	private Mat mHSV = null; 
 	private Mat mEdges = null; 
 	private Mat mHoughLines = null;
-	private int mHLthreshold = 50;
-    private int mHLminLineSize = 300;
-    private int mHLlineGap = 60;
+	private int mHLthreshold = 30;
+    private int mHLminLineSize = 200;
+    private int mHLlineGap = 20;
+    private Point mLowerPoint;
+    private Scalar mUpperLaneColor;
+    private Scalar mLowerLaneColor;
+    private Point mSeparatorPoint;
+    private Point mUpperPoint;
     private boolean mFoundSeparatorLine;
-    private boolean mDrawedLinesOnFrame;
+    private boolean mFoundUpperLine;
+    private boolean mFoundLowerLine;
+    private boolean mDrawedLinesOnFrame;    
 	private int mLowerThreshold;
 	private int mUpperThreshold;
 	private Mat mThreshed = null; 
+	private Mat mLowerRangeImage = null;
+	private Mat mUpperRangeImage = null;
+	private Mat mEmptyTrack = null;
 	private Mat track_overlay = null;
 	private Bitmap mTrackOverlay= null;
 	private int avg_gray;
 	private File mStorageDir;
 	private File mHoughLinesImage;
 	private File mCannyEdgeImage;
+	private File mTrackColor;
 	private String mPath;
 	private static ObjectDetector mObjectDetector = new ObjectDetector();
 	
@@ -111,10 +123,8 @@ public class ObjectDetector{
 //			mThreshed.release();
 //		mThreshed = new Mat(mRgba.size(),mRgba.type());
 //		//Log.i("debug",Integer.toString(mRgba.cols()));
-//		//Core.line(mRgba, new Point(10,10), new Point(200,200), new Scalar(255, 0, 0, 255));
 //		//mEdges = new Mat(mRgba.size(),mRgba.type());
 //		mHSV = new Mat(mRgba.size(),mRgba.type());	
-//		//Imgproc.Canny(mRgba, mEdges, 50, 200);
 //		Imgproc.cvtColor(mRgba, mHSV, Imgproc.COLOR_RGB2HSV);	
 //		Core.inRange(mHSV, lowerLimit, upperLimit, mThreshed);
 //		
@@ -130,13 +140,27 @@ public class ObjectDetector{
 //			//Log.i("debug", "Grayscaled");
 //		return mThreshed;
 //	}
-	public boolean getFoundSeparatorLines(){
-		return mFoundSeparatorLine;
+	public boolean getFoundLines(){
+		return mFoundSeparatorLine && mFoundUpperLine && mFoundLowerLine;
+	}
+	
+	public int[] getCenterOfLanes(){
+		int[] arr = new int[2];
+		arr[0] = (int) (((mSeparatorPoint.y - mUpperPoint.y) / 2) + mUpperPoint.y);
+		arr[1] = (int) (((mLowerPoint.y -mSeparatorPoint.y) /2)+mSeparatorPoint.y);
+		
+		return arr;
 	}
 	
 	public Bitmap generate_track_overlay() {
 		// Load an Image to try operations on local stored files
 		mFoundSeparatorLine = false;
+		mFoundUpperLine = false;
+		mFoundLowerLine = false;
+		mGray = new Mat();
+		mEdges = new Mat();
+		mHoughLines = new Mat();
+		mEmptyTrack = new Mat();
 		mStaticImage = Highgui
 				.imread(Environment
 						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
@@ -146,9 +170,7 @@ public class ObjectDetector{
 				.rgba().rows()), mInputFrame.rgba().type(), new Scalar(0, 0, 0,
 				0));
 		Log.i("debug", "Channels: " + track_overlay.channels());
-		mGray = new Mat();
-		mEdges = new Mat();
-		mHoughLines = new Mat();
+
 		Imgproc.cvtColor(mInputFrame.rgba(), mGray, Imgproc.COLOR_RGBA2GRAY);
 
 		double[] grays = null;
@@ -203,14 +225,30 @@ public class ObjectDetector{
 				Point start = new Point(x1, y1);
 				Point end = new Point(x2, y2);
 				mDrawedLinesOnFrame = true;
-				Core.line(track_overlay, start, end,
-						new Scalar(0, 0, 255, 255), 3);
-				Log.i("debug", "Line: " + x);
-				Log.i("debug", "x1 :" + x1);
-				Log.i("debug", "y1 :" + y1);
-				Log.i("debug", "x2 :" + x2);
-				Log.i("debug", "y2 :" + y2);
+				Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);
+				mSeparatorPoint = new Point(x1,y1);
+				
 			}
+			else if(y1 < 50 && y2 < 50)
+			{
+				mFoundUpperLine = true;
+				Point start = new Point(x1, y1);
+				Point end = new Point(x2, y2);
+				mDrawedLinesOnFrame = true;
+				Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);	
+				mUpperPoint = new Point(x1,y1);
+			}
+			else if(y1 > mInputFrame.rgba().rows() - 50 && y2 > mInputFrame.rgba().rows() - 50)
+			{
+				mFoundLowerLine = true;
+				Point start = new Point(x1, y1);
+				Point end = new Point(x2, y2);
+				mDrawedLinesOnFrame = true;
+				Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);			
+				mLowerPoint = new Point(x1,y1);
+			}
+			
+
 		}
 		mHoughLinesImage = new File(mStorageDir, "houghed.png");
 		mPath = mHoughLinesImage.toString();
@@ -219,6 +257,90 @@ public class ObjectDetector{
 			Log.i("debug", "SUCCESS writing houghed.png to external storage");
 		else
 			Log.i("debug", "Fail writing houghed.png to external storage");
+		
+		
+		//Getting average color for every lane
+		
+		//Upper lane
+		mInputFrame.rgba().copyTo(mEmptyTrack); 	
+		
+		double[] rgba = null;
+		double R, G, B, A;
+		double RCount = 0;
+		double GCount = 0;
+		double BCount = 0;
+		double ACount = 0;
+		double avgR = 0;
+		double avgG = 0;
+		double avgB = 0;
+		double avgA = 0;
+		
+		//Upper lane		
+		if(mFoundUpperLine){				
+			for(int i = ((int)mUpperPoint.y+10); i < mSeparatorPoint.y-10; i++){
+				for (int j = 0;j < mEmptyTrack.cols();j++){
+				if (rgba != null)
+					rgba = null;
+				rgba = mEmptyTrack.get(i, j);
+				R = rgba[0];
+				G = rgba[1];
+				B = rgba[2];	
+				A = rgba[3];
+				divider++;
+				RCount += R;
+				GCount += G;
+				BCount += B;
+				ACount += A;						
+				}
+			}	
+			
+			mUpperLaneColor = new Scalar(avgR,avgG,avgB,avgA);
+			avgR = RCount /divider;
+			avgG = GCount /divider;
+			avgB = BCount/divider;
+			avgA = ACount/ divider;
+			Log.i("debug", "Start: "+mUpperPoint.y);
+			Log.i("debug", "Ende: "+mSeparatorPoint.y);
+			Log.i("debug", "UPPER LANE: ");
+			Log.i("debug", "avg R: "+avgR);
+			Log.i("debug", "avg G: "+avgG);
+			Log.i("debug", "avg B: "+avgB);
+			Log.i("debug", "avg Alpha: "+avgA);	
+			
+		}
+		//Lower lane
+		if(mFoundLowerLine){				
+			for(int i = ((int)mLowerPoint.y-10); i > mSeparatorPoint.y+10; i--){
+				for (int j = 0;j < mEmptyTrack.cols();j++){
+				if (rgba != null)
+					rgba = null;
+				rgba = mEmptyTrack.get(i, j);
+				R = rgba[0];
+				G = rgba[1];
+				B = rgba[2];	
+				A = rgba[3];
+				divider++;
+				RCount += R;
+				GCount += G;
+				BCount += B;
+				ACount += A;						
+				}
+			}	
+					
+			mLowerLaneColor = new Scalar(avgR,avgG,avgB,avgA);
+			avgR = RCount /divider;
+			avgG = GCount /divider;
+			avgB = BCount/divider;
+			avgA = ACount/ divider;
+			Log.i("debug", "Start: "+mLowerPoint.y);
+			Log.i("debug", "Ende: "+mSeparatorPoint.y);
+			Log.i("debug", "LOWER LANE: ");
+			Log.i("debug", "avg R: "+avgR);
+			Log.i("debug", "avg G: "+avgG);
+			Log.i("debug", "avg B: "+avgB);
+			Log.i("debug", "avg Alpha: "+avgA);	
+		}
+		
 
 		mTrackOverlay = Bitmap.createBitmap(track_overlay.cols(),
 				track_overlay.rows(), Bitmap.Config.ARGB_8888);
@@ -226,16 +348,137 @@ public class ObjectDetector{
 
 		return mTrackOverlay;
 	}
-	
-	public Mat get_position_and_colors (Mat m){
+		
+	public Mat get_cars_position_and_colors (){
+		Mat mDiff = new Mat();
+		mRgba = mInputFrame.rgba();
+		Mat hsva = new Mat();
+		Mat hsvb = new Mat();
+				
+		Imgproc.cvtColor(mRgba, hsva, Imgproc.COLOR_BGR2HSV, 3);		
+		Imgproc.cvtColor(mEmptyTrack, hsvb, Imgproc.COLOR_BGR2HSV, 3);
+		Core.absdiff(hsva, hsvb, mDiff);
+		Imgproc.cvtColor(mDiff, mDiff, Imgproc.COLOR_HSV2BGR);
+		//Imgproc.cvtColor(mDiff, mDiff, Imgproc.COLOR_BGR2RGB);
+		
+		Highgui.imwrite(new File(mStorageDir, "mDiff.png").toString(), mDiff);
+		Highgui.imwrite(new File(mStorageDir, "hsva.png").toString(), hsva);
+		Highgui.imwrite(new File(mStorageDir, "hsvb.png").toString(), hsvb);
+		Highgui.imwrite(new File(mStorageDir, "mRgba.png").toString(), mRgba);
+		Highgui.imwrite(new File(mStorageDir, "mEmptyTrack.png").toString(), mEmptyTrack);
+		double[] rgba = null, temp;
+		List <double[]> foundcolors = new ArrayList<double[]>();
 		
 		
+		
+		for(int i = (int) mUpperPoint.y;i< mSeparatorPoint.y;i++){
+			for (int j = 0;j < mRgba.cols();j++){
+				
+				temp = mEmptyTrack.get(i, j);
+				rgba = mRgba.get(i, j);
+				
+				double min = 256;
+				double max = -1;
+				
+				for(int k = 0; k < 3; k++) {
+					if(rgba[k] < min)
+						min = rgba[k];
+					if(rgba[k] > max)
+						max = rgba[k];
+				}
+				
+				double min2 = 256;
+				double max2 = -1;
+				
+				for(int k = 0; k < 3; k++) {
+					if(temp[k] < min2)
+						min2 = temp[k];
+					if(temp[k] > max2)
+						max2 = temp[k];
+				}
+				
+				if((max - min) > (max2 - min2) + 10)
+					mRgba.put(i, j, new double[]{0,0,255,255});
+					
+				
+//				rgba = hsva.get(i,j);
+//				
+//				temp = hsvb.get(i,j);		
+				
+//				Log.i("debug", "rgba: "+rgba[0]+", "+rgba[1]+", "+rgba[2]);
+//				Log.i("debug", "temp: "+temp[0]+", "+temp[1]+", "+temp[2]);
+//				if(((rgba[0] > (temp[0]+5)) || (rgba[0] < (temp[0]-5))) && (rgba[1] > 120) && (rgba[2] >80)){
+//					mRgba.put(i, j, new double[]{0,0,255,255});
+//					foundcolors.add(rgba);
+//					}
+//				
+			}
+			//Log.i("debug", "Zeile: "+i);
+		}
+		Highgui.imwrite(new File(mStorageDir, "mRgbaRedPoints.png").toString(), mRgba);
+		for(double[] d: foundcolors)
+		Log.i("debug","Different Colors: "+d[0]+", "+d[1]+", "+d[2]);
+//		mHSV = new Mat();
+//		mLowerRangeImage = new Mat();
+//		mUpperRangeImage = new Mat();
+//		mThreshed = new Mat();
+//		Imgproc.cvtColor(mEmptyTrack, mHSV, Imgproc.COLOR_BGR2HSV);	
+//		double[] rgba = null;
+//		double R, G, B, A;
+//		double RCount = 0;
+//		double GCount = 0;
+//		double BCount = 0;
+//		double ACount = 0;
+//		double avgR = 0;
+//		double avgG = 0;
+//		double avgB = 0;
+//		double avgA = 0;
+//		
+//		double divider = 0;
+//		for (int i = 0; i < mHSV.rows(); i++) {
+//			for (int j = 0; j < mHSV.cols(); j++) {
+//				if (rgba != null)
+//					rgba = null;
+//				rgba = mEmptyTrack.get(i, j);
+//				R = rgba[0];
+//				G = rgba[1];
+//				B = rgba[2];	
+//				A = rgba[3];
+//				divider++;
+//				RCount += R;
+//				GCount += G;
+//				BCount += B;
+//				ACount += A;
+//								
+//			}
+//	
+//		}	
+//		avgR = RCount /divider;
+//		avgG = GCount /divider;
+//		avgB = BCount/divider;
+//		avgA = ACount/ divider;
+//		Log.i("debug", "avg R: "+avgR);
+//		Log.i("debug", "avg G: "+avgG);
+//		Log.i("debug", "avg B: "+avgB);
+//		Log.i("debug", "avg Alpha: "+avgA);	
+//
+//		
+//		Core.inRange(mHSV, new Scalar(0,0,0), new Scalar(avgR-10,1,1), mLowerRangeImage);
+//		Core.inRange(mHSV, new Scalar(avgR+10,0,0), new Scalar(255,1,1), mUpperRangeImage);
+//		Core.add(mLowerRangeImage, mUpperRangeImage, mThreshed);
+//		
+//		mTrackColor = new File(mStorageDir, "track.png");
+//		mPath = mTrackColor.toString();
+//		Boolean bool = Highgui.imwrite(mPath, mThreshed);
+//		if (bool)
+//			Log.i("debug", "SUCCESS writing track.png to external storage");
+//		else
+//			Log.i("debug", "Fail writing track.png to external storage");
+//		
 		
 		//Hier muss ein Bild mit den Fahrzeugen auf dem Streckenausschnitt ankommen
 		//Dann werden die Positionen gesetzt.
-		
-		
-		return m;
+		return mThreshed;
 	}
 	
 	public void draw_lanes(){

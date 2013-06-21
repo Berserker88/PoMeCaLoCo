@@ -18,7 +18,7 @@ int id back 0x7f040001
 int id camera_stream_prepare 0x7f04002f
 int id camera_stream_race 0x7f04001b
 int id choose_track 0x7f040038
-int id exit 0x7f040040
+int id exit 0x7f040042
 int id faster 0x7f04001c
 int id finish_attempt 0x7f04000b
 int id finish_attempt_view 0x7f040014
@@ -47,12 +47,13 @@ int id front 0x7f040002
 int id go_to_results 0x7f040004
 int id lap_count 0x7f040033
 int id lap_mode 0x7f040034
+int id lower_lane_overlay 0x7f040040
 int id manual_end_race 0x7f040029
 int id min_count 0x7f040035
 int id min_mode 0x7f040036
 int id new_race 0x7f040005
 int id pager 0x7f040003
-int id race_menu 0x7f04003f
+int id race_menu 0x7f040041
 int id racemode 0x7f040037
 int id raceview_best_time 0x7f040027
 int id raceview_best_time_updater 0x7f040028
@@ -71,10 +72,11 @@ int id results_racemode 0x7f04002c
 int id results_separator 0x7f040006
 int id round_speed_separator 0x7f040024
 int id scanner 0x7f040030
-int id settings_menu 0x7f040041
+int id settings_menu 0x7f040043
 int id slower 0x7f04001d
 int id textView3 0x7f04002e
 int id time_round_separator 0x7f040021
+int id upper_lane_overlay 0x7f04003f
 int id value_separator 0x7f040020
 int id view1 0x7f04001a
 int layout activity_main 0x7f030000

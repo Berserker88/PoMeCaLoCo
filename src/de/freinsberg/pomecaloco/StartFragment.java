@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
@@ -34,6 +35,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -78,6 +81,8 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 	private View frame_border_left = null;
 	private View frame_border_right = null;
 	private ImageView frame_track_overlay;
+	private ImageView upper_lane_overlay = null;
+	private ImageView lower_lane_overlay = null;
 	private int mCount;
 	private ArrayAdapter<String> mTracksAdapter;
 
@@ -147,6 +152,8 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 		frame_border_right = (View) v.findViewById(R.id.frame_border_right);
 		alpha_overlay = (ImageView) v.findViewById(R.id.alpha_overlay);
 		frame_track_overlay = (ImageView) v.findViewById(R.id.frame_track_overlay);
+		upper_lane_overlay = (ImageView) v.findViewById(R.id.upper_lane_overlay);
+		lower_lane_overlay = (ImageView) v.findViewById(R.id.lower_lane_overlay);
 		mAlphacounter = 0;
 		
 		// Set Scanner- Button Text for first Start
@@ -164,12 +171,10 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 					if(frame_track_overlay == null)
 						Log.i("debug","kein Overlay :-(");
 					frame_track_overlay.setImageBitmap(mFrameToProcess.generate_track_overlay());
-					if(mFrameToProcess.getFoundSeparatorLines() == false){
+					if(mFrameToProcess.getFoundLines() == false){
 						Toast.makeText(v.getContext(), "Bitte das Smartphone mittig über der Bahn platzieren.", Toast.LENGTH_LONG).show();
 						return;
-					}
-					
-					
+					}					
 					Log.i("debug", "Track scanned!");
 					scanner.setText(R.string.scan_cars);					
 					mShotTask = new TimerTask() {						
@@ -204,9 +209,56 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 					};	
 					mShotTimer = new Timer();
 					mShotTimer.schedule(mShotTask, 50,5);
+					float scale = getActivity().getResources().getDisplayMetrics().density;
 					
+					RelativeLayout.LayoutParams lp_upper = new RelativeLayout.LayoutParams(upper_lane_overlay.getLayoutParams());
+					
+					lp_upper.setMargins((int) (70*scale),(int) (mFrameToProcess.getCenterOfLanes()[0]/scale), 0, 0);
+					upper_lane_overlay.setLayoutParams(lp_upper);
+					
+					RelativeLayout.LayoutParams lp_lower = new RelativeLayout.LayoutParams(lower_lane_overlay.getLayoutParams());
+					lp_lower.setMargins((int) (70*scale), (int) (mFrameToProcess.getCenterOfLanes()[1]/scale), 0, 0);
+					lower_lane_overlay.setLayoutParams(lp_lower);
+					
+					upper_lane_overlay.setAlpha((float) 0.4);
+					lower_lane_overlay.setAlpha((float) 0.4);
 			
 				} else if (scanner.getText() == getString(R.string.scan_cars)) {
+					
+					mFrameToProcess.get_cars_position_and_colors();
+					mShotTask = new TimerTask() {						
+						@Override
+						public void run() {
+						mHandler.post(new Runnable() {								
+								@Override
+								public void run() {
+									if(mAlphacounter>=1){										
+										mAlpha = (float) (mAlphacounter/100.0);
+										//Log.i("debug","Alpha: "+mAlpha);
+										alpha_overlay.setAlpha(mAlpha);											
+									frame_border_top.setBackgroundResource(R.color.record_yellow);	
+									frame_border_bottom.setBackgroundResource(R.color.record_yellow);	
+									frame_border_left.setBackgroundResource(R.color.record_yellow);	
+									frame_border_right.setBackgroundResource(R.color.record_yellow);	
+									mAlphacounter--;
+									}else{
+										frame_border_top.setBackgroundResource(R.color.white);	
+										frame_border_bottom.setBackgroundResource(R.color.white);	
+										frame_border_left.setBackgroundResource(R.color.white);	
+										frame_border_right.setBackgroundResource(R.color.white);
+										
+										mShotTimer.cancel();
+										mShotTimer.purge();
+										
+									}
+														
+									}								
+								});							
+						}
+					};	
+					mShotTimer = new Timer();
+					mShotTimer.schedule(mShotTask, 50,5);
+					
 					Log.i("debug", "Cars scanned!");
 					scanner.setEnabled(false);
 					scanner.setText(R.string.complete);
