@@ -85,9 +85,10 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 	private View frame_border_bottom = null;
 	private View frame_border_left = null;
 	private View frame_border_right = null;
-	private ImageView frame_track_overlay;
-	private ImageView upper_lane_overlay = null;
-	private ImageView lower_lane_overlay = null;
+	private ImageView frame_track_overlay;	
+	private ImageView lane_overlay = null;
+	private ImageView left_car_color;
+	private ImageView right_car_color;
 	private int mCount;
 	private ArrayAdapter<String> mTracksAdapter;
 
@@ -157,8 +158,10 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 		frame_border_right = (View) v.findViewById(R.id.frame_border_right);
 		alpha_overlay = (ImageView) v.findViewById(R.id.alpha_overlay);
 		frame_track_overlay = (ImageView) v.findViewById(R.id.frame_track_overlay);
-		upper_lane_overlay = (ImageView) v.findViewById(R.id.upper_lane_overlay);
-		lower_lane_overlay = (ImageView) v.findViewById(R.id.lower_lane_overlay);
+		lane_overlay = (ImageView) v.findViewById(R.id.lane_overlay);
+		left_car_color = (ImageView) v.findViewById(R.id.left_car_color);
+		right_car_color = (ImageView) v.findViewById(R.id.right_car_color);
+			
 		mAlphacounter = 0;
 		
 		// Set Scanner- Button Text for first Start
@@ -171,11 +174,12 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 			@Override
 			public void onClick(View v) {
 				if (scanner.getText() == getString(R.string.scan_track)) {
-					mAlphacounter = 100;					;		
+					mAlphacounter = 100;							
 					
 					if(frame_track_overlay == null)
 						Log.i("debug","kein Overlay :-(");
 					frame_track_overlay.setImageBitmap(mFrameToProcess.generate_track_overlay());
+					
 					if(mFrameToProcess.getFoundLines() == false){
 						Toast.makeText(v.getContext(), "Bitte das Smartphone mittig über der Bahn platzieren.", Toast.LENGTH_LONG).show();
 						return;
@@ -214,23 +218,17 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 					};	
 					mShotTimer = new Timer();
 					mShotTimer.schedule(mShotTask, 50,5);
-					float scale = getActivity().getResources().getDisplayMetrics().density;
 					
-					RelativeLayout.LayoutParams lp_upper = new RelativeLayout.LayoutParams(upper_lane_overlay.getLayoutParams());
-					
-					lp_upper.setMargins((int) (70*scale),(int) (mFrameToProcess.getCenterOfLanes()[0]/scale), 0, 0);
-					upper_lane_overlay.setLayoutParams(lp_upper);
-					
-					RelativeLayout.LayoutParams lp_lower = new RelativeLayout.LayoutParams(lower_lane_overlay.getLayoutParams());
-					lp_lower.setMargins((int) (70*scale), (int) (mFrameToProcess.getCenterOfLanes()[1]/scale), 0, 0);
-					lower_lane_overlay.setLayoutParams(lp_lower);
-					
-					upper_lane_overlay.setAlpha((float) 0.4);
-					lower_lane_overlay.setAlpha((float) 0.4);
+					if(lane_overlay == null)
+						Log.i("debug","kein Lane Overlay :-(");
+//					lane_overlay.setAlpha((float) (0.4));
+					lane_overlay.setImageBitmap(mFrameToProcess.draw_car_recognizer());
 			
 				} else if (scanner.getText() == getString(R.string.scan_cars)) {
 					
-					mFrameToProcess.get_cars_position_and_colors();
+					left_car_color.setImageBitmap(mFrameToProcess.get_cars_colors()[0]);
+					right_car_color.setImageBitmap(mFrameToProcess.get_cars_colors()[1]);
+					
 					mShotTask = new TimerTask() {						
 						@Override
 						public void run() {
@@ -381,8 +379,8 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		
 		mFrameToProcess = ObjectDetector.getInstance(inputFrame);
-//		
-//		Mat a = inputFrame.rgba();
+		
+//		Mat a = inputFrame.gray();
 //		Mat b = new Mat(a.width(),a.height(), a.type());
 //		//Imgproc.cvtColor(a, a, Imgproc.COLOR_BGRA2BGR);
 //		if(i == 200){
@@ -392,20 +390,17 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 //		}
 //		
 //		a = a.t();
-//		if(i == 200){
-//			Log.i("debug", "a.t() ->  size: "+a.size()+", type:"+a.type()+", channels:"+a.channels()+", depth:"+a.depth()+", dump:"+a.dump());
-//			Highgui.imwrite(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "a.t().png").toString(), a);	
-//		}
+
 //		Imgproc.cvtColor(a, a, Imgproc.COLOR_RGBA2BGRA);
 		//Imgproc.cvtColor(a, a, Imgproc.COLOR_BGR2BGRA);
-		//Core.flip(a.t(), b, 1);
+//		Core.flip(a.t(), b, 1);
 //		Point img_center = new Point(a.cols()/2,a.rows()/2);
 //		Mat rot_mat = Imgproc.getRotationMatrix2D(img_center, 270, 1.0);
 //		Imgproc.warpAffine(a, b, rot_mat, b.size());
 //		Imgproc.cvtColor(b, b, Imgproc.COLOR_BGR2RGBA);
 //		if(i == 200)
 //			Log.i("debug", "b ->  size: "+b.size()+", type:"+b.type());
-//			Highgui.imwrite(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "transposed.png").toString(), b);
+//			Highgui.imwrite(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "ROTATED.png").toString(), b);
 //		b.copyTo(a);
 //		i++;
 ////		a.release();
@@ -413,6 +408,10 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 
 		//mFrameToProcess = ObjectDetector.getInstance(inputFrame);
 //		i++;
+//		if(i == 200){
+//		Log.i("debug", "b.t() ->  size: "+b.size()+", type:"+b.type()+", channels:"+b.channels()+", depth:"+b.depth()+", dump:"+b.dump());
+//		Highgui.imwrite(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "a.t().png").toString(), b);	
+//	}
 		return inputFrame.rgba();
 	
 	}

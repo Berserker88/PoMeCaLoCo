@@ -10,6 +10,7 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Range;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
@@ -29,6 +30,7 @@ public class ObjectDetector{
 	private static final int ORIENTATION_90 = 90;
 	private static final int ORIENTATION_270 = 270;
 	private static CvCameraViewFrame mInputFrame;	
+	private static Mat mInputFramePortrait;
 	private Mat mStaticImage = null;
 	private Mat mRgba = null;
 	private Mat mGray = null;
@@ -55,6 +57,13 @@ public class ObjectDetector{
 	private Mat mEmptyTrack = null;
 	private Mat track_overlay = null;
 	private Bitmap mTrackOverlay= null;
+	private Mat mCarRecognizerOverlay;
+	private Bitmap mCarRecognizer;
+	private Mat mLeftCarColor;
+	private Mat mRightCarColor;
+	private Bitmap mLeftCarColorImage;
+	private Bitmap mRightCarColorImage;
+	private Bitmap[] mCarColorImages;
 	private int avg_gray;
 	private File mStorageDir;
 	private File mHoughLinesImage;
@@ -69,7 +78,12 @@ public class ObjectDetector{
 	
 	public static ObjectDetector getInstance(CvCameraViewFrame inputFrame){
 		
-		mInputFrame = inputFrame;		
+		if(mInputFramePortrait != null)
+			mInputFramePortrait.release();
+		
+			mInputFrame = inputFrame;	
+			mInputFramePortrait = inputFrame.rgba().t();		
+			Core.flip(mInputFramePortrait, mInputFramePortrait, 1);		
 		return mObjectDetector;
 	}
 	
@@ -146,8 +160,28 @@ public class ObjectDetector{
 	
 	public int[] getCenterOfLanes(){
 		int[] arr = new int[2];
-		arr[0] = (int) (((mSeparatorPoint.y - mUpperPoint.y) / 2) + mUpperPoint.y);
-		arr[1] = (int) (((mLowerPoint.y -mSeparatorPoint.y) /2)+mSeparatorPoint.y);
+		arr[0] = (int) (((mSeparatorPoint.x - mUpperPoint.x) / 2) + mUpperPoint.x);
+		arr[1] = (int) (((mLowerPoint.x -mSeparatorPoint.x) /2)+mSeparatorPoint.x);
+		
+		return arr;
+	}
+	
+	public Bitmap draw_car_recognizer(){
+		
+		mCarRecognizerOverlay = new Mat(new Size(mInputFramePortrait.cols(), mInputFramePortrait.rows()), mInputFramePortrait.type(), new Scalar(0, 0, 0, 0));
+		Core.rectangle(mCarRecognizerOverlay, new Point(getCenterOfLanes()[0] - 15, (mInputFramePortrait.rows()/2) - 15), new Point(getCenterOfLanes()[0] + 15, (mInputFramePortrait.rows()/2) + 15), new Scalar(255,255,255,255));
+		Core.rectangle(mCarRecognizerOverlay, new Point(getCenterOfLanes()[1] - 15, (mInputFramePortrait.rows()/2) - 15), new Point(getCenterOfLanes()[1] + 15, (mInputFramePortrait.rows()/2) + 15), new Scalar(255,255,255,255));
+		mCarRecognizer = Bitmap.createBitmap(mCarRecognizerOverlay.cols(), mCarRecognizerOverlay.rows(), Bitmap.Config.ARGB_8888);
+		Utils.matToBitmap(mCarRecognizerOverlay, mCarRecognizer);
+		
+		
+		return mCarRecognizer;
+	}
+	
+	public Rect[] getLanesToScanColor(){
+		Rect[] arr = new Rect[2];
+		arr[0] = new Rect(new Point(getCenterOfLanes()[0] - 15, (mInputFramePortrait.rows()/2) - 15), new Point(getCenterOfLanes()[0] + 15, (mInputFramePortrait.rows()/2) + 15));
+		arr[1] = new Rect(new Point(getCenterOfLanes()[1] - 15, (mInputFramePortrait.rows()/2) - 15), new Point(getCenterOfLanes()[1] + 15, (mInputFramePortrait.rows()/2) + 15));
 		
 		return arr;
 	}
@@ -166,12 +200,12 @@ public class ObjectDetector{
 						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
 						+ "track.jpg");
 
-		track_overlay = new Mat(new Size(mInputFrame.rgba().cols(), mInputFrame
-				.rgba().rows()), mInputFrame.rgba().type(), new Scalar(0, 0, 0,
+		track_overlay = new Mat(new Size(mInputFramePortrait.cols(), mInputFramePortrait
+				.rows()), mInputFramePortrait.type(), new Scalar(0, 0, 0,
 				0));
 		Log.i("debug", "Channels: " + track_overlay.channels());
 
-		Imgproc.cvtColor(mInputFrame.rgba(), mGray, Imgproc.COLOR_RGBA2GRAY);
+		Imgproc.cvtColor(mInputFramePortrait, mGray, Imgproc.COLOR_RGBA2GRAY);
 
 		double[] grays = null;
 		double wert;
@@ -198,7 +232,7 @@ public class ObjectDetector{
 		mGray.release();
 		// Highgui.imwrite("/houghlines.png", mHoughLines);
 		Log.i("debug",
-				"Status Externer Speciher: "
+				"Status Sd-Karte: "
 						+ Environment.getExternalStorageState());
 		mStorageDir = Environment
 				.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
@@ -210,45 +244,52 @@ public class ObjectDetector{
 			Log.i("debug", "SUCCESS writing canny.bmp to external storage");
 		else
 			Log.i("debug", "Fail writing canny.bmp to external storage");
-
-		Imgproc.HoughLinesP(mEdges, mHoughLines, 1, Math.PI / 180,
-				mHLthreshold, mHLminLineSize, mHLlineGap);
-		for (int x = 0; x < mHoughLines.cols(); x++) {
-			double[] vec = mHoughLines.get(0, x);
-			double x1 = vec[0], y1 = vec[1], x2 = vec[2], y2 = vec[3];
-
-			if (y1 > mInputFrame.rgba().rows() / 2 - 30
-					&& y1 < mInputFrame.rgba().rows() / 2 + 30
-					&& y2 > mInputFrame.rgba().rows() / 2 - 30
-					&& y2 < mInputFrame.rgba().rows() / 2 + 30) {
-				mFoundSeparatorLine = true;
-				Point start = new Point(x1, y1);
-				Point end = new Point(x2, y2);
-				mDrawedLinesOnFrame = true;
-				Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);
-				mSeparatorPoint = new Point(x1,y1);
-				
-			}
-			else if(y1 < 50 && y2 < 50)
-			{
-				mFoundUpperLine = true;
-				Point start = new Point(x1, y1);
-				Point end = new Point(x2, y2);
-				mDrawedLinesOnFrame = true;
-				Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);	
-				mUpperPoint = new Point(x1,y1);
-			}
-			else if(y1 > mInputFrame.rgba().rows() - 50 && y2 > mInputFrame.rgba().rows() - 50)
-			{
-				mFoundLowerLine = true;
-				Point start = new Point(x1, y1);
-				Point end = new Point(x2, y2);
-				mDrawedLinesOnFrame = true;
-				Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);			
-				mLowerPoint = new Point(x1,y1);
+		
+		if((!mEdges.empty() && !mInputFramePortrait.empty()) == true)
+		{	
+			Imgproc.HoughLinesP(mEdges, mHoughLines, 1, Math.PI / 180,
+					mHLthreshold, mHLminLineSize, mHLlineGap);
+			
+			for (int x = 0; x < mHoughLines.cols(); x++) {
+				double[] vec = mHoughLines.get(0, x);
+				double x1 = vec[0], y1 = vec[1], x2 = vec[2], y2 = vec[3];
+	
+				if (x1 > mInputFramePortrait.cols() / 2 - 30
+						&& x1 < mInputFramePortrait.cols() / 2 + 30
+						&& x2 > mInputFramePortrait.cols() / 2 - 30
+						&& x2 < mInputFramePortrait.cols() / 2 + 30) {					
+					Point start = new Point(x1, y1);
+					Point end = new Point(x2, y2);				
+					Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);
+					mSeparatorPoint = new Point(x1,y1);
+					mDrawedLinesOnFrame = true;
+					mFoundSeparatorLine = true;						
+				}
+				else if(x1 < 50 && x2 < 50)
+				{				
+					Point start = new Point(x1, y1);
+					Point end = new Point(x2, y2);				
+					Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);	
+					mUpperPoint = new Point(x1,y1);
+					mDrawedLinesOnFrame = true;
+					mFoundUpperLine = true;
+				}
+				else if(x1 > mInputFramePortrait.cols() - 50 && x2 > mInputFramePortrait.cols() - 50)
+				{				
+					Point start = new Point(x1, y1);
+					Point end = new Point(x2, y2);				
+					Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);			
+					mLowerPoint = new Point(x1,y1);
+					mDrawedLinesOnFrame = true;
+					mFoundLowerLine = true;
+				}
 			}
 			
-
+			mTrackOverlay = Bitmap.createBitmap(track_overlay.cols(),
+					track_overlay.rows(), Bitmap.Config.ARGB_8888);
+			Utils.matToBitmap(track_overlay, mTrackOverlay);
+			
+			mInputFramePortrait.copyTo(mEmptyTrack); 	
 		}
 		mHoughLinesImage = new File(mStorageDir, "houghed.png");
 		mPath = mHoughLinesImage.toString();
@@ -261,7 +302,7 @@ public class ObjectDetector{
 		
 		//Getting average color for every lane
 		
-		mInputFrame.rgba().copyTo(mEmptyTrack); 	
+		
 		
 		double[] rgba = null;
 		double R, G, B, A;
@@ -275,108 +316,110 @@ public class ObjectDetector{
 		double avgA = 0;
 		
 		//Upper lane		
-		if(mFoundUpperLine){				
-			for(int i = ((int)mUpperPoint.y+10); i < mSeparatorPoint.y-10; i++){
-				for (int j = 0;j < mEmptyTrack.cols();j++){
-				if (rgba != null)
-					rgba = null;
-				rgba = mEmptyTrack.get(i, j);
-				R = rgba[0];
-				G = rgba[1];
-				B = rgba[2];	
-				A = rgba[3];
-				divider++;
-				RCount += R;
-				GCount += G;
-				BCount += B;
-				ACount += A;						
-				}
-			}	
-			
-			mUpperLaneColor = new Scalar(avgR,avgG,avgB,avgA);
-			avgR = RCount /divider;
-			avgG = GCount /divider;
-			avgB = BCount/divider;
-			avgA = ACount/ divider;
-			Log.i("debug", "Start: "+mUpperPoint.y);
-			Log.i("debug", "Ende: "+mSeparatorPoint.y);
-			Log.i("debug", "UPPER LANE: ");
-			Log.i("debug", "avg R: "+avgR);
-			Log.i("debug", "avg G: "+avgG);
-			Log.i("debug", "avg B: "+avgB);
-			Log.i("debug", "avg Alpha: "+avgA);	
-			
-		}
-		//Lower lane
-		//TODO Null Pointer Exception when line was found before --> but other lines not and then when this line not found this option is still true from before
-		if(mFoundLowerLine){				
-			for(int i = ((int)mLowerPoint.y-10); i > mSeparatorPoint.y+10; i--){
-				for (int j = 0;j < mEmptyTrack.cols();j++){
-				if (rgba != null)
-					rgba = null;
-				rgba = mEmptyTrack.get(i, j);
-				R = rgba[0];
-				G = rgba[1];
-				B = rgba[2];	
-				A = rgba[3];
-				divider++;
-				RCount += R;
-				GCount += G;
-				BCount += B;
-				ACount += A;						
-				}
-			}	
-					
-			mLowerLaneColor = new Scalar(avgR,avgG,avgB,avgA);
-			avgR = RCount /divider;
-			avgG = GCount /divider;
-			avgB = BCount/divider;
-			avgA = ACount/ divider;
-			Log.i("debug", "Start: "+mLowerPoint.y);
-			Log.i("debug", "Ende: "+mSeparatorPoint.y);
-			Log.i("debug", "LOWER LANE: ");
-			Log.i("debug", "avg R: "+avgR);
-			Log.i("debug", "avg G: "+avgG);
-			Log.i("debug", "avg B: "+avgB);
-			Log.i("debug", "avg Alpha: "+avgA);	
-		}
+//		if(mFoundUpperLine){				
+//			for(int i = ((int)mUpperPoint.y+10); i < mSeparatorPoint.y-10; i++){
+//				for (int j = 0;j < mEmptyTrack.cols();j++){
+//				if (rgba != null)
+//					rgba = null;
+//				rgba = mEmptyTrack.get(i, j);
+//				R = rgba[0];
+//				G = rgba[1];
+//				B = rgba[2];	
+//				A = rgba[3];
+//				divider++;
+//				RCount += R;
+//				GCount += G;
+//				BCount += B;
+//				ACount += A;						
+//				}
+//			}	
+//			
+//			mUpperLaneColor = new Scalar(avgR,avgG,avgB,avgA);
+//			avgR = RCount /divider;
+//			avgG = GCount /divider;
+//			avgB = BCount/divider;
+//			avgA = ACount/ divider;
+//			Log.i("debug", "Start: "+mUpperPoint.y);
+//			Log.i("debug", "Ende: "+mSeparatorPoint.y);
+//			Log.i("debug", "UPPER LANE: ");
+//			Log.i("debug", "avg R: "+avgR);
+//			Log.i("debug", "avg G: "+avgG);
+//			Log.i("debug", "avg B: "+avgB);
+//			Log.i("debug", "avg Alpha: "+avgA);	
+//			
+//		}
+//		//Lower lane
+//		//TODO Null Pointer Exception when line was found before --> but other lines not and then when this line not found this option is still true from before
+//		if(mFoundLowerLine){				
+//			for(int i = ((int)mLowerPoint.y-10); i > mSeparatorPoint.y+10; i--){
+//				for (int j = 0;j < mEmptyTrack.cols();j++){
+//				if (rgba != null)
+//					rgba = null;
+//				rgba = mEmptyTrack.get(i, j);
+//				R = rgba[0];
+//				G = rgba[1];
+//				B = rgba[2];	
+//				A = rgba[3];
+//				divider++;
+//				RCount += R;
+//				GCount += G;
+//				BCount += B;
+//				ACount += A;						
+//				}
+//			}	
+//					
+//			mLowerLaneColor = new Scalar(avgR,avgG,avgB,avgA);
+//			avgR = RCount /divider;
+//			avgG = GCount /divider;
+//			avgB = BCount/divider;
+//			avgA = ACount/ divider;
+//			Log.i("debug", "Start: "+mLowerPoint.y);
+//			Log.i("debug", "Ende: "+mSeparatorPoint.y);
+//			Log.i("debug", "LOWER LANE: ");
+//			Log.i("debug", "avg R: "+avgR);
+//			Log.i("debug", "avg G: "+avgG);
+//			Log.i("debug", "avg B: "+avgB);
+//			Log.i("debug", "avg Alpha: "+avgA);	
+//		}
 		
+		//Core.flip(track_overlay.t(), track_overlay, 1);
 
-		mTrackOverlay = Bitmap.createBitmap(track_overlay.cols(),
-				track_overlay.rows(), Bitmap.Config.ARGB_8888);
-		Utils.matToBitmap(track_overlay, mTrackOverlay);
-
+		
 		return mTrackOverlay;
 	}
 		
-	public Mat get_cars_position_and_colors (){
-		Mat mDiff = new Mat();
-		mRgba = mInputFrame.rgba();
+	public Bitmap[] get_cars_colors (){
+		mRgba = mInputFramePortrait;
+		Highgui.imwrite(new File(mStorageDir, "emptyTrack.png").toString(), mEmptyTrack);
+		Mat mDiff = new Mat();		
 		Mat hsva = new Mat();
 		Mat hsvb = new Mat();
-				
-		Imgproc.cvtColor(mRgba, hsva, Imgproc.COLOR_BGR2HSV, 3);		
-		Imgproc.cvtColor(mEmptyTrack, hsvb, Imgproc.COLOR_BGR2HSV, 3);
-		Core.absdiff(hsva, hsvb, mDiff);
-		Imgproc.cvtColor(mDiff, mDiff, Imgproc.COLOR_HSV2BGR);
-		//Imgproc.cvtColor(mDiff, mDiff, Imgproc.COLOR_BGR2RGB);
-		
-		Highgui.imwrite(new File(mStorageDir, "mDiff.png").toString(), mDiff);
-		Highgui.imwrite(new File(mStorageDir, "hsva.png").toString(), hsva);
-		Highgui.imwrite(new File(mStorageDir, "hsvb.png").toString(), hsvb);
-		Highgui.imwrite(new File(mStorageDir, "mRgba.png").toString(), mRgba);
-		Highgui.imwrite(new File(mStorageDir, "mEmptyTrack.png").toString(), mEmptyTrack);
-		double[] rgba = null, temp;
+//				
+//		Imgproc.cvtColor(mRgba, hsva, Imgproc.COLOR_BGR2HSV, 3);		
+//		//Imgproc.cvtColor(mEmptyTrack, hsvb, Imgproc.COLOR_BGR2HSV, 3);
+//		//Core.absdiff(hsva, hsvb, mDiff);
+//		Imgproc.cvtColor(mDiff, mDiff, Imgproc.COLOR_HSV2BGR);
+//		//Imgproc.cvtColor(mDiff, mDiff, Imgproc.COLOR_BGR2RGB);
+//		
+//		Highgui.imwrite(new File(mStorageDir, "mDiff.png").toString(), mDiff);
+//		Highgui.imwrite(new File(mStorageDir, "hsva.png").toString(), hsva);
+//		Highgui.imwrite(new File(mStorageDir, "hsvb.png").toString(), hsvb);
+//		Highgui.imwrite(new File(mStorageDir, "mRgba.png").toString(), mRgba);
+//		Highgui.imwrite(new File(mStorageDir, "mEmptyTrack.png").toString(), mEmptyTrack);
+		double[] rgba, temp;
 		List <double[]> foundcolors = new ArrayList<double[]>();
 		
 		
+		//search left rect for different color
+		int x_offset_left = getCenterOfLanes()[0]-15;
+		int y_offset_left = (mInputFramePortrait.rows()/2)-15;
 		
-		for(int i = (int) mUpperPoint.y;i< mSeparatorPoint.y;i++){
-			for (int j = 0;j < mRgba.cols();j++){
+		for(int x = x_offset_left;x< getLanesToScanColor()[0].x;x++){
+			for (int y = y_offset_left;y < getLanesToScanColor()[0].y;y++){
 				
-				temp = mEmptyTrack.get(i, j);
-				rgba = mRgba.get(i, j);
-				
+				temp = mEmptyTrack.get(y, x);
+				rgba = mRgba.get(y, x);
+
 				double min = 256;
 				double max = -1;
 				
@@ -397,27 +440,79 @@ public class ObjectDetector{
 						max2 = temp[k];
 				}
 				
-				if((max - min) > (max2 - min2) + 10)
-					mRgba.put(i, j, new double[]{0,0,255,255});
-					
-				
-//				rgba = hsva.get(i,j);
-//				
-//				temp = hsvb.get(i,j);		
-				
-//				Log.i("debug", "rgba: "+rgba[0]+", "+rgba[1]+", "+rgba[2]);
-//				Log.i("debug", "temp: "+temp[0]+", "+temp[1]+", "+temp[2]);
-//				if(((rgba[0] > (temp[0]+5)) || (rgba[0] < (temp[0]-5))) && (rgba[1] > 120) && (rgba[2] >80)){
-//					mRgba.put(i, j, new double[]{0,0,255,255});
-//					foundcolors.add(rgba);
-//					}
-//				
-			}
-			//Log.i("debug", "Zeile: "+i);
+				if((max - min) > (max2 - min2) + 10){
+					mRgba.put(y, x, new double[]{0,0,255,255});
+					foundcolors.add(rgba);		
+				}		
+			}		
 		}
+		int counter_left = 1;
+		int blue_left = 0;
+		int yellow_left = 0;
+		int red_left = 0;
+		for(double[] d : foundcolors){
+			counter_left++;
+			blue_left += d[0];
+			yellow_left += d[1];
+			red_left += d[2];
+		}
+		Scalar left_car_color = new Scalar(red_left/counter_left,yellow_left/counter_left, blue_left/counter_left,255);
+		mLeftCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFramePortrait.type(),left_car_color);
+		
+		
+		//search right rect for different color
+		
+		int x_offset_right = getCenterOfLanes()[1]-15;
+		int y_offset_right = (mInputFramePortrait.rows()/2)-15;
+		
+		for(int x = x_offset_right;x< getLanesToScanColor()[1].x;x++){
+			for (int y = y_offset_right;y < getLanesToScanColor()[1].y;y++){
+				
+				temp = mEmptyTrack.get(y, x);
+				rgba = mRgba.get(y, x);
+
+				double min = 256;
+				double max = -1;
+				
+				for(int k = 0; k < 3; k++) {
+					if(rgba[k] < min)
+						min = rgba[k];
+					if(rgba[k] > max)
+						max = rgba[k];
+				}
+				
+				double min2 = 256;
+				double max2 = -1;
+				
+				for(int k = 0; k < 3; k++) {
+					if(temp[k] < min2)
+						min2 = temp[k];
+					if(temp[k] > max2)
+						max2 = temp[k];
+				}
+				
+				if((max - min) > (max2 - min2) + 10){
+					mRgba.put(y, x, new double[]{0,0,255,255});
+					foundcolors.add(rgba);		
+				}		
+			}		
+		}
+		int counter_right = 1;
+		int blue_right = 0;
+		int yellow_right = 0;
+		int red_right = 0;
+		for(double[] d : foundcolors){
+			counter_right++;
+			blue_right += d[0];
+			yellow_right += d[1];
+			red_right += d[2];
+		}
+		Scalar right_car_color = new Scalar(red_right/counter_right,yellow_right/counter_right, blue_right/counter_right,255);
+		mRightCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFramePortrait.type(),right_car_color);
+		
 		Highgui.imwrite(new File(mStorageDir, "mRgbaRedPoints.png").toString(), mRgba);
-		for(double[] d: foundcolors)
-		Log.i("debug","Different Colors: "+d[0]+", "+d[1]+", "+d[2]);
+//		for(double[] d: foundcolors)
+//		Log.i("debug","Different Colors: "+d[0]+", "+d[1]+", "+d[2]);
 //		mHSV = new Mat();
 //		mLowerRangeImage = new Mat();
 //		mUpperRangeImage = new Mat();
@@ -478,17 +573,20 @@ public class ObjectDetector{
 		
 		//Hier muss ein Bild mit den Fahrzeugen auf dem Streckenausschnitt ankommen
 		//Dann werden die Positionen gesetzt.
-		return mThreshed;
+		
+		mLeftCarColorImage = Bitmap.createBitmap(mLeftCarColor.cols(), mLeftCarColor.rows(), Bitmap.Config.ARGB_8888);
+		Utils.matToBitmap(mLeftCarColor, mLeftCarColorImage);
+		mRightCarColorImage = Bitmap.createBitmap(mRightCarColor.cols(), mRightCarColor.rows(), Bitmap.Config.ARGB_8888);
+		Utils.matToBitmap(mRightCarColor, mRightCarColorImage);
+		mCarColorImages = new Bitmap[2];
+		mCarColorImages[0] = mLeftCarColorImage;
+		mCarColorImages[1] = mRightCarColorImage;
+		
+		return mCarColorImages;
 	}
 	
-	public void draw_lanes(){
-		
-		
+	public void draw_lanes(){		
 		
 		
 	}
-	
-	
-	
-
 }

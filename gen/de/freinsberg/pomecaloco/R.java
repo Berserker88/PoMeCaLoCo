@@ -61,7 +61,7 @@ containing a value of this type.
         public static final int camera_stream_prepare=0x7f04002f;
         public static final int camera_stream_race=0x7f04001b;
         public static final int choose_track=0x7f040038;
-        public static final int exit=0x7f040042;
+        public static final int exit=0x7f040043;
         public static final int faster=0x7f04001c;
         public static final int finish_attempt=0x7f04000b;
         public static final int finish_attempt_view=0x7f040014;
@@ -88,15 +88,16 @@ containing a value of this type.
         public static final int frame_track_overlay=0x7f04003e;
         public static final int front=0x7f040002;
         public static final int go_to_results=0x7f040004;
+        public static final int lane_overlay=0x7f04003f;
         public static final int lap_count=0x7f040033;
         public static final int lap_mode=0x7f040034;
-        public static final int lower_lane_overlay=0x7f040040;
+        public static final int left_car_color=0x7f040040;
         public static final int manual_end_race=0x7f040029;
         public static final int min_count=0x7f040035;
         public static final int min_mode=0x7f040036;
         public static final int new_race=0x7f040005;
         public static final int pager=0x7f040003;
-        public static final int race_menu=0x7f040041;
+        public static final int race_menu=0x7f040042;
         public static final int racemode=0x7f040037;
         public static final int raceview_best_time=0x7f040027;
         public static final int raceview_best_time_updater=0x7f040028;
@@ -113,13 +114,13 @@ containing a value of this type.
         public static final int results_grid=0x7f04002d;
         public static final int results_racemode=0x7f04002c;
         public static final int results_separator=0x7f040006;
+        public static final int right_car_color=0x7f040041;
         public static final int round_speed_separator=0x7f040024;
         public static final int scanner=0x7f040030;
-        public static final int settings_menu=0x7f040043;
+        public static final int settings_menu=0x7f040044;
         public static final int slower=0x7f04001d;
         public static final int textView3=0x7f04002e;
         public static final int time_round_separator=0x7f040021;
-        public static final int upper_lane_overlay=0x7f04003f;
         public static final int value_separator=0x7f040020;
         public static final int view1=0x7f04001a;
     }
@@ -162,8 +163,10 @@ containing a value of this type.
         public static final int frame_track_overlay=0x7f060037;
         public static final int go_to_results=0x7f06000d;
         public static final int hello_world=0x7f060004;
+        public static final int lane_overlay=0x7f060038;
         public static final int lap_count_hint=0x7f060035;
         public static final int lap_mode=0x7f060007;
+        public static final int left_car_color=0x7f06003a;
         public static final int manual_end_race=0x7f06001f;
         public static final int menu_settings=0x7f060005;
         public static final int min_count_hint=0x7f060034;
@@ -185,6 +188,7 @@ containing a value of this type.
         public static final int raceview_time_updater=0x7f06001b;
         public static final int rescan=0x7f060014;
         public static final int results=0x7f06000a;
+        public static final int right_car_color=0x7f060039;
         public static final int scan_cars=0x7f060012;
         public static final int scan_track=0x7f060009;
         public static final int settings_menu=0x7f060011;

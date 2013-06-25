@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
     
-<org.opencv.android.NativeCameraView
+<org.opencv.android.JavaCameraView
 	     android:layout_marginTop="100dp"
 	     android:layout_marginLeft="20dp"
 	     android:layout_marginRight="20dp"
@@ -159,31 +159,43 @@
 	<ImageView
 	    android:id="@+id/frame_track_overlay"
 	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"	    
+	    android:layout_height="248dp"	 
+	    android:scaleType="center"   
 	    android:layout_alignTop="@+id/frame_border_right"
-	    android:layout_marginTop="4dp"
+	    android:layout_marginTop="4dp"	    
 	    android:layout_toLeftOf="@+id/frame_border_right"
 	    android:layout_toRightOf="@+id/frame_border_left"	    
 	    android:contentDescription="@string/frame_track_overlay" />
 	
 	<ImageView
-	    android:id="@+id/upper_lane_overlay"
-	    android:layout_width="40dp"
-	    android:layout_height="25dp"	    
-	    android:layout_alignTop="@+id/frame_border_top"	    
-	   	android:layout_centerHorizontal="true"	    
-	   	android:alpha=".00"	   	
-	    android:contentDescription="@string/frame_track_overlay"
-	    android:src="@drawable/alpha_overlay" />
+	    android:id="@+id/lane_overlay"
+	    android:layout_width="wrap_content"
+	    android:layout_height="248dp"	    
+	    android:scaleType="center"
+	    android:layout_alignTop="@+id/frame_border_right"
+	    android:layout_marginTop="4dp"	    
+	    android:layout_toLeftOf="@+id/frame_border_right"
+	    android:layout_toRightOf="@+id/frame_border_left" 	
+	    android:contentDescription="@string/lane_overlay"
+	     />
+	<ImageView
+	    android:id="@+id/left_car_color"
+	    android:layout_width="50dp"
+	    android:layout_height="20dp"	    
+	    android:layout_centerHorizontal="true"
+	    android:layout_below="@id/frame_border_top"	    
+	    android:layout_toRightOf="@+id/frame_border_left"	    
+	    android:contentDescription="left_car_color"
+	     />
 	
 	<ImageView
-	    android:id="@+id/lower_lane_overlay"
-	    android:layout_width="40dp"
-	    android:layout_height="25dp"	    
-	    android:layout_alignTop="@+id/frame_border_top"	    
-	   	android:layout_centerHorizontal="true"	
-	   	android:alpha=".00"    
-	    android:contentDescription="@string/frame_track_overlay"
-	    android:src="@drawable/alpha_overlay" />
+	    android:id="@+id/right_car_color"
+	    android:layout_width="50dp"
+	    android:layout_height="20dp"	    
+	    android:layout_centerHorizontal="true"
+	    android:layout_below="@id/frame_border_top"	    
+	    android:layout_toLeftOf="@+id/frame_border_right"	    
+	    android:contentDescription="right_car_color"
+	     />
 
 </RelativeLayout>

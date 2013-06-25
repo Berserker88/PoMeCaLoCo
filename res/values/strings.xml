@@ -70,5 +70,8 @@
     <string name="lap_count_hint"># Runden</string>
     <string name="alpha_overlay">Alpha Overlay</string>
     <string name="frame_track_overlay">Streckenoverlay</string>
+    <string name="lane_overlay">The Lane Overlay</string>
+    <string name="right_car_color">Farbe des rechten Fahrzeugs</string>
+    <string name="left_car_color">Farbe des linken Fahrzeugs</string>
 
 </resources>
