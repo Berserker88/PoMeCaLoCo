@@ -1,5 +1,6 @@
 package de.freinsberg.pomecaloco;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +14,17 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -371,12 +376,43 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 	public void onCameraViewStopped() {
 		// TODO Automatisch generierter Methodenstub
 	}
-
+	int i = 0;
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		
 		mFrameToProcess = ObjectDetector.getInstance(inputFrame);
-		
+//		
+//		Mat a = inputFrame.rgba();
+//		Mat b = new Mat(a.width(),a.height(), a.type());
+//		//Imgproc.cvtColor(a, a, Imgproc.COLOR_BGRA2BGR);
+//		if(i == 200){
+//			Log.i("debug", "a ->  size: "+a.size()+", type:"+a.type()+", channels:"+a.channels()+", depth:"+a.depth()+", dump:"+a.dump());
+//			
+//			Highgui.imwrite(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "a.png").toString(), a);		
+//		}
+//		
+//		a = a.t();
+//		if(i == 200){
+//			Log.i("debug", "a.t() ->  size: "+a.size()+", type:"+a.type()+", channels:"+a.channels()+", depth:"+a.depth()+", dump:"+a.dump());
+//			Highgui.imwrite(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "a.t().png").toString(), a);	
+//		}
+//		Imgproc.cvtColor(a, a, Imgproc.COLOR_RGBA2BGRA);
+		//Imgproc.cvtColor(a, a, Imgproc.COLOR_BGR2BGRA);
+		//Core.flip(a.t(), b, 1);
+//		Point img_center = new Point(a.cols()/2,a.rows()/2);
+//		Mat rot_mat = Imgproc.getRotationMatrix2D(img_center, 270, 1.0);
+//		Imgproc.warpAffine(a, b, rot_mat, b.size());
+//		Imgproc.cvtColor(b, b, Imgproc.COLOR_BGR2RGBA);
+//		if(i == 200)
+//			Log.i("debug", "b ->  size: "+b.size()+", type:"+b.type());
+//			Highgui.imwrite(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "transposed.png").toString(), b);
+//		b.copyTo(a);
+//		i++;
+////		a.release();
+//		rot_mat.release();
+
+		//mFrameToProcess = ObjectDetector.getInstance(inputFrame);
+//		i++;
 		return inputFrame.rgba();
 	
 	}
@@ -393,7 +429,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
-				Log.i("debug", "OpenCV loaded successfully");
+				Log.i("debug", "OpenCV loaded successfully");					
 				mOpenCvCameraView.enableView();
 				if(mFirstInitialization){
 				try { 	

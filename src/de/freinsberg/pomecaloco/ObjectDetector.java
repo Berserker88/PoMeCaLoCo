@@ -261,7 +261,6 @@ public class ObjectDetector{
 		
 		//Getting average color for every lane
 		
-		//Upper lane
 		mInputFrame.rgba().copyTo(mEmptyTrack); 	
 		
 		double[] rgba = null;
@@ -309,6 +308,7 @@ public class ObjectDetector{
 			
 		}
 		//Lower lane
+		//TODO Null Pointer Exception when line was found before --> but other lines not and then when this line not found this option is still true from before
 		if(mFoundLowerLine){				
 			for(int i = ((int)mLowerPoint.y-10); i > mSeparatorPoint.y+10; i--){
 				for (int j = 0;j < mEmptyTrack.cols();j++){

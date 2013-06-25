@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
     
-<org.opencv.android.JavaCameraView
+<org.opencv.android.NativeCameraView
 	     android:layout_marginTop="100dp"
 	     android:layout_marginLeft="20dp"
 	     android:layout_marginRight="20dp"
@@ -15,6 +15,16 @@
 	     android:id="@+id/camera_stream_prepare"
 	     opencv:show_fps="true"        
 	     opencv:camera_id="any" />
+
+<!--    <org.opencv.android.NativeCameraView -->
+<!--         android:layout_width="fill_parent" -->
+<!--         android:layout_height="fill_parent" -->
+<!--         android:visibility="gone" -->
+<!--         android:id="@+id/camera_stream_prepare" -->
+<!--         opencv:show_fps="true" -->
+<!--         opencv:camera_id="any" /> -->
+
+
 
 	<Button
 	    android:id="@+id/scanner"
