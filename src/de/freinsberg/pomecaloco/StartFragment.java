@@ -23,6 +23,7 @@ import org.opencv.imgproc.Imgproc;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -56,6 +57,10 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 	final public static int PREPARE_RACE = 0;
 	final public static int RACE = 1;
 	final public static int END_RACE = 2;
+	private static final int NO_CAR = 0x00;
+	private static final int RIGHT_CAR = 0x01;
+	private static final int LEFT_CAR = 0x10;
+	private static final int BOTH_CAR = 0x11;
 	private Handler mHandler = new Handler();
 	private Timer mShotTimer = new Timer();
 	private TimerTask mShotTask;
@@ -89,6 +94,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 	private ImageView lane_overlay = null;
 	private ImageView left_car_color;
 	private ImageView right_car_color;
+	private Bitmap[] mCarColorBitmaps;
 	private int mCount;
 	private ArrayAdapter<String> mTracksAdapter;
 
@@ -161,6 +167,8 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 		lane_overlay = (ImageView) v.findViewById(R.id.lane_overlay);
 		left_car_color = (ImageView) v.findViewById(R.id.left_car_color);
 		right_car_color = (ImageView) v.findViewById(R.id.right_car_color);
+		//mLeft_Car_Color_Image = mFrameToProcess.get_cars_colors();
+		
 			
 		mAlphacounter = 0;
 		
@@ -179,7 +187,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 					if(frame_track_overlay == null)
 						Log.i("debug","kein Overlay :-(");
 					frame_track_overlay.setImageBitmap(mFrameToProcess.generate_track_overlay());
-					
+					frame_track_overlay.setVisibility(View.VISIBLE);	
 					if(mFrameToProcess.getFoundLines() == false){
 						Toast.makeText(v.getContext(), "Bitte das Smartphone mittig über der Bahn platzieren.", Toast.LENGTH_LONG).show();
 						return;
@@ -222,12 +230,31 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 					if(lane_overlay == null)
 						Log.i("debug","kein Lane Overlay :-(");
 //					lane_overlay.setAlpha((float) (0.4));
-					lane_overlay.setImageBitmap(mFrameToProcess.draw_car_recognizer());
-			
+					lane_overlay.setImageBitmap(mFrameToProcess.draw_car_recognizer());								
+					lane_overlay.setVisibility(View.VISIBLE);	
 				} else if (scanner.getText() == getString(R.string.scan_cars)) {
-					
-					left_car_color.setImageBitmap(mFrameToProcess.get_cars_colors()[0]);
-					right_car_color.setImageBitmap(mFrameToProcess.get_cars_colors()[1]);
+					mAlphacounter = 100;
+					mCarColorBitmaps = mFrameToProcess.get_cars_colors();
+					left_car_color.setImageBitmap(mCarColorBitmaps[0]);
+					right_car_color.setImageBitmap(mCarColorBitmaps[1]);
+					left_car_color.setVisibility(View.VISIBLE);				
+					right_car_color.setVisibility(View.VISIBLE);	
+					switch(mFrameToProcess.car_status()){
+						case NO_CAR:
+							Toast.makeText(v.getContext(), "Kein Fahrzeug gefunden!", Toast.LENGTH_LONG).show();
+							return;
+						case RIGHT_CAR:
+							Toast.makeText(v.getContext(), "Links kein Fahrzeug gefunden!", Toast.LENGTH_LONG).show();
+							break;
+						case LEFT_CAR:
+							Toast.makeText(v.getContext(), "Rechts kein Fahrzeug gefunden!", Toast.LENGTH_LONG).show();
+							break;
+						case BOTH_CAR:
+							Toast.makeText(v.getContext(), "Zwei Fahrzeuge erkannt!", Toast.LENGTH_LONG).show();
+							break;	
+						default:
+							Toast.makeText(v.getContext(), "Fehler bei der Fahrzeugerkennung!", Toast.LENGTH_LONG).show();							
+					}
 					
 					mShotTask = new TimerTask() {						
 						@Override
@@ -281,12 +308,17 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 			@Override
 			public void onClick(View v) {
 				rescan.setVisibility(View.GONE);
+				frame_track_overlay.setVisibility(View.GONE);				
+				lane_overlay.setVisibility(View.GONE);				
+				left_car_color.setVisibility(View.GONE);				
+				right_car_color.setVisibility(View.GONE);	
 				scanner.setEnabled(true);
 				mScanningComplete = false;
 				lap_mode.setEnabled(false);
 				lap_count.setEnabled(false);
 				min_mode.setEnabled(false);
 				min_count.setEnabled(false);
+			
 				scanner.setText(R.string.scan_track);
 			}
 		});
@@ -311,7 +343,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 				mCount = Integer.parseInt(lap_count.getText().toString());
 
 				Player p = new Player(LEFT_LANE, ROUND_MODE, new Scalar(255, 0,	0, 255));
-				race = new Race(mCount, ROUND_MODE);	
+				race = new Race(mCount, ROUND_MODE);					
 				mRaceBundle.putLong("Anzahl", mCount);
 				Fragment racefragment = new RaceFragment();
 				racefragment.setArguments(mRaceBundle);			

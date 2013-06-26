@@ -29,6 +29,12 @@ public class ObjectDetector{
 	private static final int ORIENTATION_0 = 0;
 	private static final int ORIENTATION_90 = 90;
 	private static final int ORIENTATION_270 = 270;
+	private static final int LEFT_LANE = 0;
+	private static final int RIGHT_LANE = 1;
+	private static final int NO_CAR = 0x00;
+	private static final int RIGHT_CAR = 0x01;
+	private static final int LEFT_CAR = 0x10;
+	private static final int BOTH_CAR = 0x11;
 	private static CvCameraViewFrame mInputFrame;	
 	private static Mat mInputFramePortrait;
 	private Mat mStaticImage = null;
@@ -49,6 +55,8 @@ public class ObjectDetector{
     private boolean mFoundUpperLine;
     private boolean mFoundLowerLine;
     private boolean mDrawedLinesOnFrame;    
+    private boolean mColorsOnLeftLane;
+    private boolean mColorsOnRightLane;
 	private int mLowerThreshold;
 	private int mUpperThreshold;
 	private Mat mThreshed = null; 
@@ -59,11 +67,18 @@ public class ObjectDetector{
 	private Bitmap mTrackOverlay= null;
 	private Mat mCarRecognizerOverlay;
 	private Bitmap mCarRecognizer;
+	private Scalar mLeftCarColorScalar;
+	private Scalar mRightCarColorScalar;
 	private Mat mLeftCarColor;
 	private Mat mRightCarColor;
 	private Bitmap mLeftCarColorImage;
 	private Bitmap mRightCarColorImage;
 	private Bitmap[] mCarColorImages;
+	
+	double[] mScannedTrackPixelColor;
+	double[] mEmptyTrackPixelColor;
+	List <double[]> mFoundColors = new ArrayList<double[]>();
+	
 	private int avg_gray;
 	private File mStorageDir;
 	private File mHoughLinesImage;
@@ -184,6 +199,99 @@ public class ObjectDetector{
 		arr[1] = new Rect(new Point(getCenterOfLanes()[1] - 15, (mInputFramePortrait.rows()/2) - 15), new Point(getCenterOfLanes()[1] + 15, (mInputFramePortrait.rows()/2) + 15));
 		
 		return arr;
+	}
+	
+	public Bitmap getColorInOffset(int x_offset, int y_offset, int lane){
+		mRgba = mInputFramePortrait;
+		double[] oldColors = new double[4];
+		double[] newColors = new double[4];
+		double[] avg_oldColors = new double[4];
+		double[] avg_newColors = new double[4];
+		double[] foundColor = new double[4];
+		int scan_counter = 0;		
+		if(lane == LEFT_LANE)
+			mColorsOnLeftLane = false;
+		else if(lane == RIGHT_LANE)
+			mColorsOnRightLane = false;			
+				
+		for(int x = x_offset;x< x_offset +30;x++){
+			for (int y = y_offset;y < y_offset+30;y++){
+				mEmptyTrackPixelColor = mEmptyTrack.get(y, x);
+				mScannedTrackPixelColor = mRgba.get(y, x);
+				scan_counter++;
+//				double min = 256;
+//				double max = -1;
+//				
+//				for(int k = 0; k < 3; k++) {
+//					if(mScannedTrackPixelColor[k] < min)
+//						min = mScannedTrackPixelColor[k];
+//					if(mScannedTrackPixelColor[k] > max)
+//						max = mScannedTrackPixelColor[k];
+//				}
+//				
+//				double min2 = 256;
+//				double max2 = -1;
+//				
+//				for(int k = 0; k < 3; k++) {
+//					if(mEmptyTrackPixelColor[k] < min2)
+//						min2 = mEmptyTrackPixelColor[k];
+//					if(mEmptyTrackPixelColor[k] > max2)
+//						max2 = mEmptyTrackPixelColor[k];
+//				}
+				for(int i = 0; i <= 3; i++) {
+				newColors[i] += mScannedTrackPixelColor[i];
+				}
+
+			
+				for(int i = 0; i <= 3; i++) {
+					oldColors[i] += mEmptyTrackPixelColor[i];
+				}
+				
+		
+			}		
+		}
+		for(int i = 0; i <= 3; i++) {
+			avg_oldColors[i] = oldColors[i] / scan_counter;
+			avg_newColors[i] = newColors[i] / scan_counter;
+
+		}
+		Log.i("debug", "avg_Old: r"+avg_oldColors[0]+ ", g"+avg_oldColors[1]+ ", b"+avg_oldColors[2]);
+		Log.i("debug", "avg_New: r"+avg_newColors[0]+ ", g"+avg_newColors[1]+ ", b"+avg_newColors[2]);
+		boolean colorDetected = isDifferent(avg_newColors, avg_oldColors);	
+
+		if(lane == LEFT_LANE)
+		{
+			if(!colorDetected)
+				mColorsOnLeftLane = false;
+			else{
+				mColorsOnLeftLane = true;
+				mLeftCarColorScalar = new Scalar(avg_newColors);
+				mLeftCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFramePortrait.type(),mLeftCarColorScalar);				
+				mLeftCarColorImage = Bitmap.createBitmap(mLeftCarColor.cols(), mLeftCarColor.rows(), Bitmap.Config.ARGB_8888);
+				Utils.matToBitmap(mLeftCarColor, mLeftCarColorImage);					
+				mFoundColors.clear();
+				if(mColorsOnLeftLane)
+					Log.i("debug", "color on leftlane");
+				return mLeftCarColorImage;
+
+			}
+		}else if(lane == RIGHT_LANE)
+		{
+			if(!colorDetected)
+				mColorsOnRightLane = false;
+			else{
+				mColorsOnRightLane = true;
+				mRightCarColorScalar = new Scalar(avg_newColors);
+				mRightCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFramePortrait.type(),mRightCarColorScalar);
+				mRightCarColorImage = Bitmap.createBitmap(mRightCarColor.cols(), mRightCarColor.rows(), Bitmap.Config.ARGB_8888);
+				Utils.matToBitmap(mRightCarColor, mRightCarColorImage);				
+				mFoundColors.clear();
+				if(mColorsOnRightLane)
+					Log.i("debug", "color on rightlane");
+				return mRightCarColorImage;
+			}
+		}
+		return null;		
 	}
 	
 	public Bitmap generate_track_overlay() {
@@ -388,12 +496,45 @@ public class ObjectDetector{
 		return mTrackOverlay;
 	}
 		
+	public boolean isDifferent(double[] avg_oldColors, double[] avg_newColors){
+		
+		for(int i = 0; i < 4; i++)
+		{
+			if(avg_newColors[i] > avg_oldColors[i] + 30 ||avg_newColors[i] < avg_oldColors[i] - 30)			
+				return true;			
+		}
+		return false;
+	}
+	
+	public int car_status(){
+		int carStatus = 0;
+		if(mColorsOnLeftLane && mColorsOnRightLane)
+			carStatus = BOTH_CAR;
+		else if(mColorsOnLeftLane)
+			carStatus = LEFT_CAR;
+		else if(mColorsOnRightLane)
+			carStatus = RIGHT_CAR;
+		else  
+			carStatus = NO_CAR;
+		Log.i("debug", "carStatus: "+carStatus);
+		return carStatus;
+		}
+
 	public Bitmap[] get_cars_colors (){
-		mRgba = mInputFramePortrait;
-		Highgui.imwrite(new File(mStorageDir, "emptyTrack.png").toString(), mEmptyTrack);
-		Mat mDiff = new Mat();		
-		Mat hsva = new Mat();
-		Mat hsvb = new Mat();
+		int x_offset_left = getCenterOfLanes()[0]-15;
+		int y_offset_left = (mInputFramePortrait.rows()/2)-15;	
+		int x_offset_right = getCenterOfLanes()[1]-15;
+		int y_offset_right = (mInputFramePortrait.rows()/2)-15;
+		mCarColorImages = new Bitmap[2];				
+		
+		mCarColorImages[0] = getColorInOffset(x_offset_left, y_offset_left, LEFT_LANE);
+		mCarColorImages[1] = getColorInOffset(x_offset_right, y_offset_right, RIGHT_LANE);		
+	
+		return mCarColorImages;
+		
+//		Mat mDiff = new Mat();		
+//		Mat hsva = new Mat();
+//		Mat hsvb = new Mat();
 //				
 //		Imgproc.cvtColor(mRgba, hsva, Imgproc.COLOR_BGR2HSV, 3);		
 //		//Imgproc.cvtColor(mEmptyTrack, hsvb, Imgproc.COLOR_BGR2HSV, 3);
@@ -406,111 +547,64 @@ public class ObjectDetector{
 //		Highgui.imwrite(new File(mStorageDir, "hsvb.png").toString(), hsvb);
 //		Highgui.imwrite(new File(mStorageDir, "mRgba.png").toString(), mRgba);
 //		Highgui.imwrite(new File(mStorageDir, "mEmptyTrack.png").toString(), mEmptyTrack);
-		double[] rgba, temp;
-		List <double[]> foundcolors = new ArrayList<double[]>();
-		
-		
-		//search left rect for different color
-		int x_offset_left = getCenterOfLanes()[0]-15;
-		int y_offset_left = (mInputFramePortrait.rows()/2)-15;
-		
-		for(int x = x_offset_left;x< getLanesToScanColor()[0].x;x++){
-			for (int y = y_offset_left;y < getLanesToScanColor()[0].y;y++){
-				
-				temp = mEmptyTrack.get(y, x);
-				rgba = mRgba.get(y, x);
+	
 
-				double min = 256;
-				double max = -1;
-				
-				for(int k = 0; k < 3; k++) {
-					if(rgba[k] < min)
-						min = rgba[k];
-					if(rgba[k] > max)
-						max = rgba[k];
-				}
-				
-				double min2 = 256;
-				double max2 = -1;
-				
-				for(int k = 0; k < 3; k++) {
-					if(temp[k] < min2)
-						min2 = temp[k];
-					if(temp[k] > max2)
-						max2 = temp[k];
-				}
-				
-				if((max - min) > (max2 - min2) + 10){
-					mRgba.put(y, x, new double[]{0,0,255,255});
-					foundcolors.add(rgba);		
-				}		
-			}		
-		}
-		int counter_left = 1;
-		int blue_left = 0;
-		int yellow_left = 0;
-		int red_left = 0;
-		for(double[] d : foundcolors){
-			counter_left++;
-			blue_left += d[0];
-			yellow_left += d[1];
-			red_left += d[2];
-		}
-		Scalar left_car_color = new Scalar(red_left/counter_left,yellow_left/counter_left, blue_left/counter_left,255);
-		mLeftCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFramePortrait.type(),left_car_color);
 		
+//		for(int x = x_offset_right;x< x_offset_right +30;x++){
+//			for (int y = y_offset_right;y < y_offset_right+30;y++){
+//				Log.i("debug", "x_offset(col): "+x);
+//				Log.i("debug", "y_offset(row): "+y);
+//				mEmptyTrackPixelColor = mEmptyTrack.get(y, x);
+//				mScannedTrackPixelColor = mRgba.get(y, x);
+//
+//				double min = 256;
+//				double max = -1;
+//				
+//				for(int k = 0; k < 3; k++) {
+//					if(mScannedTrackPixelColor[k] < min)
+//						min = mScannedTrackPixelColor[k];
+//					if(mScannedTrackPixelColor[k] > max)
+//						max = mScannedTrackPixelColor[k];
+//				}
+//				
+//				double min2 = 256;
+//				double max2 = -1;
+//				
+//				for(int k = 0; k < 3; k++) {
+//					if(mEmptyTrackPixelColor[k] < min2)
+//						min2 = mEmptyTrackPixelColor[k];
+//					if(mEmptyTrackPixelColor[k] > max2)
+//						max2 = mEmptyTrackPixelColor[k];
+//				}
+//				
+//				if((max - min) > (max2 - min2) + 10){
+//					mRgba.put(y, x, new double[]{0,0,255,255});
+//					mFoundColors.add(mScannedTrackPixelColor);		
+//				}		
+//			}		
+//		}
+//		int counter_right = 0;
+//		int blue_right = 0;
+//		int yellow_right = 0;
+//		int red_right = 0;
+//		for(double[] d : mFoundColors){
+//			counter_right++;
+//			blue_right += d[0];
+//			yellow_right += d[1];
+//			red_right += d[2];
+//		}
+//		if(counter_right == 0)
+//			mColorsOnRightLane = false;
+//		else{
+//			mColorsOnRightLane = true;
+//			Scalar right_car_color = new Scalar(red_right/counter_right,yellow_right/counter_right, blue_right/counter_right,255);
+//			mRightCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFramePortrait.type(),right_car_color);
+//			mRightCarColorImage = Bitmap.createBitmap(mRightCarColor.cols(), mRightCarColor.rows(), Bitmap.Config.ARGB_8888);
+//			Utils.matToBitmap(mRightCarColor, mRightCarColorImage);
+//			mCarColorImages[1] = mRightCarColorImage;
+//			mFoundColors.clear();
+//		}
 		
-		//search right rect for different color
-		
-		int x_offset_right = getCenterOfLanes()[1]-15;
-		int y_offset_right = (mInputFramePortrait.rows()/2)-15;
-		
-		for(int x = x_offset_right;x< getLanesToScanColor()[1].x;x++){
-			for (int y = y_offset_right;y < getLanesToScanColor()[1].y;y++){
-				
-				temp = mEmptyTrack.get(y, x);
-				rgba = mRgba.get(y, x);
-
-				double min = 256;
-				double max = -1;
-				
-				for(int k = 0; k < 3; k++) {
-					if(rgba[k] < min)
-						min = rgba[k];
-					if(rgba[k] > max)
-						max = rgba[k];
-				}
-				
-				double min2 = 256;
-				double max2 = -1;
-				
-				for(int k = 0; k < 3; k++) {
-					if(temp[k] < min2)
-						min2 = temp[k];
-					if(temp[k] > max2)
-						max2 = temp[k];
-				}
-				
-				if((max - min) > (max2 - min2) + 10){
-					mRgba.put(y, x, new double[]{0,0,255,255});
-					foundcolors.add(rgba);		
-				}		
-			}		
-		}
-		int counter_right = 1;
-		int blue_right = 0;
-		int yellow_right = 0;
-		int red_right = 0;
-		for(double[] d : foundcolors){
-			counter_right++;
-			blue_right += d[0];
-			yellow_right += d[1];
-			red_right += d[2];
-		}
-		Scalar right_car_color = new Scalar(red_right/counter_right,yellow_right/counter_right, blue_right/counter_right,255);
-		mRightCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFramePortrait.type(),right_car_color);
-		
-		Highgui.imwrite(new File(mStorageDir, "mRgbaRedPoints.png").toString(), mRgba);
 //		for(double[] d: foundcolors)
 //		Log.i("debug","Different Colors: "+d[0]+", "+d[1]+", "+d[2]);
 //		mHSV = new Mat();
@@ -574,19 +668,7 @@ public class ObjectDetector{
 		//Hier muss ein Bild mit den Fahrzeugen auf dem Streckenausschnitt ankommen
 		//Dann werden die Positionen gesetzt.
 		
-		mLeftCarColorImage = Bitmap.createBitmap(mLeftCarColor.cols(), mLeftCarColor.rows(), Bitmap.Config.ARGB_8888);
-		Utils.matToBitmap(mLeftCarColor, mLeftCarColorImage);
-		mRightCarColorImage = Bitmap.createBitmap(mRightCarColor.cols(), mRightCarColor.rows(), Bitmap.Config.ARGB_8888);
-		Utils.matToBitmap(mRightCarColor, mRightCarColorImage);
-		mCarColorImages = new Bitmap[2];
-		mCarColorImages[0] = mLeftCarColorImage;
-		mCarColorImages[1] = mRightCarColorImage;
-		
-		return mCarColorImages;
-	}
-	
-	public void draw_lanes(){		
-		
 		
 	}
+
 }

@@ -85,7 +85,10 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 				}
 			});
 			
-			mCountdown = new MyTimer(6000, 1000, mCountdownValues, raceview_countdown);	
+			mCountdown = new MyTimer(5000, 1000, mCountdownValues, raceview_countdown);	
+			
+			
+			
 							
 			return v;
 		}				

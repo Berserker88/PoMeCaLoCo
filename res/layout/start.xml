@@ -180,22 +180,22 @@
 	     />
 	<ImageView
 	    android:id="@+id/left_car_color"
-	    android:layout_width="50dp"
+	    android:layout_width="35dp"
 	    android:layout_height="20dp"	    
 	    android:layout_centerHorizontal="true"
 	    android:layout_below="@id/frame_border_top"	    
 	    android:layout_toRightOf="@+id/frame_border_left"	    
-	    android:contentDescription="left_car_color"
+	    android:contentDescription="@string/left_car_color"
 	     />
 	
 	<ImageView
 	    android:id="@+id/right_car_color"
-	    android:layout_width="50dp"
+	    android:layout_width="35dp"
 	    android:layout_height="20dp"	    
 	    android:layout_centerHorizontal="true"
 	    android:layout_below="@id/frame_border_top"	    
-	    android:layout_toLeftOf="@+id/frame_border_right"	    
-	    android:contentDescription="right_car_color"
+	    android:layout_toLeftOf="@+id/frame_border_right"		        
+	    android:contentDescription="@string/right_car_color"
 	     />
 
 </RelativeLayout>
