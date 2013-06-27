@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">pomecaloco</string>
+    <string name="app_name">Poor Mens Carrera Loop Counter</string>
     <string name="race_section3">Rennende</string>
     <string name="race_section2">Rennen</string>
     <string name="race_section1">Vorbereitung</string>

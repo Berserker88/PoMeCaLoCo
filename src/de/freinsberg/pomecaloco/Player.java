@@ -15,10 +15,12 @@ public class Player {
 	private Scalar mColor;
 	
 	public Player(int lane, int mode, Scalar color){
-		this.mLane = lane;
-		this.mMode = mode;
-		this.mColor = color;
-		Log.i("debug", "Neuer Spieler: Spur "+mLane+", Spielmodus "+mMode+" ,Farbe "+mColor.toString());
+		mLane = lane;
+		mMode = mode;
+		mColor = color;
+		Log.i("debug", "Spieler- Spur: "+mLane);
+		Log.i("debug","Spieler- Spielmodus: "+mMode);
+		Log.i("debug","Spieler- Spielerfarbe: "+mColor);
 	}
 	
 	public int getLane(){

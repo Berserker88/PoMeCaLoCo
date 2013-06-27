@@ -11,7 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.Spinner;
  
-public class ResultsFragment  extends Fragment {
+public class ResultsFragment  extends Fragment{
 	
     private Context mContext;
     private Spinner results_racemode = null;
@@ -23,7 +23,7 @@ public class ResultsFragment  extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-    	mContext = RaceFragmentActivity.mContext;
+    	mContext = SettingsFragmentActivity.mContext;
         View v = inflater.inflate(R.layout.results, null);
         
 		Spinner results_racemode = (Spinner) v.findViewById(R.id.results_racemode);

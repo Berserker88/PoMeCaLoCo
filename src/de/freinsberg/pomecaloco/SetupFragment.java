@@ -19,7 +19,7 @@ public class SetupFragment  extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-    	mContext = RaceFragmentActivity.mContext;
+    	mContext = SettingsFragmentActivity.mContext;
         View v = inflater.inflate(R.layout.setup, null);
         return v;
     }

@@ -1,5 +1,6 @@
 package de.freinsberg.pomecaloco;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 import android.os.CountDownTimer;
@@ -10,7 +11,11 @@ import android.widget.TextView;
 
 public class MyTimer extends CountDownTimer{
 	
-	public int mCountdown;
+	public int mCountdown = 0;
+	public double mMsCountdown;
+	public boolean isRaceCountdown = false;
+	public boolean isTimerRace = false;
+	public DecimalFormat mFormat = new DecimalFormat("00.00");
 	public TextView mTv;
 	public List<String> mCountdownValues;
 
@@ -18,23 +23,40 @@ public class MyTimer extends CountDownTimer{
 		super(millisInFuture, countDownInterval);
 		// TODO Automatisch generierter Konstruktorstub
 	}
-	public MyTimer(long millisInFuture, long countDownInterval, List<String> countdownvalues, TextView tv) {
+	public MyTimer(long millisInFuture, long countDownInterval, List<String> countdownvalues, TextView tv) {		
 		super(millisInFuture, countDownInterval);
+		isRaceCountdown = true;
+		Log.i("debug", "Im Timer für den Countdown zum Rennen");
 		mCountdownValues = countdownvalues;		
 		mTv = tv;
 	}
-	public MyTimer(long millisInFuture, long countDownInterval, TextView tv) {
-		super(millisInFuture, countDownInterval);			
+	public MyTimer(long millisInFuture, long countDownInterval, TextView tv) {		
+		super(millisInFuture, countDownInterval);
+		isTimerRace = true;
+		Log.i("debug", "Im Timer fürs Rennen!!!");
+		mMsCountdown = millisInFuture;
 		mTv = tv;
 	}
 	@Override
 	public void onFinish() {
-		mTv.setText(" ");
+		if(isRaceCountdown){
+			mTv.setText(" ");
+			isRaceCountdown = false;
+			if(Race.mRaceTimer != null)
+				Race.mRaceTimer.start();
+		}
+		else if(isTimerRace){
+			mTv.setText("00.00.00");
+			isTimerRace = false;
+			Race.processResults();
+			
+		}
+		
 	}
 
 	@Override
 	public void onTick(long millisUntilFinished) {
-		if(mCountdownValues != null){
+		if(mCountdownValues != null){			
 			Log.i("debug", "Size: "+mCountdownValues.size()+", Counter: "+mCountdown);
 			if(mCountdown >= mCountdownValues.size()) {
 				cancel();
@@ -45,9 +67,12 @@ public class MyTimer extends CountDownTimer{
 			mCountdown++;
 		}
 		else
-		{
+		{			
 			mTv.setTextColor(mTv.getResources().getColor(R.color.white));
-			mTv.setText("%H:%M:%S");
+			
+			mTv.setText(mFormat.format(mMsCountdown));
+			mMsCountdown = millisUntilFinished;
+			
 		}		
 	}	
 }

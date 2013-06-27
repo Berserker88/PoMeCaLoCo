@@ -31,11 +31,11 @@ public class ObjectDetector{
 	private static final int ORIENTATION_270 = 270;
 	private static final int LEFT_LANE = 0;
 	private static final int RIGHT_LANE = 1;
-	private static final int NO_CAR = 0x00;
-	private static final int RIGHT_CAR = 0x01;
-	private static final int LEFT_CAR = 0x10;
-	private static final int BOTH_CAR = 0x11;
-	private static CvCameraViewFrame mInputFrame;	
+	final public static int NO_CAR = 0x00;
+	final public static int RIGHT_CAR = 0x01;
+	final public static int LEFT_CAR = 0x10;
+	final public static int BOTH_CAR = 0x11;
+	private static Mat mInputFrame;	
 	private static Mat mInputFramePortrait;
 	private Mat mStaticImage = null;
 	private Mat mRgba = null;
@@ -91,14 +91,19 @@ public class ObjectDetector{
 		
 	}
 	
-	public static ObjectDetector getInstance(CvCameraViewFrame inputFrame){
+	public static ObjectDetector getInstance(Mat inputFrame){
 		
-		if(mInputFramePortrait != null)
-			mInputFramePortrait.release();
-		
+
 			mInputFrame = inputFrame;	
-			mInputFramePortrait = inputFrame.rgba().t();		
-			Core.flip(mInputFramePortrait, mInputFramePortrait, 1);		
+			mInputFramePortrait = inputFrame.t();		
+			Core.flip(mInputFramePortrait, mInputFramePortrait, 1);	
+
+	
+		return mObjectDetector;
+	}
+	
+	public static ObjectDetector getInstance() {	
+		
 		return mObjectDetector;
 	}
 	
@@ -182,14 +187,16 @@ public class ObjectDetector{
 	}
 	
 	public Bitmap draw_car_recognizer(){
-		
+		try{
 		mCarRecognizerOverlay = new Mat(new Size(mInputFramePortrait.cols(), mInputFramePortrait.rows()), mInputFramePortrait.type(), new Scalar(0, 0, 0, 0));
 		Core.rectangle(mCarRecognizerOverlay, new Point(getCenterOfLanes()[0] - 15, (mInputFramePortrait.rows()/2) - 15), new Point(getCenterOfLanes()[0] + 15, (mInputFramePortrait.rows()/2) + 15), new Scalar(255,255,255,255));
 		Core.rectangle(mCarRecognizerOverlay, new Point(getCenterOfLanes()[1] - 15, (mInputFramePortrait.rows()/2) - 15), new Point(getCenterOfLanes()[1] + 15, (mInputFramePortrait.rows()/2) + 15), new Scalar(255,255,255,255));
 		mCarRecognizer = Bitmap.createBitmap(mCarRecognizerOverlay.cols(), mCarRecognizerOverlay.rows(), Bitmap.Config.ARGB_8888);
 		Utils.matToBitmap(mCarRecognizerOverlay, mCarRecognizer);
-		
-		
+		}catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}		
 		return mCarRecognizer;
 	}
 	
@@ -201,7 +208,17 @@ public class ObjectDetector{
 		return arr;
 	}
 	
+	public Scalar getCarColor(int lane) {
+		if (lane == LEFT_LANE)
+			return mLeftCarColorScalar;
+		else 
+			return mRightCarColorScalar;
+	}
+	
 	public Bitmap getColorInOffset(int x_offset, int y_offset, int lane){
+		Log.i("debug", "Into getColorInOffset for lane :"+lane);	
+		if(mInputFramePortrait.empty())
+			Log.i("debug","mInputFramePortrait is empty!");
 		mRgba = mInputFramePortrait;
 		double[] oldColors = new double[4];
 		double[] newColors = new double[4];
@@ -213,11 +230,19 @@ public class ObjectDetector{
 			mColorsOnLeftLane = false;
 		else if(lane == RIGHT_LANE)
 			mColorsOnRightLane = false;			
-				
+		Log.i("debug", "Before FOR getColorInOffset for lane :"+lane);			
 		for(int x = x_offset;x< x_offset +30;x++){
 			for (int y = y_offset;y < y_offset+30;y++){
+				if(mEmptyTrack.empty())
+					Log.i("debug","mEmptyTrack is empty");
+				if(mRgba.empty())
+					Log.i("debug","mRgba is empty");
 				mEmptyTrackPixelColor = mEmptyTrack.get(y, x);
 				mScannedTrackPixelColor = mRgba.get(y, x);
+				if(mScannedTrackPixelColor == null)
+					Log.i("debug", "mScannedTrackPixelColor == null, at: "+x+", "+y);
+				if(mEmptyTrackPixelColor == null)
+					Log.i("debug","mEmptyTrackPixelColor == null, at: "+x+", "+y);
 				scan_counter++;
 //				double min = 256;
 //				double max = -1;
@@ -247,14 +272,17 @@ public class ObjectDetector{
 					oldColors[i] += mEmptyTrackPixelColor[i];
 				}
 				
+				
 		
 			}		
 		}
+		Log.i("debug", "Between FOR getColorInOffset for lane :"+lane);	
 		for(int i = 0; i <= 3; i++) {
 			avg_oldColors[i] = oldColors[i] / scan_counter;
 			avg_newColors[i] = newColors[i] / scan_counter;
 
 		}
+		Log.i("debug", "After FOR getColorInOffset for lane :"+lane);	
 		Log.i("debug", "avg_Old: r"+avg_oldColors[0]+ ", g"+avg_oldColors[1]+ ", b"+avg_oldColors[2]);
 		Log.i("debug", "avg_New: r"+avg_newColors[0]+ ", g"+avg_newColors[1]+ ", b"+avg_newColors[2]);
 		boolean colorDetected = isDifferent(avg_newColors, avg_oldColors);	
@@ -337,7 +365,7 @@ public class ObjectDetector{
 		mUpperThreshold = (int) (avg_gray * 1.33);
 
 		Imgproc.Canny(mGray, mEdges, mLowerThreshold, mUpperThreshold);
-		mGray.release();
+		//mGray.release();
 		// Highgui.imwrite("/houghlines.png", mHoughLines);
 		Log.i("debug",
 				"Status Sd-Karte: "
@@ -345,15 +373,15 @@ public class ObjectDetector{
 		mStorageDir = Environment
 				.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
 
-		mCannyEdgeImage = new File(mStorageDir, "canny.bmp");
-		mPath = mCannyEdgeImage.toString();
-		Boolean bool = Highgui.imwrite(mPath, mEdges);
-		if (bool)
-			Log.i("debug", "SUCCESS writing canny.bmp to external storage");
-		else
-			Log.i("debug", "Fail writing canny.bmp to external storage");
+//		mCannyEdgeImage = new File(mStorageDir, "canny.bmp");
+//		mPath = mCannyEdgeImage.toString();
+//		Boolean bool = Highgui.imwrite(mPath, mEdges);
+//		if (bool)
+//			Log.i("debug", "SUCCESS writing canny.bmp to external storage");
+//		else
+//			Log.i("debug", "Fail writing canny.bmp to external storage");
 		
-		if((!mEdges.empty() && !mInputFramePortrait.empty()) == true)
+		if((!mEdges.empty() && !mInputFramePortrait.empty()))
 		{	
 			Imgproc.HoughLinesP(mEdges, mHoughLines, 1, Math.PI / 180,
 					mHLthreshold, mHLminLineSize, mHLlineGap);
@@ -399,13 +427,9 @@ public class ObjectDetector{
 			
 			mInputFramePortrait.copyTo(mEmptyTrack); 	
 		}
-		mHoughLinesImage = new File(mStorageDir, "houghed.png");
-		mPath = mHoughLinesImage.toString();
-		bool = Highgui.imwrite(mPath, track_overlay);
-		if (bool)
-			Log.i("debug", "SUCCESS writing houghed.png to external storage");
-		else
-			Log.i("debug", "Fail writing houghed.png to external storage");
+		//mHoughLinesImage = new File(mStorageDir, "houghed.png");
+		//mPath = mHoughLinesImage.toString();
+		//Highgui.imwrite(mPath, track_overlay);
 		
 		
 		//Getting average color for every lane
@@ -521,15 +545,16 @@ public class ObjectDetector{
 		}
 
 	public Bitmap[] get_cars_colors (){
+		Log.i("debug", "Into get_car_colors!");		
 		int x_offset_left = getCenterOfLanes()[0]-15;
 		int y_offset_left = (mInputFramePortrait.rows()/2)-15;	
 		int x_offset_right = getCenterOfLanes()[1]-15;
 		int y_offset_right = (mInputFramePortrait.rows()/2)-15;
 		mCarColorImages = new Bitmap[2];				
-		
+		Log.i("debug", "In the middle of get_car_colors!");	
 		mCarColorImages[0] = getColorInOffset(x_offset_left, y_offset_left, LEFT_LANE);
 		mCarColorImages[1] = getColorInOffset(x_offset_right, y_offset_right, RIGHT_LANE);		
-	
+		Log.i("debug", "Tschüss get_car_colors!");	
 		return mCarColorImages;
 		
 //		Mat mDiff = new Mat();		

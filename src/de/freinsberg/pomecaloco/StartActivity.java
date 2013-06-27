@@ -21,6 +21,7 @@ import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -46,21 +47,15 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-public class StartFragment extends Fragment implements CvCameraViewListener2 {
+public class StartActivity extends Activity implements CvCameraViewListener2 {
 
 	public static boolean mScanningComplete = false;
 	public static boolean mFirstInitialization = true;
-	final public static int ROUND_MODE = 1;
-	final public static int TIMER_MODE = 2;
+
 	final public static int LEFT_LANE = 1;
 	final public static int RIGHT_LANE = 2;
-	final public static int PREPARE_RACE = 0;
-	final public static int RACE = 1;
-	final public static int END_RACE = 2;
-	private static final int NO_CAR = 0x00;
-	private static final int RIGHT_CAR = 0x01;
-	private static final int LEFT_CAR = 0x10;
-	private static final int BOTH_CAR = 0x11;
+
+
 	private Handler mHandler = new Handler();
 	private Timer mShotTimer = new Timer();
 	private TimerTask mShotTask;
@@ -69,6 +64,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 	private Race race;
 	private Context mContext;
 	public static CameraBridgeViewBase mOpenCvCameraView;
+	private Mat mInputFrame;
 	private InputMethodManager inputManager = null;
 	private Bundle mRaceBundle = new Bundle();
 	private Track bridge;
@@ -99,28 +95,40 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 	private ArrayAdapter<String> mTracksAdapter;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {	
+	public void onCreate(Bundle savedInstanceState) {	
 		
-		mContext = RaceFragmentActivity.mContext;
-		View v = inflater.inflate(R.layout.start, null);
-		mOpenCvCameraView = (CameraBridgeViewBase) v
-				.findViewById(R.id.camera_stream_prepare);
-		if ((RaceFragment.mOpenCvCameraView == null)
-				|| (RaceFragment.mOpenCvCameraView.getVisibility() != SurfaceView.VISIBLE))
-			mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
-		else
-			mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.start);
+		mContext = getApplicationContext();
+		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_stream_prepare);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		Log.i("debug", "setCVCameraViewListener properly");
-		if(!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, mContext,
-			mLoaderCallback))
-				Log.i("debug", "OpenCV wurde not initialized properly gerade.");		
+		if(!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, this,	mLoaderCallback))
+			Log.i("debug", "OpenCV wurde not initialized properly gerade.");		
+
+		//Initialize GUI-Elements
+		mTracks = (Spinner) findViewById(R.id.choose_track);
+		lap_mode = (Button) findViewById(R.id.lap_mode);
+		lap_count = (EditText) findViewById(R.id.lap_count);
+		min_mode = (Button) findViewById(R.id.min_mode);
+		min_count = (EditText) findViewById(R.id.min_count);
+		results = (Button) findViewById(R.id.results);
+		scanner = (Button) findViewById(R.id.scanner);
+		rescan = (Button) findViewById(R.id.rescan);		
+		alpha_overlay = (ImageView) findViewById(R.id.alpha_overlay);
+		frame_track_overlay = (ImageView) findViewById(R.id.frame_track_overlay);
+		lane_overlay = (ImageView) findViewById(R.id.lane_overlay);
+		left_car_color = (ImageView) findViewById(R.id.left_car_color);
+		right_car_color = (ImageView) findViewById(R.id.right_car_color);
 		
-		mTracks = (Spinner) v.findViewById(R.id.choose_track);
+		//the Views for interactive frame- border
+		frame_border_top = (View) findViewById(R.id.frame_border_top);
+		frame_border_bottom = (View) findViewById(R.id.frame_border_bottom);
+		frame_border_left = (View) findViewById(R.id.frame_border_left);
+		frame_border_right = (View) findViewById(R.id.frame_border_right);
 		
 		// Create an ArrayAdapter using the string array and a default spinner layout
-		mTracksAdapter = new ArrayAdapter<String>(mContext,	android.R.layout.simple_spinner_item, tracks);
+		mTracksAdapter = new ArrayAdapter<String>(this,	android.R.layout.simple_spinner_item, tracks);
 		
 		// Specify the layout to use when the list of choices appears
 		mTracksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -140,52 +148,27 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 				Log.i("debug", "Spinner keine Position ausgewählt.");				
 			}			
 		});	
-
-		// Adding Layout Buttons to this onCreate to interact with them (fetching and setting data)
-		lap_mode = (Button) v.findViewById(R.id.lap_mode);
-		lap_count = (EditText) v.findViewById(R.id.lap_count);
-		min_mode = (Button) v.findViewById(R.id.min_mode);
-		min_count = (EditText) v.findViewById(R.id.min_count);
 				
 		// Making these Button disables so user can't interact with them before scanning is complete		
 		lap_mode.setEnabled(false);
 		lap_count.setEnabled(false);
 		min_mode.setEnabled(false);
-		min_count.setEnabled(false);
-
-		results = (Button) v.findViewById(R.id.results);
-		scanner = (Button) v.findViewById(R.id.scanner);
-		rescan = (Button) v.findViewById(R.id.rescan);
+		min_count.setEnabled(false);	
+		//disable rescan button at the beginning
+		rescan.setVisibility(View.GONE);
 		
-		//the Views for interactive frame- border
-		frame_border_top = (View) v.findViewById(R.id.frame_border_top);
-		frame_border_bottom = (View) v.findViewById(R.id.frame_border_bottom);
-		frame_border_left = (View) v.findViewById(R.id.frame_border_left);
-		frame_border_right = (View) v.findViewById(R.id.frame_border_right);
-		alpha_overlay = (ImageView) v.findViewById(R.id.alpha_overlay);
-		frame_track_overlay = (ImageView) v.findViewById(R.id.frame_track_overlay);
-		lane_overlay = (ImageView) v.findViewById(R.id.lane_overlay);
-		left_car_color = (ImageView) v.findViewById(R.id.left_car_color);
-		right_car_color = (ImageView) v.findViewById(R.id.right_car_color);
-		//mLeft_Car_Color_Image = mFrameToProcess.get_cars_colors();
-		
-			
+		// Set the Alpha Overlay to transparent	
 		mAlphacounter = 0;
 		
 		// Set Scanner- Button Text for first Start
 		scanner.setText(R.string.scan_track);		
 		
-		//disable this button at the beginning
-		rescan.setVisibility(View.GONE);
-		
 		scanner.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				mFrameToProcess = ObjectDetector.getInstance(mInputFrame.clone());
 				if (scanner.getText() == getString(R.string.scan_track)) {
-					mAlphacounter = 100;							
-					
-					if(frame_track_overlay == null)
-						Log.i("debug","kein Overlay :-(");
+					mAlphacounter = 100;		
 					frame_track_overlay.setImageBitmap(mFrameToProcess.generate_track_overlay());
 					frame_track_overlay.setVisibility(View.VISIBLE);	
 					if(mFrameToProcess.getFoundLines() == false){
@@ -193,7 +176,8 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 						return;
 					}					
 					Log.i("debug", "Track scanned!");
-					scanner.setText(R.string.scan_cars);					
+					scanner.setText(R.string.scan_cars);
+					
 					mShotTask = new TimerTask() {						
 						@Override
 						public void run() {
@@ -216,12 +200,10 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 										frame_border_right.setBackgroundResource(R.color.white);
 										
 										mShotTimer.cancel();
-										mShotTimer.purge();
-										
-									}
-														
-									}								
-								});							
+										mShotTimer.purge();										
+									}														
+								}								
+							});							
 						}
 					};	
 					mShotTimer = new Timer();
@@ -229,34 +211,44 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 					
 					if(lane_overlay == null)
 						Log.i("debug","kein Lane Overlay :-(");
-//					lane_overlay.setAlpha((float) (0.4));
-					lane_overlay.setImageBitmap(mFrameToProcess.draw_car_recognizer());								
-					lane_overlay.setVisibility(View.VISIBLE);	
+//					lane_overlay.setAlpha((float) (0.4));		
+					Bitmap b;
+					if((b = mFrameToProcess.draw_car_recognizer())!= null){
+						lane_overlay.setImageBitmap(b);								
+						lane_overlay.setVisibility(View.VISIBLE);
+					}
 				} else if (scanner.getText() == getString(R.string.scan_cars)) {
 					mAlphacounter = 100;
+					Log.i("debug", "set Alpha");
 					mCarColorBitmaps = mFrameToProcess.get_cars_colors();
+					Log.i("debug", "get_cars_colors()");
 					left_car_color.setImageBitmap(mCarColorBitmaps[0]);
+					Log.i("debug", "set color to left car");
 					right_car_color.setImageBitmap(mCarColorBitmaps[1]);
+					Log.i("debug", "setcolor to right car");
 					left_car_color.setVisibility(View.VISIBLE);				
+					Log.i("debug", "set left car color visible");
 					right_car_color.setVisibility(View.VISIBLE);	
+					Log.i("debug", "set right car color visible");
 					switch(mFrameToProcess.car_status()){
-						case NO_CAR:
+						case ObjectDetector.NO_CAR:
 							Toast.makeText(v.getContext(), "Kein Fahrzeug gefunden!", Toast.LENGTH_LONG).show();
 							return;
-						case RIGHT_CAR:
+						case ObjectDetector.RIGHT_CAR:							
 							Toast.makeText(v.getContext(), "Links kein Fahrzeug gefunden!", Toast.LENGTH_LONG).show();
 							break;
-						case LEFT_CAR:
+						case ObjectDetector.LEFT_CAR:							
 							Toast.makeText(v.getContext(), "Rechts kein Fahrzeug gefunden!", Toast.LENGTH_LONG).show();
 							break;
-						case BOTH_CAR:
+						case ObjectDetector.BOTH_CAR:
 							Toast.makeText(v.getContext(), "Zwei Fahrzeuge erkannt!", Toast.LENGTH_LONG).show();
 							break;	
 						default:
 							Toast.makeText(v.getContext(), "Fehler bei der Fahrzeugerkennung!", Toast.LENGTH_LONG).show();							
 					}
-					
-					mShotTask = new TimerTask() {						
+					Log.i("debug", "set a Toast");
+					mShotTask = new TimerTask() {	
+						
 						@Override
 						public void run() {
 						mHandler.post(new Runnable() {								
@@ -286,6 +278,7 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 								});							
 						}
 					};	
+					Log.i("debug", "defined the runnable for camera shot");
 					mShotTimer = new Timer();
 					mShotTimer.schedule(mShotTask, 50,5);
 					
@@ -325,63 +318,55 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 		
 		results.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				Intent myIntent = new Intent(mContext, SettingsFragmentActivity.class);
-				getActivity().finish();
-				getActivity().startActivity(myIntent);
+				Intent intent = new Intent().setClass(v.getContext(), ResultsFragment.class);
+				startActivity(intent);
 			}
 		});	
 
 		lap_mode.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-				inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+				
+				inputManager = (InputMethodManager) (getSystemService(Context.INPUT_METHOD_SERVICE));
+				if(inputManager != null && getCurrentFocus() != null)
+					inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 				if(lap_count.getText().toString().equals("")){					
 					Toast.makeText(v.getContext(), "Bitte Rundenanzahl angeben!", Toast.LENGTH_SHORT).show();
 					return;
 				}
-				mCount = Integer.parseInt(lap_count.getText().toString());
-
-				Player p = new Player(LEFT_LANE, ROUND_MODE, new Scalar(255, 0,	0, 255));
-				race = new Race(mCount, ROUND_MODE);					
-				mRaceBundle.putLong("Anzahl", mCount);
-				Fragment racefragment = new RaceFragment();
-				racefragment.setArguments(mRaceBundle);			
-				((RaceFragmentActivity) getActivity()).getViewPager().setCurrentItem(RACE);				
-				((RaceFragment) ((RaceFragmentActivity) getActivity())
-						.getSupportFragmentManager().findFragmentByTag(
-								"android:switcher:" + R.id.pager + ":1"))
-						.startCountdown();				
-				Log.i("debug", "Moved to Race-Tab!");
+				mCount = Integer.parseInt(lap_count.getText().toString());	
+				race = Race.getInstance();
+				race.newRace(mCount, Race.ROUND_MODE);
+				race.createPlayer(mFrameToProcess.car_status(),Race.ROUND_MODE, mCount);	
+				
+				Intent intent = new Intent().setClass(v.getContext(), RaceActivity.class);
+				startActivity(intent);			
+			
+				Log.i("debug", "Moved to Race-Activity!");
 			}
 		});
 		
 		min_mode.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-				inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+				inputManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+				if(inputManager != null && getCurrentFocus() != null)
+					inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 				if(min_count.getText().toString().equals("")){					
 					Toast.makeText(v.getContext(), "Bitte Minutenanzahl angeben!", Toast.LENGTH_SHORT).show();
 					return;
 				}
-				mCount = Integer.parseInt(min_count.getText().toString());
-				Player p = new Player(LEFT_LANE, TIMER_MODE, new Scalar(255, 0,	0, 255));
-				race = new Race(mCount, TIMER_MODE);	
+				mCount = Integer.parseInt(min_count.getText().toString());	
+				race = Race.getInstance();
+				race.newRace(mCount, Race.TIMER_MODE);
+				race.createPlayer(mFrameToProcess.car_status(),Race.TIMER_MODE, mCount);
 				
-				mRaceBundle.putLong("Anzahl", mCount);
-				Fragment racefragment = new RaceFragment();
-				racefragment.setArguments(mRaceBundle);			
-				((RaceFragmentActivity) getActivity()).getViewPager().setCurrentItem(RACE);				
-				((RaceFragment) ((RaceFragmentActivity) getActivity())
-						.getSupportFragmentManager().findFragmentByTag(
-								"android:switcher:" + R.id.pager + ":1"))
-						.startCountdown();				
-				Log.i("debug", "Moved to Race-Tab!");
+				Intent intent = new Intent().setClass(v.getContext(), RaceActivity.class);
+				startActivity(intent);			
+			
+				Log.i("debug", "Moved to Race-Activity!");
 			}
-		});
-
-		return v;
+		});	
 	}
 
 	@Override
@@ -410,7 +395,14 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		
-		mFrameToProcess = ObjectDetector.getInstance(inputFrame);
+		if(!inputFrame.rgba().empty()) {
+			if(mInputFrame != null)
+				mInputFrame.release();
+			
+			mInputFrame = inputFrame.rgba();
+		}
+			
+//			mFrameToProcess = ObjectDetector.getInstance(inputFrame);
 		
 //		Mat a = inputFrame.gray();
 //		Mat b = new Mat(a.width(),a.height(), a.type());
@@ -452,16 +444,17 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 	public void onResume() {
 		super.onResume();
 		Log.i("debug", "onResume (StartFragament) called");
-		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, mContext, mLoaderCallback);
+		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, this, mLoaderCallback);
 	}
 
-	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(mContext) {
+	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
 				Log.i("debug", "OpenCV loaded successfully");					
 				mOpenCvCameraView.enableView();
+				//Static adding of tracks
 				if(mFirstInitialization){
 				try { 	
 				    bridge_image = Utils.loadResource(mContext,R.drawable.bridge_image); 
@@ -473,18 +466,19 @@ public class StartFragment extends Fragment implements CvCameraViewListener2 {
 				    } catch (IOException e) { 
 				     e.printStackTrace(); 
 				    }
-				
 				bridge = new Track("Brückenbahn", false, 500, bridge_image);
 				crossed = new Track("Kreuzungsbahn", true, 700, crossed_image);		
 				tracks.add(bridge.getName());
 				tracks.add(crossed.getName());
+				}
 
 				mTracksAdapter.notifyDataSetChanged();				
 				mFirstInitialization = false;
-				}
-			}
+				
+			
 			
 				break;
+			}
 			default: {
 				super.onManagerConnected(status);
 			}

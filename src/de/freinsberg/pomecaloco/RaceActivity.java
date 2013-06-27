@@ -10,7 +10,10 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.core.Mat;
+
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -23,16 +26,16 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class RaceFragment extends Fragment implements CvCameraViewListener2{
+public class RaceActivity extends Activity implements CvCameraViewListener2{
 	
-		final public static int PREPARE_RACE = 0;
-		final public static int RACE = 1;
-		final public static int END_RACE = 2;
+
 		private Context mContext;		
-		private MyTimer mCountdown;
+		private static MyTimer mCountdown;
 		private Bundle mData = null;
 		private List<String> mCountdownValues = new ArrayList<String>();
-		private Integer mMinLapCount;
+		private int mMinLapCount;
+		private int mMode;
+		private int mPlayer;
 		private TextView raceview_countdown = null;
 		private ImageView faster = null;
 		private ImageView slower = null;
@@ -44,53 +47,61 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 		public static CameraBridgeViewBase mOpenCvCameraView;
 		
 		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
 			//filling static array for the race- countdown
 			mCountdownValues.add("3");
 			mCountdownValues.add("2");
 			mCountdownValues.add("1");	
 			mCountdownValues.add("Los!!!!!");
 			
-			mContext = RaceFragmentActivity.mContext;
-			View v = inflater.inflate(R.layout.race, null);
-			mOpenCvCameraView = (CameraBridgeViewBase) v.findViewById(R.id.camera_stream_race);					
-			mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);		
+			setContentView(R.layout.race);
+			
+			mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_stream_race);				
+				
 			mOpenCvCameraView.setCvCameraViewListener(this);
 			Log.i("debug", "setCVCameraViewListener for Race properly");
 			
 			//get arguments from previous Fragment
-			mData = getArguments();
-			if(mMinLapCount != null)
-				mMinLapCount = Integer.parseInt(mData.getString("Anzahl"));
-			Log.i("debug", "Anzahl aus Editext: "+mMinLapCount);
+//			mData = getArguments();
+//			
+//			mMinLapCount = Integer.parseInt(mData.getString("count"));
+//			mMode = Integer.parseInt(mData.getString("mode"));
+//			mPlayer = Integer.parseInt(mData.getString("player"));			
+//			Log.i("debug", "Players: "+mPlayer+", Mode: "+mMode+", Count: "+mMinLapCount);
+			
+		
+				
 			
 			//Making Views and Buttons from XML-View accessible via Java Code
 			
-			raceview_countdown = (TextView) v.findViewById(R.id.raceview_countdown);			
-			faster = (ImageView) v.findViewById(R.id.faster);
-			slower = (ImageView) v.findViewById(R.id.slower);			
-			raceview_time_updater = (TextView) v.findViewById(R.id.raceview_time_updater);
-			raceview_round_updater = (TextView) v.findViewById(R.id.raceview_round_updater);
-			raceview_speed_updater = (TextView) v.findViewById(R.id.raceview_speed_updater);
-			raceview_best_time_updater = (TextView) v.findViewById(R.id.raceview_best_time_updater);			
-			manual_end_race = (Button) v.findViewById(R.id.manual_end_race);
+			raceview_countdown = (TextView) findViewById(R.id.raceview_countdown);			
+			faster = (ImageView) findViewById(R.id.faster);
+			slower = (ImageView) findViewById(R.id.slower);			
+			raceview_time_updater = (TextView) findViewById(R.id.raceview_time_updater);
+			raceview_round_updater = (TextView) findViewById(R.id.raceview_round_updater);
+			raceview_speed_updater = (TextView) findViewById(R.id.raceview_speed_updater);
+			raceview_best_time_updater = (TextView) findViewById(R.id.raceview_best_time_updater);			
+			manual_end_race = (Button) findViewById(R.id.manual_end_race);			
+			
+			mCountdown = new MyTimer(5000, 1000, mCountdownValues, raceview_countdown);							
+			Log.i("debug", "setting values for race countdown");
+			
+			//starting the race
+			start();
+			
+			
 			
 			manual_end_race.setOnClickListener(new OnClickListener() {
 				
 				@Override
 				public void onClick(View v) {
 					Log.i("debug", "go to end race manually");
-					((RaceFragmentActivity) getActivity()).getViewPager().setCurrentItem(END_RACE);
+					Intent intent = new Intent().setClass(v.getContext(), FinishActivity.class);
+					startActivity(intent);
 				}
-			});
-			
-			mCountdown = new MyTimer(5000, 1000, mCountdownValues, raceview_countdown);	
-			
-			
-			
-							
-			return v;
+			});							
+		
 		}				
 		@Override
 		public void onPause() {
@@ -117,8 +128,7 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 		}
 	
 		@Override
-		public Mat onCameraFrame(CvCameraViewFrame inputFrame) {			
-			
+		public Mat onCameraFrame(CvCameraViewFrame inputFrame) {				
 			return inputFrame.rgba();
 		}
 		
@@ -126,12 +136,12 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 		public void onResume() {
 			
 			super.onResume();			
-			Log.i("debug", "Race Fragment onResume()");
-			OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, mContext,
+			Log.i("debug", "RaceActivity onResume()");
+			OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, this,
 					mLoaderCallback);			
 		}
 	
-		private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(mContext) {
+		private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 			@Override
 			public void onManagerConnected(int status) {
 				switch (status) {
@@ -148,9 +158,11 @@ public class RaceFragment extends Fragment implements CvCameraViewListener2{
 			}
 		};
 		
-		public void startCountdown(){
+		public void start(){
 			mCountdown.start();
-		}		
+			Race.startRace(raceview_time_updater, raceview_speed_updater, raceview_round_updater);
+		}
+
 }
 	
 
