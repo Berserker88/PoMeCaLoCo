@@ -218,18 +218,13 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 						lane_overlay.setVisibility(View.VISIBLE);
 					}
 				} else if (scanner.getText() == getString(R.string.scan_cars)) {
-					mAlphacounter = 100;
-					Log.i("debug", "set Alpha");
-					mCarColorBitmaps = mFrameToProcess.get_cars_colors();
-					Log.i("debug", "get_cars_colors()");
-					left_car_color.setImageBitmap(mCarColorBitmaps[0]);
-					Log.i("debug", "set color to left car");
-					right_car_color.setImageBitmap(mCarColorBitmaps[1]);
-					Log.i("debug", "setcolor to right car");
-					left_car_color.setVisibility(View.VISIBLE);				
-					Log.i("debug", "set left car color visible");
+					mAlphacounter = 100;					
+					mCarColorBitmaps = mFrameToProcess.get_cars_colors();					
+					left_car_color.setImageBitmap(mCarColorBitmaps[0]);					
+					right_car_color.setImageBitmap(mCarColorBitmaps[1]);					
+					left_car_color.setVisibility(View.VISIBLE);								
 					right_car_color.setVisibility(View.VISIBLE);	
-					Log.i("debug", "set right car color visible");
+					
 					switch(mFrameToProcess.car_status()){
 						case ObjectDetector.NO_CAR:
 							Toast.makeText(v.getContext(), "Kein Fahrzeug gefunden!", Toast.LENGTH_LONG).show();
@@ -246,7 +241,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 						default:
 							Toast.makeText(v.getContext(), "Fehler bei der Fahrzeugerkennung!", Toast.LENGTH_LONG).show();							
 					}
-					Log.i("debug", "set a Toast");
+					
 					mShotTask = new TimerTask() {	
 						
 						@Override

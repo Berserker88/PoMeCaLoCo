@@ -84,7 +84,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			raceview_best_time_updater = (TextView) findViewById(R.id.raceview_best_time_updater);			
 			manual_end_race = (Button) findViewById(R.id.manual_end_race);			
 			
-			mCountdown = new MyTimer(5000, 1000, mCountdownValues, raceview_countdown);							
+			mCountdown = new MyTimer(4001, 1000, mCountdownValues, raceview_countdown);							
 			Log.i("debug", "setting values for race countdown");
 			
 			//starting the race
@@ -97,6 +97,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 				@Override
 				public void onClick(View v) {
 					Log.i("debug", "go to end race manually");
+					
 					Intent intent = new Intent().setClass(v.getContext(), FinishActivity.class);
 					startActivity(intent);
 				}
