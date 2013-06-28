@@ -13,6 +13,8 @@ public class MyTimer extends CountDownTimer{
 	
 	public int mCountdown = 0;
 	public long mMsCountdown;
+	public long mMsCountUp;
+	public boolean isRoundRace = false;
 	public boolean isRaceCountdown = false;
 	public boolean isTimerRace = false;
 	
@@ -32,7 +34,10 @@ public class MyTimer extends CountDownTimer{
 	}
 	public MyTimer(long millisInFuture, long countDownInterval, TextView tv) {		
 		super(millisInFuture, countDownInterval);
-		isTimerRace = true;
+		if(millisInFuture == Long.MAX_VALUE)
+			isRoundRace = true;
+		else
+			isTimerRace = true;
 		Log.i("debug", "Im Timer fürs Rennen!!!");
 		mMsCountdown = millisInFuture;
 		mTv = tv;
@@ -42,39 +47,63 @@ public class MyTimer extends CountDownTimer{
 		if(isRaceCountdown){
 			mTv.setText(" ");
 			isRaceCountdown = false;
-			if(Race.mRaceTimer != null)
-				Race.mRaceTimer.start();
+			Race.getInstance().go();
+
 		}
 		else if(isTimerRace){
 			mTv.setText("00:00:00");
 			isTimerRace = false;
 			Race.processResults();
 			
+		}else{
+			isRoundRace = false;
+			Race.processResults();
+			cancel();
+			//Round-Race
 		}
 		
 	}
 
 	@Override
 	public void onTick(long millisUntilFinished) {
-		if(mCountdownValues != null){			
-			Log.i("debug", "Size: "+mCountdownValues.size()+", Counter: "+mCountdown);
-			if(mCountdown >= mCountdownValues.size()) {
-				cancel();
-				return;
-			}			
-			mTv.setTextColor(mTv.getResources().getColor(R.color.record_yellow));
-			mTv.setText(mCountdownValues.get(mCountdown));						
-			mCountdown++;
+		if(isRoundRace){			
+			mTv.setTextColor(mTv.getResources().getColor(R.color.white));		
+			mTv.setText((parse(mMsCountUp)));
+			mMsCountUp = mMsCountUp + 10;
+			
+			
+		}else
+		{
+			if(mCountdownValues != null){			
+				Log.i("debug", "Size: "+mCountdownValues.size()+", Counter: "+mCountdown);
+				if(mCountdown >= mCountdownValues.size()) {
+					cancel();
+					return;
+				}			
+				mTv.setTextColor(mTv.getResources().getColor(R.color.record_yellow));
+				mTv.setText(mCountdownValues.get(mCountdown));						
+				mCountdown++;
+			}
+			else
+			{			
+				mTv.setTextColor(mTv.getResources().getColor(R.color.white));
+				
+				mTv.setText((parse(mMsCountdown)));
+				mMsCountdown = millisUntilFinished;
+				
+			}		
 		}
-		else
-		{			
-			mTv.setTextColor(mTv.getResources().getColor(R.color.white));
-			
-			mTv.setText((parse(mMsCountdown)));
-			mMsCountdown = millisUntilFinished;
-			
-		}		
 	}	
+	
+	public String getCurrentTime() {
+		return (parse(mMsCountdown));
+	}
+	
+	public void stop() {
+		cancel();
+		
+		
+	}
 	public String parse(long l) {
 		String parsed;
 		String[] splits;
@@ -85,40 +114,37 @@ public class MyTimer extends CountDownTimer{
 			return null;
 		}
 		//l comes as Milliseconds, we want to use hundreds per second so divide by 10.
-		Log.i("debug","ms to parse:"+l);
+		
 		l = l /10;		
 		int minutes=0;
 		int seconds=0;
 		int hundreds=0;
 		if(l >= 6000){
 			minutes = (int) (l/6000);			
-			if(minutes < 10)
-				Log.i("debug","minuten < 10");
-				splits[0] = "0"+Integer.toString(minutes);
-			splits[0] = Integer.toString(minutes);				
+			if(minutes < 10){				
+				splits[0] = ("0"+minutes);
+			}else
+				splits[0] = Integer.toString(minutes);				
 		}
 		if(l >= 100) {
-			seconds = (int) (l/100);	
-			Log.i("debug", "Minutes while calculating Seconds: "+minutes);
-			seconds = seconds - (minutes*60);
-			Log.i("debug", "Seconds: "+seconds);
-			if(seconds < 10)				
-				Log.i("debug","sekunden < 10");
-				splits[1] = "0"+Integer.toString(seconds);	
-			splits[1] = Integer.toString(seconds);
+			seconds = (int) (l/100);				
+			seconds = seconds - (minutes*60);			
+			if(seconds < 10){								
+				splits[1] = ("0"+seconds);	
+			}else
+				splits[1] = Integer.toString(seconds);
 		}
 		if(l >= 1) {
 			hundreds = (int) l;			
 			hundreds = hundreds - (seconds*100);
-			hundreds = hundreds -(minutes*6000);
-			Log.i("debug", "Hundreds: "+hundreds);
-			if(hundreds < 10)
-				Log.i("debug","hundertstel < 10");
-				splits[2] = "0"+Integer.toString(hundreds);	
-			splits[2] = Integer.toString(hundreds);			
+			hundreds = hundreds -(minutes*6000);			
+			if(hundreds < 10){				
+				splits[2] = ("0"+hundreds);	
+			}else
+				splits[2] = Integer.toString(hundreds);			
 		}
 		parsed = splits[0]+":"+splits[1]+":"+splits[2];
-		Log.i("debug", "parsed String: "+parsed);
+		
 		return parsed;		
 	}
 }

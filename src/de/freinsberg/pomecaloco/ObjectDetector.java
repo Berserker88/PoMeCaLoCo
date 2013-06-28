@@ -29,8 +29,8 @@ public class ObjectDetector{
 	private static final int ORIENTATION_0 = 0;
 	private static final int ORIENTATION_90 = 90;
 	private static final int ORIENTATION_270 = 270;
-	private static final int LEFT_LANE = 0;
-	private static final int RIGHT_LANE = 1;
+	private static final int LEFT_LANE = 1;
+	private static final int RIGHT_LANE = 2;
 	final public static int NO_CAR = 0x00;
 	final public static int RIGHT_CAR = 0x01;
 	final public static int LEFT_CAR = 0x10;
@@ -103,7 +103,6 @@ public class ObjectDetector{
 	}
 	
 	public static ObjectDetector getInstance() {	
-		
 		return mObjectDetector;
 	}
 	
@@ -286,7 +285,8 @@ public class ObjectDetector{
 		Log.i("debug", "avg_Old: r"+avg_oldColors[0]+ ", g"+avg_oldColors[1]+ ", b"+avg_oldColors[2]);
 		Log.i("debug", "avg_New: r"+avg_newColors[0]+ ", g"+avg_newColors[1]+ ", b"+avg_newColors[2]);
 		boolean colorDetected = isDifferent(avg_newColors, avg_oldColors);	
-
+		Log.i("farbeee", "color on left lane AFTER for loop and BEFORE ifelses: "+ mLeftCarColorScalar);
+		Log.i("farbeee", "color on right lane AFTER for loop and BEFORE ifelses: "+ mRightCarColorScalar);
 		if(lane == LEFT_LANE)
 		{
 			if(!colorDetected)
@@ -294,6 +294,7 @@ public class ObjectDetector{
 			else{
 				mColorsOnLeftLane = true;
 				mLeftCarColorScalar = new Scalar(avg_newColors);
+				Log.i("farbeee", "color on left lane IN ifelses: "+ mLeftCarColorScalar);
 				mLeftCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFramePortrait.type(),mLeftCarColorScalar);				
 				mLeftCarColorImage = Bitmap.createBitmap(mLeftCarColor.cols(), mLeftCarColor.rows(), Bitmap.Config.ARGB_8888);
 				Utils.matToBitmap(mLeftCarColor, mLeftCarColorImage);					
@@ -310,6 +311,7 @@ public class ObjectDetector{
 			else{
 				mColorsOnRightLane = true;
 				mRightCarColorScalar = new Scalar(avg_newColors);
+				Log.i("farbeee", "color on right lane IN ifelses: "+ mRightCarColorScalar);
 				mRightCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFramePortrait.type(),mRightCarColorScalar);
 				mRightCarColorImage = Bitmap.createBitmap(mRightCarColor.cols(), mRightCarColor.rows(), Bitmap.Config.ARGB_8888);
 				Utils.matToBitmap(mRightCarColor, mRightCarColorImage);				
@@ -543,6 +545,19 @@ public class ObjectDetector{
 		Log.i("debug", "carStatus: "+carStatus);
 		return carStatus;
 		}
+	
+	public int getNumberOfCars() {
+		if(mColorsOnLeftLane && mColorsOnRightLane)
+			return 2;
+		else if(mColorsOnLeftLane)
+			return 1;
+		else if(mColorsOnRightLane)
+			return 1;
+		else
+			return 0;
+		
+		
+	}
 
 	public Bitmap[] get_cars_colors (){
 		Log.i("debug", "Into get_car_colors!");		

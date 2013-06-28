@@ -10,9 +10,12 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -28,7 +31,7 @@ import android.widget.TextView;
 
 public class RaceActivity extends Activity implements CvCameraViewListener2{
 	
-
+		private MovementDetector mMd;
 		private Context mContext;		
 		private static MyTimer mCountdown;
 		private Bundle mData = null;
@@ -43,6 +46,8 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		private TextView raceview_round_updater = null;
 		private TextView raceview_speed_updater = null;
 		private TextView raceview_best_time_updater = null;
+		public TextView raceview_game_mode;
+		public TextView raceview_track_name;
 		private Button manual_end_race = null;
 		public static CameraBridgeViewBase mOpenCvCameraView;
 		
@@ -75,7 +80,9 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			
 			//Making Views and Buttons from XML-View accessible via Java Code
 			
-			raceview_countdown = (TextView) findViewById(R.id.raceview_countdown);			
+			raceview_countdown = (TextView) findViewById(R.id.raceview_countdown);
+			raceview_game_mode = (TextView) findViewById(R.id.game_mode);
+			raceview_track_name = (TextView) findViewById(R.id.track_name);
 			faster = (ImageView) findViewById(R.id.faster);
 			slower = (ImageView) findViewById(R.id.slower);			
 			raceview_time_updater = (TextView) findViewById(R.id.raceview_time_updater);
@@ -90,14 +97,27 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			//starting the race
 			start();
 			
-			
+			//initializing View depending on the GameMode(TimerMode or RoundMode)
+			if(Race.getInstance().getGameMode() == Race.TIMER_MODE){
+				raceview_round_updater.setTextColor(raceview_round_updater.getResources().getColor(R.color.white));
+				raceview_round_updater.setText(R.string.raceview_round_text);
+			}else if(Race.getInstance().getGameMode() == Race.ROUND_MODE){
+				raceview_round_updater.setTextColor(raceview_round_updater.getResources().getColor(R.color.white));
+				raceview_round_updater.setText(R.string.raceview_round_text+" "+" / "+Race.getInstance().getCount());
+			}
+			//initialize the other Textviews
+			raceview_speed_updater.setTextColor(raceview_speed_updater.getResources().getColor(R.color.white));
+			raceview_speed_updater.setText(R.string.raceview_speed_text);			
+			raceview_best_time_updater.setText("");
+			raceview_track_name.setText(Race.getInstance().getTrackName());
+			raceview_game_mode.setText(Race.getInstance().getNumberOfPlayers()+" Spieler Rennen");		
 			
 			manual_end_race.setOnClickListener(new OnClickListener() {
 				
 				@Override
 				public void onClick(View v) {
 					Log.i("debug", "go to end race manually");
-					
+					stop();
 					Intent intent = new Intent().setClass(v.getContext(), FinishActivity.class);
 					startActivity(intent);
 				}
@@ -129,8 +149,26 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		}
 	
 		@Override
-		public Mat onCameraFrame(CvCameraViewFrame inputFrame) {				
-			return inputFrame.rgba();
+		public Mat onCameraFrame(CvCameraViewFrame inputFrame) {		
+			MovementDetector md;
+			Mat m = inputFrame.rgba();
+			if(!m.empty()) {				
+				md = new MovementDetector(m.clone());
+				
+				//detecting cars
+				Scalar s = Race.getInstance().getPlayerColor(Race.LEFT_LANE);				
+				if(s != null){
+					if(md.colorDetected(s))
+						Log.i("debug", "Hab das linke Fahrzeug!");
+				}
+				s = Race.getInstance().getPlayerColor(Race.RIGHT_LANE);
+				if(s != null){
+					if(md.colorDetected(s))
+						Log.i("debug", "Hab das rechte Fahrzeug!");
+				}				
+				md.clear();
+			}			
+			return m;
 		}
 		
 		@Override
@@ -141,6 +179,21 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, this,
 					mLoaderCallback);			
 		}
+		@Override
+	    public void onBackPressed() {
+			new AlertDialog.Builder(this)
+				.setTitle("Beenden?")
+				.setMessage("Wollen Sie die App beenden?")
+	        	.setCancelable(false)
+	        	.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+	        		public void onClick(DialogInterface dialog, int id) {
+	        			finish();
+	        		}
+	        	})
+	        	.setNegativeButton("Abbrechen", null)
+	        	.show();
+	    }
+
 	
 		private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 			@Override
@@ -159,9 +212,14 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			}
 		};
 		
-		public void start(){
-			mCountdown.start();
-			Race.startRace(raceview_time_updater, raceview_speed_updater, raceview_round_updater);
+		public void start(){			
+			mCountdown.start();			
+			Race.getInstance().startRace(this, raceview_time_updater, raceview_speed_updater, raceview_round_updater);
+		}
+		
+		public void stop(){
+			mCountdown.stop();
+			Race.getInstance().cancel();
 		}
 
 }

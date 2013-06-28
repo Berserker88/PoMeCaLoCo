@@ -3,9 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:opencv="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    tools:context=".RaceActivity" >
 
     <View
+        android:id="@+id/view2"
         android:layout_width="150dp"
         android:layout_height="2dp"
         android:layout_centerHorizontal="true"
@@ -20,106 +22,73 @@
         android:layout_marginTop="30dp"
         android:background="@android:color/white" />
 
-    <org.opencv.android.JavaCameraView
-        android:id="@+id/camera_stream_race"
-        android:layout_width="wrap_content"
-        android:layout_height="250dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="100dp"        
-        opencv:camera_id="any"
-        opencv:show_fps="true" />
-
     <ImageView
         android:id="@+id/faster"
         android:layout_width="40dp"
         android:layout_height="25dp"
         android:layout_alignLeft="@+id/view1"
-        android:layout_marginLeft="2dp"
         android:layout_alignTop="@+id/slower"
+        android:layout_marginLeft="2dp"
+        android:contentDescription="@string/faster"
         android:maxHeight="25dp"
         android:maxWidth="40dp"
-        android:src="@color/winning_green"
-        android:contentDescription="@string/faster" />
+        android:src="@color/winning_green" />
 
     <ImageView
         android:id="@+id/slower"
         android:layout_width="40dp"
         android:layout_height="25dp"
         android:layout_alignRight="@+id/view1"
-        android:layout_marginRight="2dp"
         android:layout_alignTop="@+id/view1"
+        android:layout_marginRight="2dp"
         android:layout_marginTop="14dp"
+        android:contentDescription="@string/slower"
         android:maxHeight="25dp"
         android:maxWidth="40dp"
-        android:src="@color/loosing_red"
-        android:contentDescription="@string/slower"  />
+        android:src="@color/loosing_red" />
 
-    <TextView
-        android:id="@+id/raceview_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/camera_stream_race"
-        android:layout_marginLeft="20dp"
-        android:text="@string/raceview_time"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:ems="10" />
-    
-    <TextView
-        android:id="@+id/raceview_time_updater"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/camera_stream_race"
-        android:layout_alignLeft="@+id/value_separator"
-        android:layout_marginLeft="10dp"
-        android:text="@string/raceview_time_updater"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/dummy_gray"
-        android:ems="10" />
-    
     <View
         android:id="@+id/time_round_separator"
         android:layout_width="wrap_content"
-        android:layout_height="2dp"        
+        android:layout_height="2dp"
         android:layout_below="@+id/raceview_time"
-        android:layout_marginTop="4dp" 
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
+        android:layout_marginTop="4dp"
         android:background="@android:color/white" />
-    
 
-     <TextView
+    <TextView
         android:id="@+id/raceview_round"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignRight="@+id/raceview_time"
         android:layout_below="@+id/raceview_time"
-        android:layout_marginTop="10dp"    
+        android:layout_marginTop="10dp"
+        android:ems="10"
         android:text="@string/raceview_round"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:ems="10" />
-     
-     <TextView
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
         android:id="@+id/raceview_round_updater"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/raceview_time"
         android:layout_alignLeft="@+id/value_separator"
-        android:layout_marginTop="10dp"
+        android:layout_below="@+id/raceview_time"
         android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:ems="10"
         android:text="@string/raceview_round_updater"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/dummy_gray"
-        android:ems="10" />
-    
-     <View
+        android:textColor="@color/dummy_gray" />
+
+    <View
         android:id="@+id/round_speed_separator"
         android:layout_width="wrap_content"
-        android:layout_height="2dp"        
+        android:layout_height="2dp"
         android:layout_below="@+id/raceview_round"
-        android:layout_marginTop="4dp" 
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
+        android:layout_marginTop="4dp"
         android:background="@android:color/white" />
 
     <TextView
@@ -127,53 +96,33 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignRight="@+id/raceview_time"
-        android:layout_below="@+id/raceview_round"   
-        android:layout_marginTop="10dp"     
+        android:layout_below="@+id/raceview_round"
+        android:layout_marginTop="10dp"
+        android:ems="10"
         android:text="@string/raceview_speed"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:ems="10" />
-    
-     <TextView
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
         android:id="@+id/raceview_speed_updater"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/raceview_round"
         android:layout_alignLeft="@+id/value_separator"
-        android:layout_marginTop="10dp"
+        android:layout_below="@+id/raceview_round"
         android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:ems="10"
         android:text="@string/raceview_speed_updater"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/dummy_gray"
-        android:ems="10" />
-    
+        android:textColor="@color/dummy_gray" />
+
     <View
         android:id="@+id/value_separator"
         android:layout_width="2dp"
         android:layout_height="105dp"
-        android:layout_marginLeft="140dp"
         android:layout_below="@+id/camera_stream_race"
-        android:layout_marginTop="3dp"                
+        android:layout_marginLeft="140dp"
+        android:layout_marginTop="3dp"
         android:background="@android:color/white" />
-
-    <TextView
-        android:id="@+id/raceview_best_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:text="@string/best_time"
-        android:textColor="@android:color/white" />
-    
-    <TextView
-        android:id="@+id/raceview_best_time_updater"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/raceview_best_time"    
-        android:layout_alignParentRight="true"    
-        android:layout_marginTop="5dp"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/raceview_best_time_updater"
-        android:textColor="@color/dummy_gray" />
 
     <Button
         android:id="@+id/manual_end_race"
@@ -183,19 +132,103 @@
         android:layout_centerHorizontal="true"
         android:text="@string/manual_end_race" />
 
+    <de.freinsberg.pomecaloco.MillisecondChronometer
+        android:id="@+id/raceview_chronometer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/value_separator"
+        android:layout_alignBaseline="@+id/raceview_time"
+        android:layout_alignBottom="@+id/raceview_time"
+        android:layout_marginLeft="10dp"
+        android:layout_alignParentRight="true"
+        android:ems="10"
+        android:visibility="gone"
+        android:text="@string/raceview_time_updater"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/dummy_gray" />
+
+    <TextView
+        android:id="@+id/raceview_best_time_updater"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/faster"
+        android:layout_alignParentRight="true"
+        android:text="@string/raceview_best_time_updater"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/dummy_gray" />
+
+    <TextView
+        android:id="@+id/raceview_best_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/faster"
+        android:layout_alignParentRight="true"
+        android:text="@string/best_time"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/track_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/slower"
+        android:layout_centerHorizontal="true"
+        android:text="@string/track_name"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <org.opencv.android.JavaCameraView
+        android:id="@+id/camera_stream_race"
+        android:layout_width="wrap_content"
+        android:layout_height="250dp"
+        android:layout_alignLeft="@+id/raceview_time"
+        android:layout_below="@+id/view2"
+        android:layout_marginTop="48dp"
+        opencv:camera_id="any"
+        opencv:show_fps="true" />
+
     <TextView
         android:id="@+id/raceview_countdown"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/camera_stream_race"
+        android:layout_alignBottom="@+id/camera_stream_race"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         android:text="@string/race_countdown"
         android:textColor="@color/dummy_gray"
         android:textSize="50sp" />
-    <Chronometer android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:id="@+id/raceview_chronometer"
-	    android:visibility="gone"/>
-    
+
+    <TextView
+        android:id="@+id/raceview_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/time_round_separator"
+        android:layout_alignTop="@+id/value_separator"
+        android:layout_marginTop="12dp"
+        android:ems="10"
+        android:text="@string/raceview_time"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/raceview_time_updater"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/value_separator"
+        android:layout_alignBaseline="@+id/raceview_time"
+        android:layout_alignBottom="@+id/raceview_time"
+        android:layout_marginLeft="10dp"
+        android:layout_alignParentRight="true"
+        android:ems="10"
+        android:text="@string/raceview_time_updater"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/dummy_gray" />
+
+    <TextView
+        android:id="@+id/game_mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view2"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="11dp"
+        android:text="@string/game_mode"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

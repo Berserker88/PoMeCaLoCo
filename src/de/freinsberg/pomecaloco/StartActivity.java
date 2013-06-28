@@ -22,7 +22,9 @@ import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -45,22 +47,22 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class StartActivity extends Activity implements CvCameraViewListener2 {
 
-	public static boolean mScanningComplete = false;
-	public static boolean mFirstInitialization = true;
+	public static boolean mScanningComplete = false;	
 
 	final public static int LEFT_LANE = 1;
 	final public static int RIGHT_LANE = 2;
-
 
 	private Handler mHandler = new Handler();
 	private Timer mShotTimer = new Timer();
 	private TimerTask mShotTask;
 	private int mAlphacounter;
 	private float mAlpha;
+	private int mSpinnerPosition;
 	private Race race;
 	private Context mContext;
 	public static CameraBridgeViewBase mOpenCvCameraView;
@@ -74,6 +76,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	private Mat crossed_image = null;
 	ObjectDetector mFrameToProcess;
 	private Spinner mTracks;
+	private TextView racemode = null;
 	private Button min_mode = null;
 	private Button lap_mode = null;
 	private Button results = null;
@@ -115,6 +118,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 		results = (Button) findViewById(R.id.results);
 		scanner = (Button) findViewById(R.id.scanner);
 		rescan = (Button) findViewById(R.id.rescan);		
+		racemode = (TextView) findViewById(R.id.racemode);
 		alpha_overlay = (ImageView) findViewById(R.id.alpha_overlay);
 		frame_track_overlay = (ImageView) findViewById(R.id.frame_track_overlay);
 		lane_overlay = (ImageView) findViewById(R.id.lane_overlay);
@@ -140,12 +144,13 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View v,
 					int pos, long id) {
-				Log.i("debug", "Spinner Position "+pos+" gewählt.");				
+				Log.i("debug", "Spinner Position "+pos+" gewählt.");
+				mSpinnerPosition = pos;
 			}
 
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
-				Log.i("debug", "Spinner keine Position ausgewählt.");				
+				Log.i("debug", "Spinner keine Position ausgewählt.");
 			}			
 		});	
 				
@@ -230,12 +235,15 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 							Toast.makeText(v.getContext(), "Kein Fahrzeug gefunden!", Toast.LENGTH_LONG).show();
 							return;
 						case ObjectDetector.RIGHT_CAR:							
+							racemode.setText("1 Spieler Modus");
 							Toast.makeText(v.getContext(), "Links kein Fahrzeug gefunden!", Toast.LENGTH_LONG).show();
 							break;
-						case ObjectDetector.LEFT_CAR:							
+						case ObjectDetector.LEFT_CAR:	
+							racemode.setText("1 Spieler Modus");
 							Toast.makeText(v.getContext(), "Rechts kein Fahrzeug gefunden!", Toast.LENGTH_LONG).show();
 							break;
 						case ObjectDetector.BOTH_CAR:
+							racemode.setText("2 Spieler Modus");
 							Toast.makeText(v.getContext(), "Zwei Fahrzeuge erkannt!", Toast.LENGTH_LONG).show();
 							break;	
 						default:
@@ -302,6 +310,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				right_car_color.setVisibility(View.GONE);	
 				scanner.setEnabled(true);
 				mScanningComplete = false;
+				racemode.setText(R.string.racemode);
 				lap_mode.setEnabled(false);
 				lap_count.setEnabled(false);
 				min_mode.setEnabled(false);
@@ -331,7 +340,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				}
 				mCount = Integer.parseInt(lap_count.getText().toString());	
 				race = Race.getInstance();
-				race.newRace(mCount, Race.ROUND_MODE);
+				race.newRace(mCount, Race.ROUND_MODE,tracks.get(mSpinnerPosition), mFrameToProcess.getNumberOfCars());
 				race.createPlayer(mFrameToProcess.car_status(),Race.ROUND_MODE, mCount);	
 				
 				Intent intent = new Intent().setClass(v.getContext(), RaceActivity.class);
@@ -353,7 +362,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				}
 				mCount = Integer.parseInt(min_count.getText().toString());	
 				race = Race.getInstance();
-				race.newRace(mCount, Race.TIMER_MODE);
+				race.newRace(mCount, Race.TIMER_MODE,tracks.get(mSpinnerPosition), mFrameToProcess.getNumberOfCars());
 				race.createPlayer(mFrameToProcess.car_status(),Race.TIMER_MODE, mCount);
 				
 				Intent intent = new Intent().setClass(v.getContext(), RaceActivity.class);
@@ -441,6 +450,22 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 		Log.i("debug", "onResume (StartFragament) called");
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, this, mLoaderCallback);
 	}
+	
+	@Override
+    public void onBackPressed() {
+		new AlertDialog.Builder(this)
+			.setTitle("Beenden?")
+			.setMessage("Wollen Sie die App beenden?")
+        	.setCancelable(false)
+        	.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+        		public void onClick(DialogInterface dialog, int id) {
+        			finish();
+        		}
+        	})
+        	.setNegativeButton("Abbrechen", null)
+        	.show();
+    }
+
 
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -449,8 +474,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 			case LoaderCallbackInterface.SUCCESS: {
 				Log.i("debug", "OpenCV loaded successfully");					
 				mOpenCvCameraView.enableView();
-				//Static adding of tracks
-				if(mFirstInitialization){
+				//Static adding of tracks				
 				try { 	
 				    bridge_image = Utils.loadResource(mContext,R.drawable.bridge_image); 
 				    } catch (IOException e) { 
@@ -465,10 +489,9 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				crossed = new Track("Kreuzungsbahn", true, 700, crossed_image);		
 				tracks.add(bridge.getName());
 				tracks.add(crossed.getName());
-				}
-
+				
 				mTracksAdapter.notifyDataSetChanged();				
-				mFirstInitialization = false;
+				
 				
 			
 			
@@ -480,6 +503,6 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				break;
 			}
 		}
-	};
+	};	
 
 }

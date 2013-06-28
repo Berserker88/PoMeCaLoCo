@@ -39,7 +39,9 @@
     <string name="best_time">Schnellste Runde</string>
     <string name="raceview_time_updater">*00.00.00*</string>
     <string name="raceview_round_updater">*Round 0*</string>
+    <string name="raceview_round_text">Runde</string>
     <string name="raceview_speed_updater">*00.00 km/h*</string>
+    <string name="raceview_speed_text"> km/h</string>
     <string name="raceview_best_time_updater">*00.00.00*</string>
     <string name="manual_end_race">Manuelles Rennende</string>
     <string name="new_race">Neues Rennen</string>
@@ -73,5 +75,7 @@
     <string name="lane_overlay">The Lane Overlay</string>
     <string name="right_car_color">Farbe des rechten Fahrzeugs</string>
     <string name="left_car_color">Farbe des linken Fahrzeugs</string>
+    <string name="track_name">Streckenname</string>
+    <string name="game_mode">Spielmodus</string>
 
 </resources>
