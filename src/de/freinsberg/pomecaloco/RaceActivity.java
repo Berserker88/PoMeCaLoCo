@@ -1,5 +1,6 @@
 package de.freinsberg.pomecaloco;
 
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,12 +44,17 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		private ImageView faster = null;
 		private ImageView slower = null;
 		private TextView raceview_time_updater = null;
-		private TextView raceview_round_updater = null;
-		private TextView raceview_speed_updater = null;
+		private TextView raceview_round_updater_left = null;
+		private TextView raceview_round_updater_right = null;
+		private TextView raceview_speed_updater_left = null;
+		private TextView raceview_speed_updater_right = null;
+		private TextView raceview_finished = null;
 		private TextView raceview_best_time_updater = null;
 		public TextView raceview_game_mode;
 		public TextView raceview_track_name;
 		private Button manual_end_race = null;
+		public MyTimer mRaceTimer;
+		public MillisecondChronometer mChronometer;	
 		public static CameraBridgeViewBase mOpenCvCameraView;
 		
 		@Override
@@ -81,13 +87,16 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			//Making Views and Buttons from XML-View accessible via Java Code
 			
 			raceview_countdown = (TextView) findViewById(R.id.raceview_countdown);
+			raceview_finished = (TextView) findViewById(R.id.raceview_finished);
 			raceview_game_mode = (TextView) findViewById(R.id.game_mode);
 			raceview_track_name = (TextView) findViewById(R.id.track_name);
 			faster = (ImageView) findViewById(R.id.faster);
 			slower = (ImageView) findViewById(R.id.slower);			
 			raceview_time_updater = (TextView) findViewById(R.id.raceview_time_updater);
-			raceview_round_updater = (TextView) findViewById(R.id.raceview_round_updater);
-			raceview_speed_updater = (TextView) findViewById(R.id.raceview_speed_updater);
+			raceview_round_updater_left = (TextView) findViewById(R.id.raceview_round_updater_left);
+			raceview_round_updater_right = (TextView) findViewById(R.id.raceview_round_updater_right);
+			raceview_speed_updater_left = (TextView) findViewById(R.id.raceview_speed_updater_left);
+			raceview_speed_updater_right = (TextView) findViewById(R.id.raceview_speed_updater_right);
 			raceview_best_time_updater = (TextView) findViewById(R.id.raceview_best_time_updater);			
 			manual_end_race = (Button) findViewById(R.id.manual_end_race);			
 			
@@ -99,15 +108,21 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			
 			//initializing View depending on the GameMode(TimerMode or RoundMode)
 			if(Race.getInstance().getGameMode() == Race.TIMER_MODE){
-				raceview_round_updater.setTextColor(raceview_round_updater.getResources().getColor(R.color.white));
-				raceview_round_updater.setText(R.string.raceview_round_text);
+				raceview_round_updater_left.setTextColor(getResources().getColor(R.color.white));
+				raceview_round_updater_left.setText(R.string.raceview_round_text);
+				raceview_round_updater_right.setTextColor(getResources().getColor(R.color.white));
+				raceview_round_updater_right.setText(R.string.raceview_round_text);
 			}else if(Race.getInstance().getGameMode() == Race.ROUND_MODE){
-				raceview_round_updater.setTextColor(raceview_round_updater.getResources().getColor(R.color.white));
-				raceview_round_updater.setText(R.string.raceview_round_text+" "+" / "+Race.getInstance().getCount());
+				raceview_round_updater_left.setTextColor(getResources().getColor(R.color.white));
+				raceview_round_updater_left.setText(" / "+Race.getInstance().getCount());
+				raceview_round_updater_right.setTextColor(getResources().getColor(R.color.white));
+				raceview_round_updater_right.setText(" / "+Race.getInstance().getCount());
 			}
 			//initialize the other Textviews
-			raceview_speed_updater.setTextColor(raceview_speed_updater.getResources().getColor(R.color.white));
-			raceview_speed_updater.setText(R.string.raceview_speed_text);			
+			raceview_speed_updater_left.setTextColor(getResources().getColor(R.color.white));
+			raceview_speed_updater_left.setText(R.string.raceview_speed_text);			
+			raceview_speed_updater_right.setTextColor(getResources().getColor(R.color.white));
+			raceview_speed_updater_right.setText(R.string.raceview_speed_text);			
 			raceview_best_time_updater.setText("");
 			raceview_track_name.setText(Race.getInstance().getTrackName());
 			raceview_game_mode.setText(Race.getInstance().getNumberOfPlayers()+" Spieler Rennen");		
@@ -153,21 +168,54 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			MovementDetector md;
 			Mat m = inputFrame.rgba();
 			if(!m.empty()) {				
-				md = new MovementDetector(m.clone());
-				
+				md = new MovementDetector(m.clone());				
 				//detecting cars
 				Scalar s = Race.getInstance().getPlayerColor(Race.LEFT_LANE);				
-				if(s != null){
-					if(md.colorDetected(s))
-						Log.i("debug", "Hab das linke Fahrzeug!");
+				if(s != null)
+				{
+					boolean recognized = md.colorDetected(s);						
+					if(Race.getInstance().getGameMode() == Race.ROUND_MODE)
+					{
+						//Log.i("debug","RoundMode!");
+						if(!(Race.getInstance().isOver() == Race.LEFT_LANE))
+						{
+							//Log.i("debug","Game still running...");
+							if(Race.getInstance().isCorrectMovement(Race.LEFT_LANE, recognized)){
+								Log.i("debug", "Korrektes Movement links!");
+								Race.getInstance().countRounds(Race.LEFT_LANE);							
+								updateGUIElements(Race.LEFT_LANE);
+							}
+						}
+						else
+						{
+							finishGUIElements(Race.LEFT_LANE);								
+							stop();
+						}
+					}
 				}
 				s = Race.getInstance().getPlayerColor(Race.RIGHT_LANE);
 				if(s != null){
-					if(md.colorDetected(s))
-						Log.i("debug", "Hab das rechte Fahrzeug!");
+					boolean recognized = md.colorDetected(s);			
+					if(Race.getInstance().getGameMode() == Race.ROUND_MODE)
+					{
+						if(!(Race.getInstance().isOver() == Race.RIGHT_LANE))
+						{
+							if(Race.getInstance().isCorrectMovement(Race.RIGHT_LANE, recognized))
+							{
+								Log.i("debug", "Korrektes Movement rechts!");
+								Race.getInstance().countRounds(Race.RIGHT_LANE);									
+								updateGUIElements(Race.RIGHT_LANE);
+							}
+						}
+						else
+						{
+							finishGUIElements(Race.RIGHT_LANE);
+							stop();
+						}
+					}					
 				}				
-				md.clear();
-			}			
+				md.clear();			
+			}	
 			return m;
 		}
 		
@@ -214,13 +262,51 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		
 		public void start(){			
 			mCountdown.start();			
-			Race.getInstance().startRace(this, raceview_time_updater, raceview_speed_updater, raceview_round_updater);
+			Race.getInstance().startRace(this, raceview_time_updater, raceview_best_time_updater);
 		}
 		
 		public void stop(){
 			mCountdown.stop();
 			Race.getInstance().cancel();
 		}
+		
+		private void updateGUIElements(final int lane) {
+			runOnUiThread(new Runnable() {
+			     public void run() {
+
+						if(lane == Race.LEFT_LANE)	
+						{
+							raceview_round_updater_left.setText(Race.getInstance().getCurrentRound(Race.LEFT_LANE)+" / "+Race.getInstance().getCount());
+							raceview_speed_updater_left.setText(String.format("%.2f", Race.getInstance().getCurrentSpeed(Race.LEFT_LANE))+" m/s");
+						}
+						else
+						{
+							raceview_round_updater_right.setText(Race.getInstance().getCurrentRound(Race.RIGHT_LANE)+" / "+Race.getInstance().getCount());
+							raceview_speed_updater_right.setText(String.format("%.2f", Race.getInstance().getCurrentSpeed(Race.RIGHT_LANE))+" m/s");
+						}
+			    }
+			});
+		
+			
+		}
+		private void finishGUIElements(final int lane){
+			runOnUiThread(new Runnable() {
+			     public void run() {
+						if(lane == Race.LEFT_LANE) {							
+							raceview_finished.setText(R.string.raceview_left_finished);
+							raceview_time_updater.setText(Race.getInstance().getFinishedTime(Race.getInstance().getGameMode()));
+						}
+						else
+						{
+							raceview_finished.setText(R.string.raceview_right_finished);
+							raceview_time_updater.setText(Race.getInstance().getFinishedTime(Race.getInstance().getGameMode()));
+						}
+			    }
+			});
+
+		}
+		
+
 
 }
 	

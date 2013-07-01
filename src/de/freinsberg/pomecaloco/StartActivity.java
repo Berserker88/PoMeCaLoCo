@@ -1,6 +1,5 @@
 package de.freinsberg.pomecaloco;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,13 +13,7 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.Utils;
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.highgui.Highgui;
-import org.opencv.imgproc.Imgproc;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -28,15 +21,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -44,8 +31,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,10 +53,11 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	public static CameraBridgeViewBase mOpenCvCameraView;
 	private Mat mInputFrame;
 	private InputMethodManager inputManager = null;
-	private Bundle mRaceBundle = new Bundle();
+	private boolean isFirstInitialisation = true;
 	private Track bridge;
 	private Track crossed;
-	private List<String> tracks = new ArrayList<String>();
+	private List<Track> tracks = new ArrayList<Track>();
+	private MyTrackSpinnerAdapter mTracksAdapter;
 	private Mat bridge_image = null; 
 	private Mat crossed_image = null;
 	ObjectDetector mFrameToProcess;
@@ -95,7 +81,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	private ImageView right_car_color;
 	private Bitmap[] mCarColorBitmaps;
 	private int mCount;
-	private ArrayAdapter<String> mTracksAdapter;
+	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {	
@@ -132,11 +118,11 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 		frame_border_right = (View) findViewById(R.id.frame_border_right);
 		
 		// Create an ArrayAdapter using the string array and a default spinner layout
-		mTracksAdapter = new ArrayAdapter<String>(this,	android.R.layout.simple_spinner_item, tracks);
+		//mTracksAdapter = new ArrayAdapter<Track>(this,	android.R.layout.simple_spinner_item, tracks);
 		
 		// Specify the layout to use when the list of choices appears
-		mTracksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		
+		//mTracksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		mTracksAdapter = new MyTrackSpinnerAdapter(this,R.layout.choose_track_spinner,  R.layout.choose_track_spinner_item, tracks);
 		// Apply the adapter to the spinner		
 		mTracks.setAdapter(mTracksAdapter);		
 		mTracks.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -344,9 +330,9 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				race.createPlayer(mFrameToProcess.car_status(),Race.ROUND_MODE, mCount);	
 				
 				Intent intent = new Intent().setClass(v.getContext(), RaceActivity.class);
-				startActivity(intent);			
-			
+				startActivity(intent);							
 				Log.i("debug", "Moved to Race-Activity!");
+				finish();
 			}
 		});
 		
@@ -366,9 +352,9 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				race.createPlayer(mFrameToProcess.car_status(),Race.TIMER_MODE, mCount);
 				
 				Intent intent = new Intent().setClass(v.getContext(), RaceActivity.class);
-				startActivity(intent);			
-			
+				startActivity(intent);						
 				Log.i("debug", "Moved to Race-Activity!");
+				finish();
 			}
 		});	
 	}
@@ -388,12 +374,12 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
-		// TODO Automatisch generierter Methodenstub
+		
 	}
 
 	@Override
 	public void onCameraViewStopped() {
-		// TODO Automatisch generierter Methodenstub
+		
 	}
 	int i = 0;
 	@Override
@@ -405,43 +391,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 			
 			mInputFrame = inputFrame.rgba();
 		}
-			
-//			mFrameToProcess = ObjectDetector.getInstance(inputFrame);
-		
-//		Mat a = inputFrame.gray();
-//		Mat b = new Mat(a.width(),a.height(), a.type());
-//		//Imgproc.cvtColor(a, a, Imgproc.COLOR_BGRA2BGR);
-//		if(i == 200){
-//			Log.i("debug", "a ->  size: "+a.size()+", type:"+a.type()+", channels:"+a.channels()+", depth:"+a.depth()+", dump:"+a.dump());
-//			
-//			Highgui.imwrite(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "a.png").toString(), a);		
-//		}
-//		
-//		a = a.t();
-
-//		Imgproc.cvtColor(a, a, Imgproc.COLOR_RGBA2BGRA);
-		//Imgproc.cvtColor(a, a, Imgproc.COLOR_BGR2BGRA);
-//		Core.flip(a.t(), b, 1);
-//		Point img_center = new Point(a.cols()/2,a.rows()/2);
-//		Mat rot_mat = Imgproc.getRotationMatrix2D(img_center, 270, 1.0);
-//		Imgproc.warpAffine(a, b, rot_mat, b.size());
-//		Imgproc.cvtColor(b, b, Imgproc.COLOR_BGR2RGBA);
-//		if(i == 200)
-//			Log.i("debug", "b ->  size: "+b.size()+", type:"+b.type());
-//			Highgui.imwrite(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "ROTATED.png").toString(), b);
-//		b.copyTo(a);
-//		i++;
-////		a.release();
-//		rot_mat.release();
-
-		//mFrameToProcess = ObjectDetector.getInstance(inputFrame);
-//		i++;
-//		if(i == 200){
-//		Log.i("debug", "b.t() ->  size: "+b.size()+", type:"+b.type()+", channels:"+b.channels()+", depth:"+b.depth()+", dump:"+b.dump());
-//		Highgui.imwrite(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "a.t().png").toString(), b);	
-//	}
 		return inputFrame.rgba();
-	
 	}
 
 	@Override
@@ -474,28 +424,27 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 			case LoaderCallbackInterface.SUCCESS: {
 				Log.i("debug", "OpenCV loaded successfully");					
 				mOpenCvCameraView.enableView();
-				//Static adding of tracks				
-				try { 	
-				    bridge_image = Utils.loadResource(mContext,R.drawable.bridge_image); 
-				    } catch (IOException e) { 
-				     e.printStackTrace(); 
-				    } 
-				try { 		
-				    crossed_image = Utils.loadResource(mContext,R.drawable.crossed_image); 
-				    } catch (IOException e) { 
-				     e.printStackTrace(); 
-				    }
-				bridge = new Track("Brückenbahn", false, 500, bridge_image);
-				crossed = new Track("Kreuzungsbahn", true, 700, crossed_image);		
-				tracks.add(bridge.getName());
-				tracks.add(crossed.getName());
+				//Static adding of tracks		
+				if(isFirstInitialisation){
+					try { 	
+					    bridge_image = Utils.loadResource(mContext,R.drawable.bridge_image); 
+					    } catch (IOException e) { 
+					     e.printStackTrace(); 
+					    } 
+					try { 		
+					    crossed_image = Utils.loadResource(mContext,R.drawable.crossed_image); 
+					    } catch (IOException e) { 
+					     e.printStackTrace(); 
+					    }
+					bridge = new Track("Brückenbahn", false, 500, bridge_image);
+					crossed = new Track("Kreuzungsbahn", true, 700, crossed_image);		
+					tracks.add(bridge);
+					tracks.add(crossed);		
+					mTracksAdapter.notifyDataSetChanged();
+					isFirstInitialisation = false;
+					break;
+				}
 				
-				mTracksAdapter.notifyDataSetChanged();				
-				
-				
-			
-			
-				break;
 			}
 			default: {
 				super.onManagerConnected(status);

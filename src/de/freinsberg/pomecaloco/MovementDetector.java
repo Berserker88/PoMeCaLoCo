@@ -6,20 +6,17 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import android.graphics.Bitmap;
 import android.util.Log;
 
 
 
 public class MovementDetector {
-	final public static int HUE_THRESHOLD = 10;
+	final public static int HUE_THRESHOLD = 5;
 	final public static int SATURATION_THRESHOLD = 80;
 	final public static int VALUE_THRESHOLD = 80;
 	public Mat mInputFrame;
 	
 	public boolean mColorDetected;
-	
-	
 	
 	public MovementDetector (Mat inputFrame) {
 		mInputFrame = inputFrame;			
@@ -81,14 +78,14 @@ public class MovementDetector {
 		
 		double[] tmp;
 		boolean found = false;
-		for(int i = 0; i < rgbImage.rows();i+=50){			
-			for(int j = 0; j < rgbImage.cols(); j+=50){
+		for(int i = 0; i < rgbImage.rows();i+=25){			
+			for(int j = 0; j < rgbImage.cols(); j+=25){
 				tmp = rgbImage.get(i, j);
 				if(tmp[0] == 255){
 					found = true;
 					break;
 				}
-				//Log.i("color", "i:"+i+", j:"+j+" = "+s);
+				//Log.i("color", "i:"+i+", j:"+j+" = "+tmp[0]);
 			}
 			if(found)
 				break;

@@ -23,6 +23,7 @@
     </string-array>
     <string name="settings_section1">Ergebnisse</string>
     <string name="settings_section2">Setup</string>
+    <string name="choose_track_spinner_icon">Track Icon</string>
     <string name="go_to_results">Zu den Ergebnissen</string>
     <string name="race_menu_exit">Beenden</string>
     <string name="settings_menu_new_race">Neues Rennen</string>
@@ -37,12 +38,15 @@
     <string name="raceview_round">Runde</string>
     <string name="raceview_speed">Speed</string>
     <string name="best_time">Schnellste Runde</string>
+    <string name="raceview_left_finished">Sieg für Links!</string>
+    <string name="raceview_right_finished">Sieg für Rechts!</string>
     <string name="raceview_time_updater">*00.00.00*</string>
-    <string name="raceview_round_updater">*Round 0*</string>
+    <string name="raceview_round_updater_left">Links</string>
+    <string name="raceview_round_updater_right">Rechts</string>
     <string name="raceview_round_text">Runde</string>
-    <string name="raceview_speed_updater">*00.00 km/h*</string>
+    <string name="raceview_speed_updater">00.00 km/h</string>
     <string name="raceview_speed_text"> km/h</string>
-    <string name="raceview_best_time_updater">*00.00.00*</string>
+    <string name="raceview_best_time_updater">00.00.00</string>
     <string name="manual_end_race">Manuelles Rennende</string>
     <string name="new_race">Neues Rennen</string>
     <string name="finish_heading">heading</string>

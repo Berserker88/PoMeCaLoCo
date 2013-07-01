@@ -30,6 +30,7 @@ public class MillisecondChronometer extends TextView {
     private static final int TICK_WHAT = 2;
 
     private long timeElapsed;
+    private String mTimeElapsedString;
     
     public MillisecondChronometer(Context context) {
         this (context, null, 0);
@@ -114,7 +115,7 @@ public class MillisecondChronometer extends TextView {
         int seconds = (int)(remaining / 1000);
         remaining = (int)(remaining % (1000));
         
-        int milliseconds = (int)(((int)timeElapsed % 1000) / 100);
+        int milliseconds = (int)(((int)timeElapsed % 1000) / 10);
         
         String text = "";
         
@@ -125,7 +126,7 @@ public class MillisecondChronometer extends TextView {
        	text += df.format(minutes) + ":";
        	text += df.format(seconds) + ":";
        	text += Integer.toString(milliseconds);
-        
+       	mTimeElapsedString = text;
         setText(text);
     }
 
@@ -163,6 +164,10 @@ public class MillisecondChronometer extends TextView {
 
 	public long getTimeElapsed() {
 		return timeElapsed;
+	}
+
+	public String getTimeElapsedString() {
+		return mTimeElapsedString;
 	}
     
 }

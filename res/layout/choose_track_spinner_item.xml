@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"      
+        android:layout_marginTop="10dip"
+        android:layout_width="wrap_content"
+        android:id="@+id/choose_track_spinner_text"
+        android:layout_height="wrap_content"       
+        android:textColor="#FFFFFFFF"
+        android:layout_toRightOf="@+id/choose_track_spinner_icon"
+/>

@@ -526,7 +526,7 @@ public class ObjectDetector{
 		
 		for(int i = 0; i < 4; i++)
 		{
-			if(avg_newColors[i] > avg_oldColors[i] + 30 ||avg_newColors[i] < avg_oldColors[i] - 30)			
+			if(avg_newColors[i] > avg_oldColors[i] + 50 ||avg_newColors[i] < avg_oldColors[i] - 50)			
 				return true;			
 		}
 		return false;

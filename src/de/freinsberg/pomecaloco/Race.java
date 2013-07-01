@@ -21,13 +21,28 @@ public class Race {
 	public static int TIMER_MODE = 2;	
 	public static int LEFT_LANE = 1;
 	public static int RIGHT_LANE = 2;
+	private boolean mLeftMovement = false;
+	private boolean mRightMovement = false;
 	private int mMode;
 	private int mCount;
-	private String mTrack;
+	private int mActLeftRound;
+	private int mActRightRound;
+	private double mActLeftSpeed;
+	private String mOldTimeLeft;
+	private double mActRightSpeed;
+	private String mOldTimeRight;
+	private Track mTrack;
+	private double mLength;
 	private int mNumberOfPlayers;
 	public List<Player> mPlayerArray = new ArrayList<Player>();
 	public MyTimer mRaceTimer;
-	public MillisecondChronometer mChronometer;
+	public MillisecondChronometer mChronometer;	
+	private TextView mTimer;
+	private TextView mSpeedUpdater;
+	private TextView mBestTimeUpdater;
+	private List<String> mLeftTimes = new ArrayList<String>();
+	private List<String> mRightTimes = new ArrayList<String>();
+	
 	private static Race mInstance = new Race();
 	
 	
@@ -38,8 +53,9 @@ public class Race {
 	private Race() {
 		
 	}
-	public void newRace(int count, int mode, String track, int numberofplayers) {	
+	public void newRace(int count, int mode, Track track, int numberofplayers) {	
 		mNumberOfPlayers = numberofplayers;
+		mPlayerArray.clear();
 		mMode = mode;
 		mCount = count;
 		mTrack = track;
@@ -76,14 +92,22 @@ public class Race {
 				mChronometer.start();
 		}
 	}
-	public void startRace(Context c, TextView time, TextView speed, TextView round) {
+	public void startRace(Context c, TextView time, TextView besttime) {
+		time = mTimer;
+		mActLeftRound = 0;
+		mActRightRound = 0;
+		mLength = mTrack.getLength();
 		if(mMode == TIMER_MODE)
 		{
 			mRaceTimer = new MyTimer(mCount*60000, 10, time);
+			mOldTimeLeft = mRaceTimer.getCurrentTime();
+			mOldTimeRight = mRaceTimer.getCurrentTime();
 		}
 		else
 		{
 			mChronometer = ((MillisecondChronometer)((RaceActivity) c).findViewById(R.id.raceview_chronometer));
+			mOldTimeLeft = "00:00:00";
+			mOldTimeRight = "00:00:00";
 			((RaceActivity) c).findViewById(R.id.raceview_time_updater).setVisibility(View.GONE);
 			((RaceActivity) c).findViewById(R.id.raceview_chronometer).setVisibility(View.VISIBLE);
 			
@@ -102,23 +126,95 @@ public class Race {
 		// Bei Ende processResults()
 		
 	}
+
 	
-	public double getCurrentSpeed(Time time, int meters){		
+	public boolean isCorrectMovement(int lane, boolean recognized) {		
 		
-		double speed = 0;
-		
-		return speed;
-		
+		if(lane == LEFT_LANE)
+		{
+			boolean correctmovement = false;
+			if(recognized) {
+				mLeftMovement = true;	
+				
+			}else 
+			{
+				
+				if (mLeftMovement)
+				{
+					mLeftMovement = false;	
+					correctmovement = true;
+					if(getGameMode() == TIMER_MODE)
+						calcStatistics(lane, mMode, mRaceTimer.getCurrentTime());
+					else
+						calcStatistics(lane, mMode, mChronometer.getTimeElapsedString());
+					return correctmovement;
+				}
+				else
+				{
+					mLeftMovement = false;					
+				}
+			}
+			return correctmovement;
+		}
+		else
+		{
+			boolean correctmovement = false;
+			if(recognized) {
+				mRightMovement = true;			
+			}			
+			else
+			{
+				if(mRightMovement)
+				{
+					mRightMovement = false;		
+					correctmovement = true;
+					if(getGameMode() == TIMER_MODE)
+						calcStatistics(lane, mMode, mRaceTimer.getCurrentTime());
+					else
+						calcStatistics(lane, mMode, mChronometer.getTimeElapsedString());
+					return correctmovement;
+				}
+				else
+				{
+					mRightMovement = false;					
+				}
+			}
+			return correctmovement;			
+		}
 	}
 	
-	public int getCurrentRound() {
-		int round = 1;
-		
-		return round;		
+	
+	public void countRounds(int lane) {
+		if(lane == LEFT_LANE)
+			mActLeftRound++;
+		else
+			mActRightRound++;	
+	}
+
+	public int isOver() {
+		if(mActLeftRound == mCount)
+			return LEFT_LANE;
+		if (mActRightRound == mCount)
+			return RIGHT_LANE;
+		return 0;
+	}
+	
+	public int getCurrentRound(int lane) {		
+		if(lane == LEFT_LANE)			
+			return mActLeftRound;		
+		else
+			return mActRightRound;
+	}
+	
+	public double getCurrentSpeed (int lane) {
+		if(lane == LEFT_LANE)
+			return mActLeftSpeed;		
+		else
+			return mActRightSpeed;
 	}
 	
 	public String getTrackName() {
-		return mTrack;
+		return mTrack.getName();
 	}
 	
 	public int getGameMode() {
@@ -133,8 +229,90 @@ public class Race {
 		return mCount;
 	}
 	
+	public String getBestTime(){
+		
+		return "00:01:56";		
+	}
 	
 	
+	private void calcStatistics(int lane, int mode, String time){
+		storeRoundTime(lane, time);
+		calcSpeed(lane, mode, time);
+		
+	}
+	private void storeRoundTime(int lane,String time){
+		if(lane == LEFT_LANE)
+			mLeftTimes.add(time);
+		else
+			mRightTimes.add(time);	
+	}
+	
+	private void calcSpeed(int lane, int mode, String time) {
+		
+		
+		int[] _new = parseTimeString(time);
+		int[] curr= new int[3];
+		double _curr;
+		if(lane == LEFT_LANE)
+		{
+			int[] old = parseTimeString(mOldTimeLeft);
+			if(mode == TIMER_MODE)
+			{				
+				curr[0] = old[0] - _new[0];
+				curr[1] = old[1] - _new[1];
+				curr[2] = old[2] - _new[2];				
+				_curr = (curr[0]*60) + (curr[1]) + (curr[2] / 100); 					
+				mActLeftSpeed = mTrack.getLength()/ _curr;
+				mOldTimeLeft = time;
+			}
+			else
+			{			
+				curr[0] = _new[0] - old[0];
+				curr[1] = _new[1] - old[1];
+				curr[2] = _new[2] - old[2];			
+				_curr = (curr[0]*60) + (curr[1]) + (curr[2] / 100); 					
+				mActLeftSpeed = mTrack.getLength()/ _curr;
+				mOldTimeLeft = time;
+			}			
+		}
+		else
+		{
+			int[] old = parseTimeString(mOldTimeRight);
+			if(mode == TIMER_MODE)
+			{								
+				curr[0] = old[0] - _new[0];
+				curr[1] = old[1] - _new[1];
+				curr[2] = old[2] - _new[2];
+				
+				_curr = (curr[0]*60) + (curr[1]) + (curr[2] / 100); 
+				mActRightSpeed = mTrack.getLength() / _curr;
+				mOldTimeRight = time;
+			}
+			else
+			{								
+				curr[0] = _new[0] - old[0];
+				curr[1] = _new[1] - old[1];
+				curr[2] = _new[2] - old[2];
+				
+				_curr = (curr[0]*60) + (curr[1]) + (curr[2] / 100); 
+				mActRightSpeed = mTrack.getLength() / _curr;
+				mOldTimeRight = time;
+			}	
+			
+		}		
+	}	
+
+	private int[] parseTimeString(String time) {
+		int[] i = new int[3];
+		String[] split;
+		String s = time;
+		Log.i("debug","Time unparsed.."+s);
+		split = s.split(":");
+		i[0] = Integer.parseInt(split[0]);
+		i[1] = Integer.parseInt(split[1]);
+		i[2] = Integer.parseInt(split[2]);
+		return i;
+	}
 	public static void processResults() {
 		Log.i("debug", "Processing Results.....");
 		//Gibt das Ergebnis an Results-Klasse weiter.
@@ -143,12 +321,16 @@ public class Race {
 	public void cancel() {
 		if(mMode == TIMER_MODE){
 			mRaceTimer.stop();
+			//mTimer.setText(mRaceTimer.getCurrentTime());
 			Log.i("debug", "Race cancelled! at:"+mRaceTimer.getCurrentTime());
+			
 		}
 		else
 		{
 			mChronometer.stop();
+			//mChronometer.setText(Long.toString(mChronometer.getTimeElapsed()));
 			Log.i("debug", "Race cancelled at:"+mChronometer.getTimeElapsed());
+			
 		}
 		
 		
@@ -156,7 +338,7 @@ public class Race {
 	/**
 	 * 
 	 * @param lane
-	 * @return returns null when mPlayerArray is empty for this lane, else the color of the player according to the lane.
+	 * @return null when mPlayerArray is empty for this lane, else the color of the player according to the lane.
 	 */
 	public Scalar getPlayerColor(int lane){
 		
@@ -165,6 +347,15 @@ public class Race {
 				return p.getColor();
 		}		
 		return null;
+	}
+	
+	public String getFinishedTime(int mode) {
+		String finishedTime;
+		if(mode == TIMER_MODE)
+			finishedTime = mRaceTimer.getCurrentTime();
+		else
+			finishedTime = Long.toString(mChronometer.getTimeElapsed());		
+		return finishedTime;
 	}
 	
 	
