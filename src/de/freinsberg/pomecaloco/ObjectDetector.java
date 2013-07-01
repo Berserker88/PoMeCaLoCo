@@ -369,11 +369,8 @@ public class ObjectDetector{
 		Imgproc.Canny(mGray, mEdges, mLowerThreshold, mUpperThreshold);
 		//mGray.release();
 		// Highgui.imwrite("/houghlines.png", mHoughLines);
-		Log.i("debug",
-				"Status Sd-Karte: "
-						+ Environment.getExternalStorageState());
-		mStorageDir = Environment
-				.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+		Log.i("debug","Status Sd-Karte: "+ Environment.getExternalStorageState());
+		mStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
 
 //		mCannyEdgeImage = new File(mStorageDir, "canny.bmp");
 //		mPath = mCannyEdgeImage.toString();
