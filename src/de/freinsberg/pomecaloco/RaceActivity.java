@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -56,6 +57,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		public MyTimer mRaceTimer;
 		public MillisecondChronometer mChronometer;	
 		public static CameraBridgeViewBase mOpenCvCameraView;
+		protected PowerManager.WakeLock mWakeLock;
 		
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
@@ -73,6 +75,12 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			mOpenCvCameraView.setCvCameraViewListener(this);
 			Log.i("debug", "setCVCameraViewListener for Race properly");
 			
+			//Keep the screen on in this activity
+			 final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		        this.mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
+		        this.mWakeLock.acquire();
+		        
+		        
 			//get arguments from previous Fragment
 //			mData = getArguments();
 //			
@@ -141,16 +149,20 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		}				
 		@Override
 		public void onPause() {
-			super.onPause();
+			this.mWakeLock.release();
+			
 			mCountdown.cancel();
 			if (mOpenCvCameraView != null)
-				mOpenCvCameraView.disableView();				
+				mOpenCvCameraView.disableView();	
+			super.onPause();
 		}
 	
 		public void onDestroy() {
-			super.onDestroy();
+			this.mWakeLock.release();
 			if (mOpenCvCameraView != null)
-				mOpenCvCameraView.disableView();				
+				mOpenCvCameraView.disableView();		
+			super.onDestroy();
+		
 		}
 	
 		@Override
