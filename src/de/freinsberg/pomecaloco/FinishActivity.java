@@ -32,7 +32,8 @@ public class FinishActivity extends Activity {
         go_to_results.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	Intent intent = new Intent(v.getContext(), SettingsFragmentActivity.class);     
-            	startActivity(intent);            	
+            	startActivity(intent);  
+            	finish();
             }
         });	
         
@@ -44,6 +45,7 @@ public class FinishActivity extends Activity {
 				Log.i("debug", "start a new race");
 				Intent intent = new Intent().setClass(v.getContext(), StartActivity.class);
 				startActivity(intent);     
+				finish();
 			}
 		});	
 	}

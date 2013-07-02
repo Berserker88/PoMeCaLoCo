@@ -158,7 +158,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		}
 	
 		public void onDestroy() {
-			this.mWakeLock.release();
+			//this.mWakeLock.release();
 			if (mOpenCvCameraView != null)
 				mOpenCvCameraView.disableView();		
 			super.onDestroy();

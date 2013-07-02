@@ -436,8 +436,8 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 					    } catch (IOException e) { 
 					     e.printStackTrace(); 
 					    }
-					bridge = new Track("Brückenbahn", false, 500, bridge_image);
-					crossed = new Track("Kreuzungsbahn", true, 700, crossed_image);		
+					bridge = new Track("Brückenbahn", false, 5, bridge_image);
+					crossed = new Track("Kreuzungsbahn", true, 7, crossed_image);		
 					tracks.add(bridge);
 					tracks.add(crossed);		
 					mTracksAdapter.notifyDataSetChanged();
