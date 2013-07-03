@@ -53,15 +53,14 @@ public class MyTimer extends CountDownTimer{
 		else if(isTimerRace){
 			mTv.setText("00:00:00");
 			isTimerRace = false;
-			Race.processResults();
+			Race.getInstance().processResults();
 			
 		}else{
 			isRoundRace = false;
-			Race.processResults();
+			Race.getInstance().processResults();
 			cancel();
 			//Round-Race
-		}
-		
+		}		
 	}
 
 	@Override
@@ -86,8 +85,8 @@ public class MyTimer extends CountDownTimer{
 			}
 			else
 			{			
-				mTv.setTextColor(mTv.getResources().getColor(R.color.white));
 				
+				mTv.setTextColor(mTv.getResources().getColor(R.color.white));				
 				mTv.setText((parse(mMsCountdown)));
 				mMsCountdown = millisUntilFinished;
 				
@@ -104,7 +103,7 @@ public class MyTimer extends CountDownTimer{
 		
 		
 	}
-	public String parse(long l) {
+	private String parse(long l) {
 		String parsed;
 		String[] splits;
 		parsed = "00:00:00";
