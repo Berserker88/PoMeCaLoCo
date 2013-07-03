@@ -23,7 +23,8 @@ public class Race {
 	public static int RIGHT_LANE = 2;
 	private boolean mLeftMovement = false;
 	private boolean mRightMovement = false;
-	
+	private boolean mRaceStarted = false;
+	private boolean mRaceStopped = false;
 	private int mMode;
 	private int mCount;
 	private int mActLeftRound;
@@ -85,7 +86,13 @@ public class Race {
 		}
 	}	
 
-	public void startRace(Context c, TextView time, TextView besttime) {		
+	public void initRace(Context c, TextView time, TextView besttime) {		
+		if(!mLeftTimes.isEmpty())
+			mLeftTimes.clear();
+		if(!mRightTimes.isEmpty())
+			mRightTimes.clear();
+		mRaceStarted = false;
+		mRaceStopped = false;
 		mTimer = time;
 		mActLeftRound = 0;
 		mActRightRound = 0;
@@ -114,7 +121,7 @@ public class Race {
 	}
 	
 	public void go() {
-		
+		mRaceStarted = true;
 		if(mMode == TIMER_MODE)
 		{
 			if(mRaceTimer != null)
@@ -141,6 +148,7 @@ public class Race {
 				{
 					mLeftMovement = false;	
 					correctmovement = true;
+					Log.i("debug", "Linkes movement!");
 					if(getGameMode() == TIMER_MODE)
 						calcStatistics(lane, mMode, mRaceTimer.getCurrentTime());
 					else
@@ -167,6 +175,7 @@ public class Race {
 				{
 					mRightMovement = false;		
 					correctmovement = true;
+					Log.i("debug", "Rechtes movement!");
 					if(getGameMode() == TIMER_MODE)
 						calcStatistics(lane, mMode, mRaceTimer.getCurrentTime());
 					else
@@ -182,6 +191,13 @@ public class Race {
 		}
 	}	
 	
+	public boolean hasRaceBeenStarted(){
+		return mRaceStarted;
+	}
+	
+	public boolean hasRaceBeenStopped(){
+		return mRaceStopped;
+	}
 	public void countRounds(int lane) {
 		
 		if(lane == LEFT_LANE)
@@ -271,7 +287,7 @@ public class Race {
 			if(mode == TIMER_MODE)
 			{				
 				curr[0] = old[0] - _new[0];
-				curr[1] = old[1] - _new[1];
+				curr[1] = old[1] - _new[1];				
 				curr[2] = old[2] - _new[2];		
 			}
 			else
@@ -279,11 +295,15 @@ public class Race {
 				curr[0] = _new[0] - old[0];
 				curr[1] = _new[1] - old[1];
 				curr[2] = _new[2] - old[2];				
-			}	
-			Log.i("debug", "Rundenzeit:"+curr);
+			}			
+			if(curr[1] <0)
+				curr[1] = curr[1] + 100;
+			if(curr[2] <0)
+				curr[2] = curr[2] + 100;
+			Log.i("debug", "Rundenzeit:"+curr[0]+":"+curr[1]+":"+curr[2]);
 			_curr = (curr[0]*60)+(curr[1])+(curr[2] / 100); 
 			mActLeftSpeed = mTrack.getLength()/ _curr;
-			mActLeftRoundTime = (curr[0]*60)+":"+(curr[1])+":"+(curr[2] / 100); 			
+			mActLeftRoundTime = (curr[0])+":"+(curr[1])+":"+(curr[2]); 			
 			mOldTimeLeft = time;
 		}
 		else
@@ -301,9 +321,17 @@ public class Race {
 				curr[1] = _new[1] - old[1];
 				curr[2] = _new[2] - old[2];
 			}	
+			if(curr[1] <0){
+				curr[1] = curr[1] + 100;
+				curr[0] = curr[0] - 1;
+			}				
+			if(curr[2] <0){
+				curr[2] = curr[2] + 100;
+				curr[1] = curr[1] - 1;
+			}				
 			_curr = (curr[0]*60) + (curr[1]) + (curr[2] / 100); 
 			mActRightSpeed = mTrack.getLength() / _curr;
-			mActRightRoundTime = (curr[0]*60)+":"+(curr[1])+":"+(curr[2] / 100); 
+			mActRightRoundTime = (curr[0])+":"+(curr[1])+":"+(curr[2]); 
 			mOldTimeRight = time;
 		}		
 	}	
@@ -327,6 +355,8 @@ public class Race {
 	}
 	
 	public void cancel() {
+		mRaceStarted = false;
+		mRaceStopped = true;
 		if(mMode == TIMER_MODE){
 			mRaceTimer.stop();
 			//mTimer.setText(mRaceTimer.getCurrentTime());
@@ -346,11 +376,15 @@ public class Race {
 		if(mMode == TIMER_MODE){
 			mRaceTimer.stop();	
 			processResults();
+			
+			mRaceStopped = true;
 		}
 		else
 		{
 			mChronometer.stop();
-			processResults();		
+			processResults();	
+			
+			mRaceStopped = true;
 		}	
 		
 	}
@@ -368,9 +402,9 @@ public class Race {
 		return null;
 	}
 	
-	public String getFinishedTime(int mode) {
+	public String getFinishedTime() {
 		String finishedTime;
-		if(mode == TIMER_MODE)
+		if(mMode == TIMER_MODE)
 			finishedTime = mRaceTimer.getCurrentTime();
 		else
 			finishedTime = Long.toString(mChronometer.getTimeElapsed());		

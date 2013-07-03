@@ -68,8 +68,8 @@ public class MovementDetector {
 			huePlus = 0;
 		
 			
-		upperColorThreshold = new Scalar(huePlus,saturationPlus,valuePlus);
-		lowerColorThreshold = new Scalar(hueMinus,saturationMinus,valueMinus);		
+		upperColorThreshold = new Scalar(huePlus,255,255);
+		lowerColorThreshold = new Scalar(hueMinus,100,100);		
 		
 		Imgproc.cvtColor(mInputFrame, hsvImage, Imgproc.COLOR_BGR2HSV);
 		Core.inRange(hsvImage, lowerColorThreshold, upperColorThreshold, thresholdedImage);
@@ -91,7 +91,7 @@ public class MovementDetector {
 				break;
 		}	
 		
-		rgbImage.release();
+		//rgbImage.release();
 		thresholdedImage.release();
 		hsvImage.release();		
 		

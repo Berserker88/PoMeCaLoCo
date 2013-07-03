@@ -53,14 +53,8 @@ public class MyTimer extends CountDownTimer{
 		else if(isTimerRace){
 			mTv.setText("00:00:00");
 			isTimerRace = false;
-			Race.getInstance().processResults();
-			
-		}else{
-			isRoundRace = false;
-			Race.getInstance().processResults();
-			cancel();
-			//Round-Race
-		}		
+					
+		}	
 	}
 
 	@Override

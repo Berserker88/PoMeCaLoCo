@@ -41,7 +41,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		private int mMinLapCount;
 		private int mMode;
 		private int mPlayer;
-		private boolean mRaceStopped =false;
+		
 		private TextView raceview_countdown = null;
 		private ImageView faster = null;
 		private ImageView slower = null;
@@ -180,68 +180,70 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		public Mat onCameraFrame(CvCameraViewFrame inputFrame) {		
 			MovementDetector md;
 			Mat m = inputFrame.rgba();
-			if(!m.empty()) {				
-				md = new MovementDetector(m.clone());				
-				//detecting cars
-				Scalar s = Race.getInstance().getPlayerColor(Race.LEFT_LANE);				
-				if(s != null)
-				{
-					boolean recognized = md.colorDetected(s);						
-					if(Race.getInstance().getGameMode() == Race.ROUND_MODE)
-					{						
-						if(!(Race.getInstance().isOver() == Race.LEFT_LANE))
+			if(Race.getInstance().hasRaceBeenStarted())
+			{
+				if(!m.empty()) {				
+					md = new MovementDetector(m.clone());				
+					//detecting cars
+					Scalar s = Race.getInstance().getPlayerColor(Race.LEFT_LANE);				
+					if(s != null)
+					{
+						boolean recognized = md.colorDetected(s);						
+						if(Race.getInstance().getGameMode() == Race.ROUND_MODE)
 						{						
-							if(Race.getInstance().isCorrectMovement(Race.LEFT_LANE, recognized))
-							{
-								Log.i("debug", "Korrektes Movement links!");
-								Race.getInstance().countRounds(Race.LEFT_LANE);							
-								updateGUIElements(Race.LEFT_LANE);
-							}
-						}
-						else
-						{
-							if(mRaceStopped = false)
+							if(!(Race.getInstance().isOver() == Race.LEFT_LANE))
 							{							
-								finishGUIElements(Race.LEFT_LANE);								
-								stop();
-								mRaceStopped =true;
+								if(Race.getInstance().isCorrectMovement(Race.LEFT_LANE, recognized))
+								{
+									Log.i("debug", "Korrektes Movement links!");
+									Race.getInstance().countRounds(Race.LEFT_LANE);							
+									updateGUIElements(Race.LEFT_LANE);
+								}
+							}
+							else
+							{
+								if(!Race.getInstance().hasRaceBeenStopped())
+								{	
+									Log.i("debug", "Race stopped properly");
+									stop();
+									finishGUIElements(Race.LEFT_LANE);										
+								}
 							}
 						}
 					}
-				}
-				s = Race.getInstance().getPlayerColor(Race.RIGHT_LANE);
-				if(s != null){
-					boolean recognized = md.colorDetected(s);			
-					if(Race.getInstance().getGameMode() == Race.ROUND_MODE)
-					{
-						if(!(Race.getInstance().isOver() == Race.RIGHT_LANE))
+					s = Race.getInstance().getPlayerColor(Race.RIGHT_LANE);
+					if(s != null){
+						boolean recognized = md.colorDetected(s);			
+						if(Race.getInstance().getGameMode() == Race.ROUND_MODE)
 						{
-							if(Race.getInstance().isCorrectMovement(Race.RIGHT_LANE, recognized))
+							if(!(Race.getInstance().isOver() == Race.RIGHT_LANE))
 							{
-								Log.i("debug", "Korrektes Movement rechts!");
-								Race.getInstance().countRounds(Race.RIGHT_LANE);									
-								updateGUIElements(Race.RIGHT_LANE);
+								if(Race.getInstance().isCorrectMovement(Race.RIGHT_LANE, recognized))
+								{
+									Log.i("debug", "Korrektes Movement rechts!");
+									Race.getInstance().countRounds(Race.RIGHT_LANE);									
+									updateGUIElements(Race.RIGHT_LANE);
+								}
 							}
-						}
-						else
-						{
-							if(mRaceStopped = false)
-							{							
-								finishGUIElements(Race.LEFT_LANE);								
-								stop();
-								mRaceStopped =true;
+							else
+							{
+								if(!Race.getInstance().hasRaceBeenStopped())
+								{	
+									stop();
+									finishGUIElements(Race.RIGHT_LANE);							
+								}
 							}
-						}
-					}					
-				}				
-				md.clear();			
-			}	
+						}					
+					}				
+					md.clear();			
+				}	
+			}
 			return m;
 		}
 		
 		@Override
 		public void onResume() {
-			
+			this.mWakeLock.acquire();
 			super.onResume();			
 			Log.i("debug", "RaceActivity onResume()");
 			OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, this,
@@ -282,7 +284,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		
 		public void start(){			
 			mCountdown.start();			
-			Race.getInstance().startRace(this, raceview_time_updater, raceview_best_time_updater);
+			Race.getInstance().initRace(this, raceview_time_updater, raceview_best_time_updater);
 		}
 		
 		public void cancel(){
@@ -318,12 +320,12 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			     public void run() {
 						if(lane == Race.LEFT_LANE) {							
 							raceview_finished.setText(R.string.raceview_left_finished);
-							raceview_time_updater.setText(Race.getInstance().getFinishedTime(Race.getInstance().getGameMode()));
+							raceview_time_updater.setText(Race.getInstance().getFinishedTime());
 						}
 						else
 						{
 							raceview_finished.setText(R.string.raceview_right_finished);
-							raceview_time_updater.setText(Race.getInstance().getFinishedTime(Race.getInstance().getGameMode()));
+							raceview_time_updater.setText(Race.getInstance().getFinishedTime());
 						}
 			    }
 			});
