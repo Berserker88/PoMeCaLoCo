@@ -188,52 +188,14 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 					Scalar s = Race.getInstance().getPlayerColor(Race.LEFT_LANE);				
 					if(s != null)
 					{
-						boolean recognized = md.colorDetected(s);						
-						if(Race.getInstance().getGameMode() == Race.ROUND_MODE)
-						{						
-							if(!(Race.getInstance().isOver() == Race.LEFT_LANE))
-							{							
-								if(Race.getInstance().isCorrectMovement(Race.LEFT_LANE, recognized))
-								{
-									Log.i("debug", "Korrektes Movement links!");
-									Race.getInstance().countRounds(Race.LEFT_LANE);							
-									updateGUIElements(Race.LEFT_LANE);
-								}
-							}
-							else
-							{
-								if(!Race.getInstance().hasRaceBeenStopped())
-								{	
-									Log.i("debug", "Race stopped properly");
-									stop();
-									finishGUIElements(Race.LEFT_LANE);										
-								}
-							}
-						}
+						boolean recognized = md.colorDetected(s);	
+						countMovement(recognized, Race.LEFT_LANE);
 					}
 					s = Race.getInstance().getPlayerColor(Race.RIGHT_LANE);
-					if(s != null){
+					if(s != null)
+					{
 						boolean recognized = md.colorDetected(s);			
-						if(Race.getInstance().getGameMode() == Race.ROUND_MODE)
-						{
-							if(!(Race.getInstance().isOver() == Race.RIGHT_LANE))
-							{
-								if(Race.getInstance().isCorrectMovement(Race.RIGHT_LANE, recognized))
-								{
-									Log.i("debug", "Korrektes Movement rechts!");
-									Race.getInstance().countRounds(Race.RIGHT_LANE);									
-									updateGUIElements(Race.RIGHT_LANE);
-								}
-							}
-							else
-							{
-								if(!Race.getInstance().hasRaceBeenStopped())
-								{	
-									stop();
-									finishGUIElements(Race.RIGHT_LANE);							
-								}
-							}
-						}					
+						countMovement(recognized, Race.RIGHT_LANE);
 					}				
 					md.clear();			
 				}	
@@ -296,20 +258,58 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			Race.getInstance().stop();
 		}
 		
+		private void countMovement(boolean recognized, int lane){
+					
+				if(!(Race.getInstance().isOver() == lane))
+				{							
+					if(Race.getInstance().isCorrectMovement(lane, recognized))
+					{
+						Log.i("debug", "Korrektes Movement "+lane);
+						Race.getInstance().countRounds(lane);							
+						updateGUIElements(lane);
+					}
+				}
+				else
+				{
+					if(!Race.getInstance().hasRaceBeenStopped())
+					{	
+						Log.i("debug", "Race stopped properly");
+						stop();
+						finishGUIElements(lane);										
+					}
+				}		
+		}
+		
 		private void updateGUIElements(final int lane) {
 			runOnUiThread(new Runnable() {
-			     public void run() {
-
-						if(lane == Race.LEFT_LANE)	
-						{
-							raceview_round_updater_left.setText(Race.getInstance().getCurrentRound(Race.LEFT_LANE)+" / "+Race.getInstance().getCount());
-							raceview_speed_updater_left.setText(String.format("%.2f", Race.getInstance().getCurrentSpeed(Race.LEFT_LANE))+" m/s");
-						}
-						else
-						{
-							raceview_round_updater_right.setText(Race.getInstance().getCurrentRound(Race.RIGHT_LANE)+" / "+Race.getInstance().getCount());
-							raceview_speed_updater_right.setText(String.format("%.2f", Race.getInstance().getCurrentSpeed(Race.RIGHT_LANE))+" m/s");
-						}
+			     public void run() {			    	 
+			    	 	raceview_best_time_updater.setText(Race.getInstance().getBestTime());
+			    	 	if(Race.getInstance().getGameMode() == Race.ROUND_MODE)
+			    	 	{
+							if(lane == Race.LEFT_LANE)	
+							{
+								raceview_round_updater_left.setText(Race.getInstance().getCurrentRound(Race.LEFT_LANE)+" / "+Race.getInstance().getCount());
+								raceview_speed_updater_left.setText(String.format("%.2f", Race.getInstance().getCurrentSpeed(Race.LEFT_LANE))+" m/s");
+							}
+							else
+							{
+								raceview_round_updater_right.setText(Race.getInstance().getCurrentRound(Race.RIGHT_LANE)+" / "+Race.getInstance().getCount());
+								raceview_speed_updater_right.setText(String.format("%.2f", Race.getInstance().getCurrentSpeed(Race.RIGHT_LANE))+" m/s");
+							}
+			    	 	}
+			    	 	else if(Race.getInstance().getGameMode() == Race.TIMER_MODE)
+			    	 	{
+							if(lane == Race.LEFT_LANE)	
+							{
+								raceview_round_updater_left.setText("Runde "+Race.getInstance().getCurrentRound(Race.LEFT_LANE));
+								raceview_speed_updater_left.setText(String.format("%.2f", Race.getInstance().getCurrentSpeed(Race.LEFT_LANE))+" m/s");
+							}
+							else
+							{
+								raceview_round_updater_right.setText("Runde "+Race.getInstance().getCurrentRound(Race.RIGHT_LANE));
+								raceview_speed_updater_right.setText(String.format("%.2f", Race.getInstance().getCurrentSpeed(Race.RIGHT_LANE))+" m/s");
+							}
+			    	 	}
 			    }
 			});
 		

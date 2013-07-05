@@ -14,7 +14,7 @@ public class MyTimer extends CountDownTimer{
 	public int mCountdown = 0;
 	public long mMsCountdown;
 	public long mMsCountUp;
-	public boolean isRoundRace = false;
+	private boolean mIsFinished = false;
 	public boolean isRaceCountdown = false;
 	public boolean isTimerRace = false;
 	
@@ -28,46 +28,39 @@ public class MyTimer extends CountDownTimer{
 	public MyTimer(long millisInFuture, long countDownInterval, List<String> countdownvalues, TextView tv) {		
 		super(millisInFuture, countDownInterval);
 		isRaceCountdown = true;
+		mIsFinished = false;
 		Log.i("debug", "Im Timer für den Countdown zum Rennen");
 		mCountdownValues = countdownvalues;		
 		mTv = tv;
 	}
 	public MyTimer(long millisInFuture, long countDownInterval, TextView tv) {		
 		super(millisInFuture, countDownInterval);
-		if(millisInFuture == Long.MAX_VALUE)
-			isRoundRace = true;
-		else
-			isTimerRace = true;
 		Log.i("debug", "Im Timer fürs Rennen!!!");
 		mMsCountdown = millisInFuture;
 		mTv = tv;
 	}
 	@Override
-	public void onFinish() {
-		if(isRaceCountdown){
-			mTv.setText(" ");
-			isRaceCountdown = false;
+	public void onFinish() 
+	{
+		if(isRaceCountdown)
+		{
+			mTv.setText(" ");	
+			isTimerRace = true;
 			Race.getInstance().go();
-
-		}
-		else if(isTimerRace){
+		}			
+		else 
+		{
+			Log.i("debug", "Timer is finished in >Timer!");
 			mTv.setText("00:00:00");
-			isTimerRace = false;
-					
+			mIsFinished = true;
 		}	
 	}
 
 	@Override
 	public void onTick(long millisUntilFinished) {
-		if(isRoundRace){			
-			mTv.setTextColor(mTv.getResources().getColor(R.color.white));		
-			mTv.setText((parse(mMsCountUp)));
-			mMsCountUp = mMsCountUp + 10;
-			
-			
-		}else
-		{
-			if(mCountdownValues != null){			
+
+			if(mCountdownValues != null)
+			{			
 				Log.i("debug", "Size: "+mCountdownValues.size()+", Counter: "+mCountdown);
 				if(mCountdown >= mCountdownValues.size()) {
 					cancel();
@@ -78,14 +71,12 @@ public class MyTimer extends CountDownTimer{
 				mCountdown++;
 			}
 			else
-			{			
-				
+			{				
 				mTv.setTextColor(mTv.getResources().getColor(R.color.white));				
 				mTv.setText((parse(mMsCountdown)));
-				mMsCountdown = millisUntilFinished;
-				
+				mMsCountdown = millisUntilFinished;				
 			}		
-		}
+		
 	}	
 	
 	public String getCurrentTime() {
@@ -93,10 +84,13 @@ public class MyTimer extends CountDownTimer{
 	}
 	
 	public void stop() {
-		cancel();
-		
-		
+		cancel();	
 	}
+	
+	public boolean isFinished(){
+		return mIsFinished;
+	}
+	
 	private String parse(long l) {
 		String parsed;
 		String[] splits;
