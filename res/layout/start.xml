@@ -180,8 +180,10 @@
 	     />
 	<ImageView
 	    android:id="@+id/left_car_color"
-	    android:layout_width="37dp"
-	    android:layout_height="250dp"	    
+	    android:scaleType="centerCrop"
+	    android:layout_width="39dp"
+	    android:layout_height="212dp"	    
+	    android:layout_marginTop="20dp"
 	    android:layout_centerHorizontal="true"
 	    android:layout_below="@id/frame_border_top"	    
 	    android:layout_toRightOf="@+id/frame_border_left"	    
@@ -190,8 +192,10 @@
 	
 	<ImageView
 	    android:id="@+id/right_car_color"
-	    android:layout_width="37dp"
-	    android:layout_height="250dp"	    
+	    android:scaleType="centerCrop"
+	    android:layout_width="39dp"
+	    android:layout_height="212dp"	    
+	    android:layout_marginTop="20dp"
 	    android:layout_centerHorizontal="true"
 	    android:layout_below="@id/frame_border_top"	    
 	    android:layout_toLeftOf="@+id/frame_border_right"		        

@@ -18,6 +18,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -46,6 +47,8 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		private TextView raceview_countdown = null;
 		private ImageView faster = null;
 		private ImageView slower = null;
+		private ImageView left_car_color;
+		private ImageView right_car_color;
 		private TextView raceview_time_updater = null;
 		private TextView raceview_round_updater_left = null;
 		private TextView raceview_round_updater_right = null;
@@ -55,6 +58,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		private TextView raceview_best_time_updater = null;
 		public TextView raceview_game_mode;
 		public TextView raceview_track_name;
+		private Bitmap[] mCarColorBitmaps;
 		private Button manual_end_race = null;
 		public MyTimer mRaceTimer;
 		public MillisecondChronometer mChronometer;	
@@ -101,13 +105,16 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			raceview_game_mode = (TextView) findViewById(R.id.game_mode);
 			raceview_track_name = (TextView) findViewById(R.id.track_name);
 			faster = (ImageView) findViewById(R.id.faster);
-			slower = (ImageView) findViewById(R.id.slower);			
+			slower = (ImageView) findViewById(R.id.slower);		
+			left_car_color = (ImageView) findViewById(R.id.left_car_color);
+			right_car_color = (ImageView) findViewById(R.id.right_car_color);
 			raceview_time_updater = (TextView) findViewById(R.id.raceview_time_updater);
 			raceview_round_updater_left = (TextView) findViewById(R.id.raceview_round_updater_left);
 			raceview_round_updater_right = (TextView) findViewById(R.id.raceview_round_updater_right);
 			raceview_speed_updater_left = (TextView) findViewById(R.id.raceview_speed_updater_left);
 			raceview_speed_updater_right = (TextView) findViewById(R.id.raceview_speed_updater_right);
-			raceview_best_time_updater = (TextView) findViewById(R.id.raceview_best_time_updater);			
+			raceview_best_time_updater = (TextView) findViewById(R.id.raceview_best_time_updater);
+			
 			manual_end_race = (Button) findViewById(R.id.manual_end_race);			
 			
 			mCountdown = new MyTimer(4001, 1000, mCountdownValues, raceview_countdown);							
@@ -135,7 +142,15 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			raceview_speed_updater_right.setText(R.string.raceview_speed_text);			
 			raceview_best_time_updater.setText("");
 			raceview_track_name.setText(Race.getInstance().getTrackName());
-			raceview_game_mode.setText(Race.getInstance().getNumberOfPlayers()+" Spieler Rennen");		
+			raceview_game_mode.setText(Race.getInstance().getNumberOfPlayers()+" Spieler Rennen");					
+			mCarColorBitmaps = ObjectDetector.getInstance().get_cars_colors();			
+			left_car_color.setImageBitmap(mCarColorBitmaps[0]);					
+			right_car_color.setImageBitmap(mCarColorBitmaps[1]);					
+			left_car_color.setVisibility(View.VISIBLE);								
+			right_car_color.setVisibility(View.VISIBLE);	
+			
+			
+			
 			
 			manual_end_race.setOnClickListener(new OnClickListener() {
 				

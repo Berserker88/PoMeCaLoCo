@@ -210,7 +210,8 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 					}
 				} else if (scanner.getText() == getString(R.string.scan_cars)) {
 					mAlphacounter = 100;					
-					mCarColorBitmaps = mFrameToProcess.get_cars_colors();					
+					mCarColorBitmaps = mFrameToProcess.get_cars_colors();
+					
 					left_car_color.setImageBitmap(mCarColorBitmaps[0]);					
 					right_car_color.setImageBitmap(mCarColorBitmaps[1]);					
 					left_car_color.setVisibility(View.VISIBLE);								

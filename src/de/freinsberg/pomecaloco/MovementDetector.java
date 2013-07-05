@@ -11,7 +11,7 @@ import android.util.Log;
 
 
 public class MovementDetector {
-	final public static int HUE_THRESHOLD = 5;
+	final public static int HUE_THRESHOLD = 3;
 	final public static int SATURATION_THRESHOLD = 80;
 	final public static int VALUE_THRESHOLD = 80;
 	public Mat mInputFrame;
@@ -78,8 +78,8 @@ public class MovementDetector {
 		
 		double[] tmp;
 		boolean found = false;
-		for(int i = 0; i < rgbImage.rows();i+=25){			
-			for(int j = 0; j < rgbImage.cols(); j+=25){
+		for(int i = 0; i < rgbImage.rows();i+=50){			
+			for(int j = ObjectDetector.getInstance().getLeftSeparator(); j < ObjectDetector.getInstance().getRightSeparator(); j+=50){
 				tmp = rgbImage.get(i, j);
 				if(tmp[0] == 255){
 					found = true;
@@ -91,7 +91,7 @@ public class MovementDetector {
 				break;
 		}	
 		
-		//rgbImage.release();
+		rgbImage.release();
 		thresholdedImage.release();
 		hsvImage.release();		
 		
