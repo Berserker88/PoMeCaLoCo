@@ -7,6 +7,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
@@ -24,22 +25,23 @@ public class Race {
 	private boolean mLeftMovement = false;
 	private boolean mRightMovement = false;
 	private boolean mRaceStarted = false;
-	private boolean mRaceStopped = false;
 	private boolean mTimeIsUp = false;
 	private int mMode;
 	private int mCount;
 	private int mActLeftRound;
-	private String mActLeftRoundTime;	
 	private int mActRightRound;
+	private double mActLeftSpeed;
+	private double mActRightSpeed;
+	private double mOldBestTime;
+	private String mActLeftRoundTime;		
 	private String mActRightRoundTime;
 	private String mBestTime;
-	private double mActLeftSpeed;
 	private String mOldTimeLeft;
-	private double mActRightSpeed;
 	private String mOldTimeRight;
 	private Track mTrack;
 	private double mLength;
 	private int mNumberOfPlayers;
+	private Pair<String,Integer> mBestTimeOnLane;
 	public List<Player> mPlayerArray = new ArrayList<Player>();
 	public MyTimer mRaceTimer;
 	public MillisecondChronometer mChronometer;	
@@ -74,14 +76,14 @@ public class Race {
 		case ObjectDetector.NO_CAR:			
 			break;
 		case ObjectDetector.RIGHT_CAR:			
-			mPlayerArray.add(new Player(StartActivity.RIGHT_LANE,mode, ObjectDetector.getInstance().getCarColor(RIGHT_LANE)));
+			mPlayerArray.add(new Player(RIGHT_LANE,mode, ObjectDetector.getInstance().getCarColor(RIGHT_LANE)));
 			break;
 		case ObjectDetector.LEFT_CAR:							
-			mPlayerArray.add(new Player(StartActivity.LEFT_LANE,mode, ObjectDetector.getInstance().getCarColor(LEFT_LANE)));
+			mPlayerArray.add(new Player(LEFT_LANE,mode, ObjectDetector.getInstance().getCarColor(LEFT_LANE)));
 			break;
 		case ObjectDetector.BOTH_CAR:
-			mPlayerArray.add(new Player(StartActivity.RIGHT_LANE,mode, ObjectDetector.getInstance().getCarColor(RIGHT_LANE)));
-			mPlayerArray.add(new Player(StartActivity.LEFT_LANE,mode, ObjectDetector.getInstance().getCarColor(LEFT_LANE)));
+			mPlayerArray.add(new Player(RIGHT_LANE,mode, ObjectDetector.getInstance().getCarColor(RIGHT_LANE)));
+			mPlayerArray.add(new Player(LEFT_LANE,mode, ObjectDetector.getInstance().getCarColor(LEFT_LANE)));
 			break;	
 		default:
 			break;		
@@ -93,8 +95,8 @@ public class Race {
 			mLeftTimes.clear();
 		if(!mRightTimes.isEmpty())
 			mRightTimes.clear();
-		mRaceStarted = false;
-		mRaceStopped = false;
+		mOldBestTime = Double.MAX_VALUE;
+		mRaceStarted = false;		
 		mTimer = time;
 		mActLeftRound = 0;
 		mActRightRound = 0;
@@ -197,12 +199,6 @@ public class Race {
 		return mRaceStarted;
 	}
 	
-	public boolean hasRaceBeenStopped(){
-		return mRaceStopped;
-	}
-	
-
-	
 	public void countRounds(int lane) {
 		
 		if(lane == LEFT_LANE)
@@ -255,6 +251,8 @@ public class Race {
 		return mMode;
 	}
 	
+	
+	
 	public int getNumberOfPlayers() {
 		return mNumberOfPlayers;
 	}
@@ -262,12 +260,13 @@ public class Race {
 	public int getCount() {
 		return mCount;
 	}
-	
-	public String getBestTime(){
+	private void setBestTime(String s, int lane){
 		
+		mBestTimeOnLane = new Pair<String, Integer>(s,lane);		
+	}
+	public Pair<String,Integer> getBestTime(){	
 		
-		
-		return mBestTime;		
+		return mBestTimeOnLane;		
 	}
 	
 	
@@ -314,7 +313,11 @@ public class Race {
 			}
 			Log.i("debug", "Rundenzeit:"+curr[0]+":"+curr[1]+":"+curr[2]);
 			_curr = (curr[0]*60)+(curr[1])+ (curr[2] / 100.0); 
-			Log.i("debug", "Rundenzei Links: "+_curr);
+			if(mOldBestTime > _curr){
+				mOldBestTime = _curr;
+				setBestTime(curr[0]+":"+curr[1]+":"+curr[2], lane);
+			}
+			Log.i("debug", "Rundenzeit Links: "+_curr);
 			mActLeftSpeed = mTrack.getLength()/ _curr;
 			mActLeftRoundTime = (curr[0])+":"+(curr[1])+":"+(curr[2]); 			
 			mOldTimeLeft = time;
@@ -343,7 +346,11 @@ public class Race {
 				curr[2] = curr[2] + 100;
 				curr[1] = curr[1] - 1;
 			}				
-			_curr = (curr[0]*60) + (curr[1]) + ((double) (curr[2] / 100.0)); 
+			_curr = (curr[0]*60) + (curr[1]) + (curr[2] / 100.0); 
+			if(mOldBestTime > _curr){
+				mOldBestTime = _curr;
+				setBestTime(curr[0]+":"+curr[1]+":"+curr[2], lane);
+			}
 			Log.i("debug", "Rundenzeit Rechts: "+_curr);
 			mActRightSpeed = mTrack.getLength() / _curr;
 			mActRightRoundTime = (curr[0])+":"+(curr[1])+":"+(curr[2]); 
@@ -372,7 +379,6 @@ public class Race {
 	
 	public void cancel() {
 		mRaceStarted = false;
-		mRaceStopped = true;
 		if(mMode == TIMER_MODE){
 			mRaceTimer.stop();
 			//mTimer.setText(mRaceTimer.getCurrentTime());
@@ -391,15 +397,13 @@ public class Race {
 	public void stop(){		
 		if(mMode == TIMER_MODE){			
 			processResults();
-			
-			mRaceStopped = true;
+			mRaceStarted = false;
 		}
 		else
 		{
 			mChronometer.stop();
 			processResults();	
-			
-			mRaceStopped = true;
+			mRaceStarted = false;
 		}	
 		
 	}
@@ -415,6 +419,15 @@ public class Race {
 				return p.getColor();
 		}		
 		return null;
+	}
+	
+	public int getPlayerRGBColor(int lane){
+		
+		for(Player p : mPlayerArray) {
+			if(p.getLane() == lane)
+				return p.getRGBColor();
+		}		
+		return 0;
 	}
 	
 	public String getFinishedTime() {

@@ -18,6 +18,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.v4.app.Fragment;
@@ -271,19 +272,17 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 				}
 				else
 				{
-					if(!Race.getInstance().hasRaceBeenStopped())
-					{	
 						Log.i("debug", "Race stopped properly");
 						stop();
-						finishGUIElements(lane);										
-					}
+						finishGUIElements(lane);								
 				}		
 		}
 		
 		private void updateGUIElements(final int lane) {
 			runOnUiThread(new Runnable() {
 			     public void run() {			    	 
-			    	 	raceview_best_time_updater.setText(Race.getInstance().getBestTime());
+			    	 	raceview_best_time_updater.setText(Race.getInstance().getBestTime().getL());			    	 
+			    	 	raceview_best_time_updater.setTextColor(Race.getInstance().getPlayerRGBColor(lane));
 			    	 	if(Race.getInstance().getGameMode() == Race.ROUND_MODE)
 			    	 	{
 							if(lane == Race.LEFT_LANE)	
