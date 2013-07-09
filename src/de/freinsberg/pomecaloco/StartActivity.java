@@ -16,9 +16,9 @@ import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -52,6 +53,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	private Mat mInputFrame;
 	private InputMethodManager inputManager = null;
 	private boolean isFirstInitialisation = true;
+	private Dialog mDialogIsEmpty;
 	private Track bridge;
 	private Track crossed;
 	private List<Track> tracks = new ArrayList<Track>();
@@ -398,82 +400,160 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	
 	private void setPlayerName(int mode){
 		final int _mode = mode;
-		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		//final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		final Dialog dialog = new Dialog(this);
+		
 		final LayoutInflater inflater = this.getLayoutInflater();
+		
 		if(ObjectDetector.getInstance().car_status() == ObjectDetector.BOTH_CAR){
-			final View layout = inflater.inflate(R.layout.two_player_names, null);
-			builder.setView(layout)
-			.setTitle("Spielernamen erforderlich")
-			.setPositiveButton(R.string.dialog_enter, new OnClickListener() {
+			//final View layout = inflater.inflate(R.layout.two_player_names, null);
+			dialog.setContentView(R.layout.two_player_names);
+//			builder.setView(layout)
+			dialog.setTitle("Spielernamen erforderlich");
+			Button okButton = (Button) dialog.findViewById(R.id.dialog_ok);
+			Button cancelButton = (Button) dialog.findViewById(R.id.dialog_cancel);
+			
+			okButton.setOnClickListener(new OnClickListener() {
 				
 				@Override
-				public void onClick(DialogInterface dialog, int which) {
+				public void onClick(View v) {
 					mPlayerNames.clear();
-					EditText left_playername = (EditText) layout.findViewById(R.id.dialog_left_player_name);
-					EditText right_playername = (EditText) layout.findViewById(R.id.dialog_right_player_name);
-					if(left_playername.getText().toString() == ""){		
-						builder.show();
+					boolean all_ok = true;
+					EditText left_playername = (EditText) dialog.findViewById(R.id.dialog_left_player_name);
+					EditText right_playername = (EditText) dialog.findViewById(R.id.dialog_right_player_name);
+					if(left_playername.getText().toString().isEmpty()){	
+						all_ok = false;
 						left_playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
-						left_playername.setHint(R.string.dialog_name_warning);
-						
-					}
-					mPlayerNames.add(left_playername.getText().toString());	
+						left_playername.setHint(R.string.dialog_name_warning);												
+					}					
 					
-					if(right_playername.getText().toString() == ""){						
+					if(right_playername.getText().toString().isEmpty())
+					{	
+						all_ok = false;
 						right_playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
 						right_playername.setHint(R.string.dialog_name_warning);
-						builder.show();
-					}						
-					mPlayerNames.add(right_playername.getText().toString());
-					start(_mode);
-					Log.i("debug", "Moved to Race-Activity!");
-					
+						
+					}
+					if(all_ok)
+					{
+						mPlayerNames.add(left_playername.getText().toString());	
+						mPlayerNames.add(right_playername.getText().toString());
+						start(_mode);
+						Log.i("debug", "Moved to Race-Activity!");
+					}				
 				}
-			})
-			.setNegativeButton(R.string.dialog_cancel, new OnClickListener() {
+			});
+			
+			cancelButton.setOnClickListener(new OnClickListener() {
 				
 				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					// TODO Automatisch generierter Methodenstub
+				public void onClick(View v) {
+					dialog.dismiss();
 					
 				}
 			});
+//			.setPositiveButton(R.string.dialog_enter, new OnClickListener() {
+//				
+//				@Override
+//				public void onClick(DialogInterface dialog, int which) {
+//					mPlayerNames.clear();
+//					EditText left_playername = (EditText) layout.findViewById(R.id.dialog_left_player_name);
+//					EditText right_playername = (EditText) layout.findViewById(R.id.dialog_right_player_name);
+//					if(left_playername.getText().toString() == ""){		
+//						left_playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
+//						left_playername.setHint(R.string.dialog_name_warning);
+//						builder.show();
+//						
+//					}
+//					mPlayerNames.add(left_playername.getText().toString());	
+//					
+//					if(right_playername.getText().toString() == ""){						
+//						right_playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
+//						right_playername.setHint(R.string.dialog_name_warning);
+//						builder.show();
+//					}						
+//					mPlayerNames.add(right_playername.getText().toString());
+//					start(_mode);
+//					Log.i("debug", "Moved to Race-Activity!");
+//					
+//				}
+//			})
+//			.setNegativeButton(R.string.dialog_cancel, new OnClickListener() {
+//				
+//				@Override
+//				public void onClick(DialogInterface dialog, int which) {}
+//			});
 
 		}
 		else
 		{
 			final View layout = inflater.inflate(R.layout.one_player_name, null);
-			builder.setView(layout)
-			.setTitle("Spielername erforderlich")
-			.setPositiveButton(R.string.dialog_enter, new OnClickListener() {				
-				
+			dialog.setContentView(R.layout.one_player_name);
+			dialog.setTitle("Spielername erforderlich");
+			Button okButton = (Button) dialog.findViewById(R.id.dialog_ok);
+			Button cancelButton = (Button) dialog.findViewById(R.id.dialog_cancel);
+			okButton.setOnClickListener(new OnClickListener() {
+
 				@Override
-				public void onClick(DialogInterface dialog, int which) {
+				public void onClick(View v) {
 					mPlayerNames.clear();
-					EditText playername = (EditText) layout.findViewById(R.id.dialog_player_name);
-					if(playername.getText().toString() == ""){
-						builder.show();
+					EditText playername = (EditText) dialog.findViewById(R.id.dialog_player_name);
+					Log.i("debug","Spielername: |"+playername.getText().toString()+"|");
+					if(playername.getText().toString().isEmpty()){						
+						Log.i("debug","Spielername is empty");					
 						playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
-						playername.setHint(R.string.dialog_name_warning);
-						
+						playername.setHint(R.string.dialog_name_warning);					
 					}
-					mPlayerNames.add(playername.getText().toString());
-					start(_mode);
-					Log.i("debug", "Moved to Race-Activity!");
-					
-				}
-			})
-			.setNegativeButton(R.string.dialog_cancel, new OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					// TODO Automatisch generierter Methodenstub
+					else
+					{					
+						mPlayerNames.add(playername.getText().toString());
+						start(_mode);					
+						Log.i("debug", "Moved to Race-Activity!");	
+						dialog.dismiss();
+					}
 					
 				}
 			});
-		}	
-		
-		builder.show();
+			
+			cancelButton.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					dialog.dismiss();
+					
+				}
+			});
+//			builder.setView(layout)
+//			.setTitle("Spielername erforderlich")
+//			
+//			.setPositiveButton(R.string.dialog_enter, new OnClickListener() {				
+//				
+//				@Override
+//				public void onClick(DialogInterface dialog, int which) {
+//					mPlayerNames.clear();
+//					EditText playername = (EditText) layout.findViewById(R.id.dialog_player_name);
+//					Log.i("debug","Spielername: |"+playername.getText().toString()+"|");
+//					if(playername.getText().toString().isEmpty()){						
+//						Log.i("debug","Spielername is emtpy");					
+//						playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
+//						playername.setHint(R.string.dialog_name_warning);
+//						builder.create();
+//						
+//					}
+//					
+//					mPlayerNames.add(playername.getText().toString());
+//					start(_mode);
+//					Log.i("debug", "Moved to Race-Activity!");					
+//				}
+//			})
+//			.setNegativeButton(R.string.dialog_cancel, new OnClickListener() {
+//				
+//				@Override
+//				public void onClick(DialogInterface dialog, int which) {}
+//			});
+		}		
+		//builder.show();
+		dialog.show();
 	}
 	
 	private void start(int mode){

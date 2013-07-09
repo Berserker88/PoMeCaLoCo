@@ -6,29 +6,40 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import android.util.Log;
 
-
-
+/**
+ * This Class represents a MovementDetector
+ * @author freinsberg
+ *
+ */
 public class MovementDetector {
 	final public static int HUE_THRESHOLD = 3;
 	final public static int SATURATION_THRESHOLD = 80;
 	final public static int VALUE_THRESHOLD = 80;
-	public Mat mInputFrame;
-	
+	public Mat mInputFrame;	
 	public boolean mColorDetected;
 	
+	/**
+	 * Constructor: Creates a MovementDetector for a given Mat. This Mat is rotated 90° clock-wise by doing a transpose followed by a horizontal flip. This is done because the given Mat comes in landscape format and the Mat to work with should be the same format as it is seen on the camera frame.
+	 * @param inputFrame The input frame, delivered by the camera.
+	 */
 	public MovementDetector (Mat inputFrame) {
 		mInputFrame = inputFrame;			
 		mInputFrame = inputFrame.t();		
 		Core.flip(mInputFrame, mInputFrame, 1);	
 		
 	}
-	
+	/**
+	 * This Function is used to release the created input Frame after usage.
+	 */
 	public void clear(){
 		mInputFrame.release();
 	}
-	
+	/**
+	 * This Function is used to detect a color in a given RGB Frame.
+	 * @param color The color to detect.
+	 * @return TRUE if the given Color was found in this Frame, FALSE if the given Color wasn't found.
+	 */
 	public boolean colorDetected(Scalar color){
 		//Log.i("debug", "Jetzt check ich hier mal color Movement in colorDetected");
 		Mat bgrColored = new Mat(new Size(1,1),mInputFrame.type(),color);

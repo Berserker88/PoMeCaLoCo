@@ -76,14 +76,14 @@ public class Race {
 		case ObjectDetector.NO_CAR:			
 			break;
 		case ObjectDetector.RIGHT_CAR:			
-			mPlayerArray.add(new Player(RIGHT_LANE,mode, ObjectDetector.getInstance().getCarColor(RIGHT_LANE), names.get(0)));
+			mPlayerArray.add(new Player(names.get(0), RIGHT_LANE,mode, ObjectDetector.getInstance().getCarColor(RIGHT_LANE)));
 			break;
 		case ObjectDetector.LEFT_CAR:							
-			mPlayerArray.add(new Player(LEFT_LANE,mode, ObjectDetector.getInstance().getCarColor(LEFT_LANE), names.get(0)));
+			mPlayerArray.add(new Player(names.get(0), LEFT_LANE,mode, ObjectDetector.getInstance().getCarColor(LEFT_LANE)));
 			break;
 		case ObjectDetector.BOTH_CAR:
-			mPlayerArray.add(new Player(LEFT_LANE,mode, ObjectDetector.getInstance().getCarColor(LEFT_LANE), names.get(0)));
-			mPlayerArray.add(new Player(RIGHT_LANE,mode, ObjectDetector.getInstance().getCarColor(RIGHT_LANE),names.get(1)));
+			mPlayerArray.add(new Player(names.get(0), LEFT_LANE,mode, ObjectDetector.getInstance().getCarColor(LEFT_LANE)));
+			mPlayerArray.add(new Player(names.get(1), RIGHT_LANE,mode, ObjectDetector.getInstance().getCarColor(RIGHT_LANE)));
 			
 			break;	
 		default:

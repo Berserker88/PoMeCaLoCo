@@ -61,7 +61,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		public TextView raceview_game_mode;
 		public TextView raceview_track_name;
 		private Bitmap[] mCarColorBitmaps;
-		private Button manual_end_race = null;
+		private Button end_race;
 		public MyTimer mRaceTimer;
 		public MillisecondChronometer mChronometer;	
 		public static CameraBridgeViewBase mOpenCvCameraView;
@@ -119,7 +119,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			raceview_speed_updater_right = (TextView) findViewById(R.id.raceview_speed_updater_right);
 			raceview_best_time_updater = (TextView) findViewById(R.id.raceview_best_time_updater);
 			
-			manual_end_race = (Button) findViewById(R.id.manual_end_race);			
+			end_race = (Button) findViewById(R.id.end_race);			
 			
 			mCountdown = new MyTimer(4001, 1000, mCountdownValues, raceview_countdown);							
 			Log.i("debug", "setting values for race countdown");
@@ -204,7 +204,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 				break;
 			}			
 			
-			manual_end_race.setOnClickListener(new OnClickListener() {
+			end_race.setOnClickListener(new OnClickListener() {
 				
 				@Override
 				public void onClick(View v) {
@@ -384,14 +384,18 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		private void finishGUIElements(final int lane){
 			runOnUiThread(new Runnable() {
 			     public void run() {
-						if(lane == Race.LEFT_LANE) {							
+						if(lane == Race.LEFT_LANE) {						
+							raceview_finished.bringToFront();
 							raceview_finished.setText(R.string.raceview_left_finished);
 							raceview_time_updater.setText(Race.getInstance().getFinishedTime());
+							end_race.setVisibility(View.VISIBLE);
 						}
 						else
 						{
+							raceview_finished.bringToFront();
 							raceview_finished.setText(R.string.raceview_right_finished);
 							raceview_time_updater.setText(Race.getInstance().getFinishedTime());
+							end_race.setVisibility(View.VISIBLE);
 						}
 			    }
 			});

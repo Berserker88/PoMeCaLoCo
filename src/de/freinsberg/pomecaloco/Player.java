@@ -5,12 +5,13 @@ import org.opencv.core.Scalar;
 import android.graphics.Color;
 import android.util.Log;
 
+/**
+ * This class represents a Player
+ * @author freinsberg
+ *
+ */
 public class Player {
 	
-	public static final int ROUND_MODE = 1;
-	public static final int TIMER_MODE = 2;
-	public static final int LEFT_LANE = 1;
-	public static final int RIGHT_LANE = 2;
 	private String mName;
 	private int mLane;
 	private int mMode;
@@ -19,8 +20,16 @@ public class Player {
 	private Color mRGBColor;
 	private int mRGBIntColor;
 	
-	
-	public Player(int lane, int mode, Scalar color, String name){
+	/**
+	 * Constructor: Creates a Player for a lane, mode, color and a name.
+	 * Creating an integer-representative of players color. 
+	 * @param name The name of the player.
+	 * @param lane The lane on which the player drives.
+	 * @param mode The game mode the Player plays.
+	 * @param color The color of the player
+
+	 */
+	public Player(String name, int lane, int mode, Scalar color){
 		mName = name;
 		mLane = lane;
 		mMode = mode;
@@ -34,31 +43,44 @@ public class Player {
 		Log.i("debug","Spieler- Spielerfarbe: "+mColor);
 	}
 	
-	
+	/**
+	 * This Method gets the player name.
+	 * @return The player name.
+	 */
 	public String getName(){
 		return mName;
 	}
 	
+	/**
+	 * This Methods gets the Lane of which the player drives.
+	 * @return The lane.
+	 */
 	public int getLane(){
 		
-		if(mLane == LEFT_LANE)		
-				return LEFT_LANE;
-		else
-			return RIGHT_LANE;
+		return mLane;
 	}
 	
+	/**
+	 * This Method gets the game mode for this player.
+	 * @return The game mode.
+	 */
 	public int getMode(){
 		
-		if(mMode == ROUND_MODE)		
-			return ROUND_MODE;
-		else
-			return TIMER_MODE;		
+		return mMode;	
 	}
 	
+	/**
+	 * This Method gets the color of this player as a Scalar.
+	 * @return The Scalar color.
+	 */
 	public Scalar getColor(){		
 		return mColor;
 	}
 	
+	/**
+	 * This Method gets the color of this Player as an Integer-representative.
+	 * @return The integer-representative of the rgbcolor.
+	 */
 	public int getRGBColor(){
 		return mRGBIntColor;
 	}

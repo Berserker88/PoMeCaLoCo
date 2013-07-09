@@ -26,8 +26,8 @@
      <View
         android:id="@+id/results_separator"
         android:layout_width="2dp"
-        android:layout_height="270dp"
-        android:layout_centerHorizontal="true"
+        android:layout_height="300dp"
+        android:layout_marginLeft="170dp"
         android:layout_marginTop="70dp"
         android:background="@android:color/white" />
 
@@ -74,25 +74,39 @@
         android:text="@string/finish_mode"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
+   
+    <View
+        android:id="@+id/mode_name_separator"
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"        
+        android:layout_below="@+id/finish_mode"
+        android:layout_marginTop="4dp" 
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@android:color/white" />
+    
+
+    
     <TextView
-        android:id="@+id/finish_attempt"
+        android:id="@+id/finish_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/finish_mode"
         android:layout_below="@+id/finish_mode"
         android:layout_marginTop="15dp"
-        android:text="@string/attempt"
+        android:text="@string/finish_name"
         android:textAppearance="?android:attr/textAppearanceMedium" />
     
-        <View
-        android:id="@+id/attempt_meters_separator"
+    
+    <TextView
+        android:id="@+id/finish_attempt"
         android:layout_width="wrap_content"
-        android:layout_height="2dp"        
-        android:layout_below="@+id/finish_attempt"
-        android:layout_marginTop="4dp" 
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:background="@android:color/white" />
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/finish_name"
+        android:layout_below="@+id/finish_name"
+        android:layout_marginTop="15dp"
+        android:text="@string/attempt"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/finish_meters"
@@ -103,6 +117,9 @@
         android:layout_marginTop="15dp"
         android:text="@string/finish_meters"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    
+
 
     <TextView
         android:id="@+id/finish_fastest"
@@ -168,6 +185,19 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/dummy_gray" />
 
+    
+    <TextView
+        android:id="@+id/finish_name_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/finish_name"
+        android:layout_alignLeft="@+id/results_separator"
+        android:layout_marginLeft="10dp"
+        android:text="@string/finish_name_view"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/dummy_gray" />
+        
+        
     <TextView
         android:id="@+id/finish_attempt_view"
         android:layout_width="wrap_content"

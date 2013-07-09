@@ -69,12 +69,13 @@
         android:textColor="@color/white" />
 
     <Button
-        android:id="@+id/manual_end_race"
+        android:id="@+id/end_race"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="@string/manual_end_race" />
+        android:visibility="gone"
+        android:text="@string/end_race" />
     
     <TextView
         android:id="@+id/raceview_best_time_updater"

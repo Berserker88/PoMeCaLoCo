@@ -67,27 +67,27 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
     
      <TextView
-        android:id="@+id/finish_lane"
+        android:id="@+id/finish_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/finish_track"
         android:layout_below="@+id/finish_mode"
         android:layout_marginTop="15dp"
-        android:text="@string/finish_lane"
+        android:text="@string/finish_name"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/finish_attempt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/finish_lane"
-        android:layout_below="@+id/finish_lane"
+        android:layout_alignLeft="@+id/finish_name"
+        android:layout_below="@+id/finish_name"
         android:layout_marginTop="15dp"
         android:text="@string/attempt"
         android:textAppearance="?android:attr/textAppearanceMedium" />
     
     <View
-        android:id="@+id/attempt_meters_separator"
+        android:id="@+id/mode_name_separator"
         android:layout_width="wrap_content"
         android:layout_height="2dp"        
         android:layout_below="@+id/finish_mode"
@@ -151,11 +151,10 @@
     <TextView
         android:id="@+id/finish_track_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignBaseline="@+id/finish_track"
-        android:layout_alignRight="@+id/attempt_meters_separator"
+        android:layout_height="wrap_content"        
+        android:layout_alignBaseline="@+id/finish_track"        
         android:layout_toRightOf="@+id/results_separator"
+        android:layout_marginLeft="10dp"
         android:text="@string/finish_track_view"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/dummy_gray" />
@@ -163,34 +162,33 @@
     <TextView
         android:id="@+id/finish_mode_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"        
         android:layout_alignBaseline="@+id/finish_mode"
-        android:layout_alignLeft="@+id/finish_track_view"
-        android:layout_alignRight="@+id/attempt_meters_separator"
+		android:layout_toRightOf="@+id/results_separator"
+        android:layout_marginLeft="10dp"
         android:text="@string/finish_mode_view"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/dummy_gray" />
 
     <TextView
-        android:id="@+id/finish_left_lane"
+        android:id="@+id/finish_left_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/finish_lane"
-        android:layout_alignLeft="@+id/finish_mode_view"
-        android:layout_alignRight="@+id/lane_separator"
-        android:text="@string/finish_left_lane"
+        android:layout_alignBaseline="@+id/finish_name"
+        android:layout_toRightOf="@+id/results_separator"
+        android:layout_marginLeft="10dp"
+        android:text="@string/finish_name_view"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/dummy_gray" />
     
      <TextView
-         android:id="@+id/finish_right_lane"
+         android:id="@+id/finish_right_name"
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
-         android:layout_alignBaseline="@+id/finish_lane"
-         android:layout_alignLeft="@+id/lane_separator"
-         android:layout_alignRight="@+id/attempt_meters_separator"
-         android:text="@string/finish_right_lane"
+         android:layout_alignBaseline="@+id/finish_name"
+         android:layout_toRightOf="@+id/lane_separator"         
+         android:layout_marginLeft="10dp"
+         android:text="@string/finish_name_view"
          android:textAppearance="?android:attr/textAppearanceLarge"
          android:textColor="@color/dummy_gray" />
         
@@ -331,19 +329,19 @@
         android:text="@string/finish_right_roundmode_driven_time_view"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <View
+     <View
         android:id="@+id/results_separator"
         android:layout_width="2dp"
-        android:layout_height="290dp"
-        android:layout_below="@+id/finish_new_record"
-        android:layout_toRightOf="@+id/finish_timemode_driven_rounds"
+        android:layout_height="300dp"
+        android:layout_marginLeft="170dp"
+        android:layout_marginTop="70dp"
         android:background="@android:color/white" />
 
     <View
         android:id="@+id/lane_separator"
         android:layout_width="2dp"
         android:layout_height="220dp"
-        android:layout_below="@+id/attempt_meters_separator"
+        android:layout_below="@+id/mode_name_separator"
         android:layout_toRightOf="@+id/finish_new_record"
         android:background="@android:color/white" />
 

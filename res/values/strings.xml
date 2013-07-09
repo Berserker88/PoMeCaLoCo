@@ -58,11 +58,12 @@
     <string name="raceview_speed_updater">00.00 km/h</string>
     <string name="raceview_speed_text"> km/h</string>
     <string name="raceview_best_time_updater">00.00.00</string>
-    <string name="manual_end_race">Manuelles Rennende</string>
+    <string name="end_race">Ergebnisse</string>
     <string name="new_race">Neues Rennen</string>
     <string name="finish_heading">Rennende</string>
     <string name="finish_track">Strecke</string>
     <string name="finish_mode">Spielmodus</string>
+    <string name="finish_name">Name</string>
     <string name="finish_lane">Spur</string>
     <string name="finish_left_lane">Links</string>
     <string name="finish_right_lane">Rechts</string>
@@ -75,6 +76,7 @@
     <string name="finish_timemode_driven_rounds">vollendete Runden</string>
     <string name="finish_track_view">track</string>
     <string name="finish_mode_view">mode</string>
+    <string name="finish_name_view">name</string>
     <string name="finish_attempt_view">attempt</string>
     <string name="finish_meters_view">meters</string>
     <string name="finish_fastest_view">fastest</string>
