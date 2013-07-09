@@ -50,6 +50,8 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		private ImageView left_car_color;
 		private ImageView right_car_color;
 		private TextView raceview_time_updater = null;
+		private TextView raceview_left_name;
+		private TextView raceview_right_name;
 		private TextView raceview_round_updater_left = null;
 		private TextView raceview_round_updater_right = null;
 		private TextView raceview_speed_updater_left = null;
@@ -109,6 +111,8 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			left_car_color = (ImageView) findViewById(R.id.left_car_color);
 			right_car_color = (ImageView) findViewById(R.id.right_car_color);
 			raceview_time_updater = (TextView) findViewById(R.id.raceview_time_updater);
+			raceview_left_name = (TextView) findViewById(R.id.raceview_left_name);
+			raceview_right_name = (TextView) findViewById(R.id.raceview_right_name);
 			raceview_round_updater_left = (TextView) findViewById(R.id.raceview_round_updater_left);
 			raceview_round_updater_right = (TextView) findViewById(R.id.raceview_round_updater_right);
 			raceview_speed_updater_left = (TextView) findViewById(R.id.raceview_speed_updater_left);
@@ -123,34 +127,82 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			//starting the race
 			start();
 			
-			//initializing View depending on the GameMode(TimerMode or RoundMode)
-			if(Race.getInstance().getGameMode() == Race.TIMER_MODE){
-				raceview_round_updater_left.setTextColor(getResources().getColor(R.color.white));
-				raceview_round_updater_left.setText(R.string.raceview_round_text);
-				raceview_round_updater_right.setTextColor(getResources().getColor(R.color.white));
-				raceview_round_updater_right.setText(R.string.raceview_round_text);
-			}else if(Race.getInstance().getGameMode() == Race.ROUND_MODE){
-				raceview_round_updater_left.setTextColor(getResources().getColor(R.color.white));
-				raceview_round_updater_left.setText(" / "+Race.getInstance().getCount());
-				raceview_round_updater_right.setTextColor(getResources().getColor(R.color.white));
-				raceview_round_updater_right.setText(" / "+Race.getInstance().getCount());
-			}
-			//initialize the other Textviews
-			raceview_speed_updater_left.setTextColor(getResources().getColor(R.color.white));
-			raceview_speed_updater_left.setText(R.string.raceview_speed_text);			
-			raceview_speed_updater_right.setTextColor(getResources().getColor(R.color.white));
-			raceview_speed_updater_right.setText(R.string.raceview_speed_text);			
+			//initialize the other Textviews		
 			raceview_best_time_updater.setText("");
 			raceview_track_name.setText(Race.getInstance().getTrackName());
-			raceview_game_mode.setText(Race.getInstance().getNumberOfPlayers()+" Spieler Rennen");					
-			mCarColorBitmaps = ObjectDetector.getInstance().get_cars_colors();			
-			left_car_color.setImageBitmap(mCarColorBitmaps[0]);					
-			right_car_color.setImageBitmap(mCarColorBitmaps[1]);					
-			left_car_color.setVisibility(View.VISIBLE);								
-			right_car_color.setVisibility(View.VISIBLE);	
+			raceview_game_mode.setText(Race.getInstance().getNumberOfPlayers()+" Spieler Rennen");	
 			
-			
-			
+			switch(ObjectDetector.getInstance().car_status()){
+			case ObjectDetector.BOTH_CAR:
+				raceview_left_name.setText(Race.getInstance().getPlayerName(0));
+				raceview_right_name.setText(Race.getInstance().getPlayerName(1));
+				raceview_speed_updater_left.setTextColor(getResources().getColor(R.color.white));
+				raceview_speed_updater_left.setText(R.string.raceview_speed_text);			
+				raceview_speed_updater_right.setTextColor(getResources().getColor(R.color.white));
+				raceview_speed_updater_right.setText(R.string.raceview_speed_text);	
+				//initializing View depending on the GameMode(TimerMode or RoundMode)
+				if(Race.getInstance().getGameMode() == Race.TIMER_MODE){
+					raceview_round_updater_left.setTextColor(getResources().getColor(R.color.white));
+					raceview_round_updater_left.setText(R.string.raceview_round_text);
+					raceview_round_updater_right.setTextColor(getResources().getColor(R.color.white));
+					raceview_round_updater_right.setText(R.string.raceview_round_text);
+				}else if(Race.getInstance().getGameMode() == Race.ROUND_MODE){
+					raceview_round_updater_left.setTextColor(getResources().getColor(R.color.white));
+					raceview_round_updater_left.setText(" / "+Race.getInstance().getCount());
+					raceview_round_updater_right.setTextColor(getResources().getColor(R.color.white));
+					raceview_round_updater_right.setText(" / "+Race.getInstance().getCount());
+				}
+				mCarColorBitmaps = ObjectDetector.getInstance().get_cars_colors();			
+				left_car_color.setImageBitmap(mCarColorBitmaps[0]);					
+				right_car_color.setImageBitmap(mCarColorBitmaps[1]);					
+				left_car_color.setVisibility(View.VISIBLE);								
+				right_car_color.setVisibility(View.VISIBLE);	
+				break;
+				
+			case ObjectDetector.LEFT_CAR:
+				raceview_right_name.setVisibility(View.INVISIBLE);
+				raceview_left_name.setText(Race.getInstance().getPlayerName(0));
+				raceview_speed_updater_right.setVisibility(View.INVISIBLE);
+				raceview_speed_updater_left.setTextColor(getResources().getColor(R.color.white));
+				raceview_speed_updater_left.setText(R.string.raceview_speed_text);		
+				//initializing View depending on the GameMode(TimerMode or RoundMode)
+				if(Race.getInstance().getGameMode() == Race.TIMER_MODE){
+					raceview_round_updater_left.setTextColor(getResources().getColor(R.color.white));
+					raceview_round_updater_left.setText(R.string.raceview_round_text);
+
+				}else if(Race.getInstance().getGameMode() == Race.ROUND_MODE){
+					raceview_round_updater_left.setTextColor(getResources().getColor(R.color.white));
+					raceview_round_updater_left.setText(" / "+Race.getInstance().getCount());
+
+				}
+				mCarColorBitmaps = ObjectDetector.getInstance().get_cars_colors();			
+				left_car_color.setImageBitmap(mCarColorBitmaps[0]);				
+				left_car_color.setVisibility(View.VISIBLE);
+				break;
+				
+			case ObjectDetector.RIGHT_CAR:		
+				raceview_left_name.setVisibility(View.INVISIBLE);
+				raceview_right_name.setText(Race.getInstance().getPlayerName(0));	
+				raceview_speed_updater_left.setVisibility(View.INVISIBLE);
+				raceview_speed_updater_right.setTextColor(getResources().getColor(R.color.white));
+				raceview_speed_updater_right.setText(R.string.raceview_speed_text);	
+				//initializing View depending on the GameMode(TimerMode or RoundMode)
+				if(Race.getInstance().getGameMode() == Race.TIMER_MODE){
+					raceview_round_updater_right.setTextColor(getResources().getColor(R.color.white));
+					raceview_round_updater_right.setText(R.string.raceview_round_text);
+				}else if(Race.getInstance().getGameMode() == Race.ROUND_MODE){
+					raceview_round_updater_right.setTextColor(getResources().getColor(R.color.white));
+					raceview_round_updater_right.setText(" / "+Race.getInstance().getCount());
+				}
+				mCarColorBitmaps = ObjectDetector.getInstance().get_cars_colors();					
+				right_car_color.setImageBitmap(mCarColorBitmaps[1]);									
+				right_car_color.setVisibility(View.VISIBLE);
+				break;
+				
+			default:
+				Log.i("debug","No Cars on Lane");
+				break;
+			}			
 			
 			manual_end_race.setOnClickListener(new OnClickListener() {
 				

@@ -29,8 +29,6 @@ public class ObjectDetector{
 	private static final int ORIENTATION_0 = 0;
 	private static final int ORIENTATION_90 = 90;
 	private static final int ORIENTATION_270 = 270;
-	private static final int LEFT_LANE = 1;
-	private static final int RIGHT_LANE = 2;
 	final public static int NO_CAR = 0x00;
 	final public static int RIGHT_CAR = 0x01;
 	final public static int LEFT_CAR = 0x10;
@@ -139,7 +137,7 @@ public class ObjectDetector{
 	}
 	
 	public Scalar getCarColor(int lane) {
-		if (lane == LEFT_LANE)
+		if (lane == Race.LEFT_LANE)
 			return mLeftCarColorScalar;
 		else 
 			return mRightCarColorScalar;
@@ -156,9 +154,9 @@ public class ObjectDetector{
 		double[] avg_newColors = new double[4];
 		double[] foundColor = new double[4];
 		int scan_counter = 0;		
-		if(lane == LEFT_LANE)
+		if(lane == Race.LEFT_LANE)
 			mColorsOnLeftLane = false;
-		else if(lane == RIGHT_LANE)
+		else if(lane == Race.RIGHT_LANE)
 			mColorsOnRightLane = false;			
 		Log.i("debug", "Before FOR getColorInOffset for lane :"+lane);			
 		for(int x = x_offset;x< x_offset +30;x++){
@@ -200,7 +198,7 @@ public class ObjectDetector{
 		boolean colorDetected = isDifferent(avg_newColors, avg_oldColors);	
 		Log.i("farbeee", "color on left lane AFTER for loop and BEFORE ifelses: "+ mLeftCarColorScalar);
 		Log.i("farbeee", "color on right lane AFTER for loop and BEFORE ifelses: "+ mRightCarColorScalar);
-		if(lane == LEFT_LANE)
+		if(lane == Race.LEFT_LANE)
 		{
 			if(!colorDetected)
 				mColorsOnLeftLane = false;
@@ -217,7 +215,7 @@ public class ObjectDetector{
 				return mLeftCarColorImage;
 
 			}
-		}else if(lane == RIGHT_LANE)
+		}else if(lane == Race.RIGHT_LANE)
 		{
 			if(!colorDetected)
 				mColorsOnRightLane = false;
@@ -394,8 +392,8 @@ public class ObjectDetector{
 		int y_offset_right = (mInputFramePortrait.rows()/2)-15;
 		mCarColorImages = new Bitmap[2];				
 		Log.i("debug", "In the middle of get_car_colors!");	
-		mCarColorImages[0] = getColorInOffset(x_offset_left, y_offset_left, LEFT_LANE);
-		mCarColorImages[1] = getColorInOffset(x_offset_right, y_offset_right, RIGHT_LANE);		
+		mCarColorImages[0] = getColorInOffset(x_offset_left, y_offset_left, Race.LEFT_LANE);
+		mCarColorImages[1] = getColorInOffset(x_offset_right, y_offset_right, Race.RIGHT_LANE);		
 		Log.i("debug", "Tschüss get_cars_colors!");	
 		return mCarColorImages;	
 		

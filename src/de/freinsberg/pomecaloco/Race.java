@@ -71,19 +71,20 @@ public class Race {
 	}
 
 	
-	public void createPlayer(int carStatus, int mode, int count) {
+	public void createPlayer(int carStatus, int mode, int count, List<String> names) {
 		switch(carStatus){
 		case ObjectDetector.NO_CAR:			
 			break;
 		case ObjectDetector.RIGHT_CAR:			
-			mPlayerArray.add(new Player(RIGHT_LANE,mode, ObjectDetector.getInstance().getCarColor(RIGHT_LANE)));
+			mPlayerArray.add(new Player(RIGHT_LANE,mode, ObjectDetector.getInstance().getCarColor(RIGHT_LANE), names.get(0)));
 			break;
 		case ObjectDetector.LEFT_CAR:							
-			mPlayerArray.add(new Player(LEFT_LANE,mode, ObjectDetector.getInstance().getCarColor(LEFT_LANE)));
+			mPlayerArray.add(new Player(LEFT_LANE,mode, ObjectDetector.getInstance().getCarColor(LEFT_LANE), names.get(0)));
 			break;
 		case ObjectDetector.BOTH_CAR:
-			mPlayerArray.add(new Player(RIGHT_LANE,mode, ObjectDetector.getInstance().getCarColor(RIGHT_LANE)));
-			mPlayerArray.add(new Player(LEFT_LANE,mode, ObjectDetector.getInstance().getCarColor(LEFT_LANE)));
+			mPlayerArray.add(new Player(LEFT_LANE,mode, ObjectDetector.getInstance().getCarColor(LEFT_LANE), names.get(0)));
+			mPlayerArray.add(new Player(RIGHT_LANE,mode, ObjectDetector.getInstance().getCarColor(RIGHT_LANE),names.get(1)));
+			
 			break;	
 		default:
 			break;		
@@ -260,6 +261,34 @@ public class Race {
 	public int getCount() {
 		return mCount;
 	}
+	
+	public String getAttempt(int lane){
+		String s;
+		s = "attmepttemp";
+		
+		return s;
+	}
+	
+	public String getDrivenMeters(int lane){
+		String s;
+		s = "metertemp";
+		return s;
+	}
+	
+	public String getFastestRound(int lane){
+		String s;
+		s = "fastesttemp";
+		
+		return s;		
+	}
+	
+	public String getAvgSpeed(int lane){
+		String s;
+		s = "avgspeedtemp";
+		
+		return s;
+	}
+	
 	private void setBestTime(String s, int lane){
 		
 		mBestTimeOnLane = new Pair<String, Integer>(s,lane);		
@@ -428,6 +457,17 @@ public class Race {
 				return p.getRGBColor();
 		}		
 		return 0;
+	}
+	
+	/**
+	 * 
+	 * @param index
+	 * @returns null if PlayerArray is smaller that the index, this getter is Zero-Based, counting begins from zero (0,1..), first position gives the left Player, second position the right Player
+	 */
+	public String getPlayerName(int index){
+		if(mPlayerArray.size() > index)
+			return mPlayerArray.get(index).getName();
+		return null;
 	}
 	
 	public String getFinishedTime() {

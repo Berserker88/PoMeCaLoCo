@@ -47,97 +47,26 @@
         android:maxWidth="40dp"
         android:src="@color/loosing_red" />
 
-    <View
-        android:id="@+id/time_round_separator"
-        android:layout_width="wrap_content"
-        android:layout_height="2dp"
-        android:layout_below="@+id/raceview_time"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="4dp"
-        android:background="@android:color/white" />
-
-    <TextView
-        android:id="@+id/raceview_round"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/raceview_time"
-        android:layout_below="@+id/raceview_time"
-        android:layout_marginTop="10dp"
-        android:ems="10"
-        android:text="@string/raceview_round"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
     <TextView
         android:id="@+id/raceview_round_updater_left"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/value_separator"
-        android:layout_below="@+id/raceview_time"
+        android:layout_alignLeft="@+id/round_speed_separator"
+        android:layout_alignBottom="@+id/round_speed_separator"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
-        android:ems="10"        
+        android:layout_marginBottom="6dp"        
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/white" />
-    
-     <TextView
+
+    <TextView
         android:id="@+id/raceview_round_updater_right"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/value_separator"
-        android:layout_below="@+id/raceview_time"
-        android:layout_marginLeft="120dp"
-        android:layout_marginTop="10dp"
-        android:ems="10"       
+        android:layout_height="wrap_content"        
+        android:layout_alignBaseline="@+id/raceview_round_updater_left"
+        android:layout_toRightOf="@+id/value_separator"
+        android:layout_marginLeft="10dp"       
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/white" />
-
-    <View
-        android:id="@+id/round_speed_separator"
-        android:layout_width="wrap_content"
-        android:layout_height="2dp"
-        android:layout_below="@+id/raceview_round"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="4dp"
-        android:background="@android:color/white" />
-
-    <TextView
-        android:id="@+id/raceview_speed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/raceview_time"
-        android:layout_below="@+id/raceview_round"
-        android:layout_marginTop="10dp"
-        android:ems="10"
-        android:text="@string/raceview_speed"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/raceview_speed_updater_left"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/value_separator"
-        android:layout_below="@+id/raceview_round"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
-        android:ems="10"
-        android:text="@string/raceview_speed_updater"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/dummy_gray" />
-    
-     <TextView
-        android:id="@+id/raceview_speed_updater_right"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/value_separator"
-        android:layout_below="@+id/raceview_round"
-        android:layout_marginLeft="120dp"
-        android:layout_marginTop="10dp"
-        android:ems="10"
-        android:text="@string/raceview_speed_updater"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/dummy_gray" />
 
     <Button
         android:id="@+id/manual_end_race"
@@ -146,22 +75,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:text="@string/manual_end_race" />
-
-    <de.freinsberg.pomecaloco.MillisecondChronometer
-        android:id="@+id/raceview_chronometer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/value_separator"
-        android:layout_alignBaseline="@+id/raceview_time"
-        android:layout_alignBottom="@+id/raceview_time"
-        android:layout_marginLeft="10dp"
-        android:layout_alignParentRight="true"
-        android:ems="10"
-        android:visibility="gone"
-        android:text="@string/raceview_time_updater"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/dummy_gray" />
-
+    
     <TextView
         android:id="@+id/raceview_best_time_updater"
         android:layout_width="wrap_content"
@@ -194,9 +108,9 @@
         android:id="@+id/camera_stream_race"
         android:layout_width="wrap_content"
         android:layout_height="250dp"
+        android:layout_below="@+id/view2"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_below="@+id/view2"
         android:layout_marginTop="48dp"
         opencv:camera_id="any"
         opencv:show_fps="true" />
@@ -211,41 +125,16 @@
         android:text="@string/race_countdown"
         android:textColor="@color/dummy_gray"
         android:textSize="50sp" />
-    
+
     <TextView
         android:id="@+id/raceview_finished"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/camera_stream_race"
         android:layout_alignBottom="@+id/camera_stream_race"
-        android:layout_centerHorizontal="true"       
+        android:layout_centerHorizontal="true"
         android:textColor="@color/record_yellow"
         android:textSize="50sp" />
-
-    <TextView
-        android:id="@+id/raceview_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/time_round_separator"
-        android:layout_alignTop="@+id/value_separator"
-        android:layout_marginTop="12dp"
-        android:ems="10"
-        android:text="@string/raceview_time"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/raceview_time_updater"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/value_separator"
-        android:layout_alignBaseline="@+id/raceview_time"
-        android:layout_alignBottom="@+id/raceview_time"
-        android:layout_marginLeft="10dp"
-        android:layout_alignParentRight="true"
-        android:ems="10"
-        android:text="@string/raceview_time_updater"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/dummy_gray" />
 
     <TextView
         android:id="@+id/game_mode"
@@ -257,37 +146,117 @@
         android:text="@string/game_mode"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    <ImageView
+        android:id="@+id/left_car_color"
+        android:layout_width="39dp"
+        android:layout_height="220dp"
+        android:layout_below="@+id/view2"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="68dp"
+        android:contentDescription="@string/left_car_color"
+        android:scaleType="centerCrop" />
+
+    <ImageView
+        android:id="@+id/right_car_color"
+        android:layout_width="39dp"
+        android:layout_height="220dp"
+        android:layout_below="@+id/view2"
+        android:layout_marginLeft="300dp"
+        android:layout_marginTop="68dp"
+        android:contentDescription="@string/right_car_color"
+        android:scaleType="centerCrop" />
+
     <View
         android:id="@+id/value_separator"
         android:layout_width="2dp"
-        android:layout_height="105dp"
+        android:layout_height="85dp"
         android:layout_below="@+id/camera_stream_race"
-        android:layout_marginRight="10dp"
-        android:layout_toLeftOf="@+id/manual_end_race"
+        android:layout_marginTop="40dp"
+        android:layout_toLeftOf="@+id/view1"
         android:background="@android:color/white" />
+
+    <View
+        android:id="@+id/round_speed_separator"
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_below="@+id/camera_stream_race"
+        android:layout_marginTop="100dp"        
+        android:background="@android:color/white" />
+
+    <TextView
+        android:id="@+id/raceview_time_updater"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/camera_stream_race"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"          
+        android:text="@string/raceview_time_updater"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/dummy_gray" />
     
-    	<ImageView
-	    android:id="@+id/left_car_color"
-	    android:scaleType="centerCrop"
-	    android:layout_width="39dp"
-	    android:layout_height="220dp"	    
-	    
-        android:layout_below="@+id/view2"
-        android:layout_marginTop="68dp"  
-	    android:layout_marginLeft="20dp"	    
-	    android:contentDescription="@string/left_car_color"
-	     />
-	
-	<ImageView
-	    android:id="@+id/right_car_color"
-	    android:scaleType="centerCrop"
-	    android:layout_width="39dp"
-	    android:layout_height="220dp"	    
-	    
-        android:layout_below="@+id/view2"
-        android:layout_marginTop="68dp"   
- 		android:layout_marginLeft="300dp"	            
-	    android:contentDescription="@string/right_car_color"
-	     />
+    <de.freinsberg.pomecaloco.MillisecondChronometer
+        android:id="@+id/raceview_chronometer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/camera_stream_race"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true" 
+        android:text="@string/raceview_time_updater"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/dummy_gray"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/raceview_speed_updater_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/round_speed_separator"
+        android:layout_alignLeft="@+id/round_speed_separator"
+        android:layout_marginLeft="10dp"
+        
+        android:text="@string/raceview_speed_updater"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/dummy_gray" />
+
+    <TextView
+        android:id="@+id/raceview_speed_updater_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/raceview_speed_updater_left"
+        android:layout_toRightOf="@+id/value_separator"        
+        android:layout_marginLeft="10dp" 
+        
+        android:text="@string/raceview_speed_updater"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/dummy_gray" />
+
+    <View
+        android:id="@+id/time_round_separator"
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_below="@+id/camera_stream_race"
+        android:layout_marginTop="65dp"        
+        android:background="@android:color/white" />
+
+    <TextView
+        android:id="@+id/raceview_left_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/time_round_separator"
+        android:layout_alignLeft="@+id/round_speed_separator"
+        android:layout_marginBottom="6dp" 
+        android:layout_marginLeft="10dp"
+        android:text="@string/raceview_left_name"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    <TextView
+        android:id="@+id/raceview_right_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+     	android:layout_alignBaseline="@+id/raceview_left_name"
+        android:layout_toRightOf="@+id/value_separator"        
+        android:layout_marginLeft="10dp" 
+        android:text="@string/raceview_right_name"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

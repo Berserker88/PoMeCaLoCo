@@ -18,11 +18,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -38,10 +40,6 @@ import android.widget.Toast;
 public class StartActivity extends Activity implements CvCameraViewListener2 {
 
 	public static boolean mScanningComplete = false;	
-
-	final public static int LEFT_LANE = 1;
-	final public static int RIGHT_LANE = 2;
-
 	private Handler mHandler = new Handler();
 	private Timer mShotTimer = new Timer();
 	private TimerTask mShotTask;
@@ -57,6 +55,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	private Track bridge;
 	private Track crossed;
 	private List<Track> tracks = new ArrayList<Track>();
+	private List<String> mPlayerNames = new ArrayList<String>();
 	private MyTrackSpinnerAdapter mTracksAdapter;
 	private Mat bridge_image = null; 
 	private Mat crossed_image = null;
@@ -211,11 +210,16 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				} else if (scanner.getText() == getString(R.string.scan_cars)) {
 					mAlphacounter = 100;					
 					mCarColorBitmaps = mFrameToProcess.get_cars_colors();
+					if(mCarColorBitmaps[0] != null){
+						left_car_color.setVisibility(View.VISIBLE);	
+						left_car_color.setImageBitmap(mCarColorBitmaps[0]);	
+					}
+					if(mCarColorBitmaps[1] != null){
+						right_car_color.setVisibility(View.VISIBLE);	
+						right_car_color.setImageBitmap(mCarColorBitmaps[1]);
+					}
+												
 					
-					left_car_color.setImageBitmap(mCarColorBitmaps[0]);					
-					right_car_color.setImageBitmap(mCarColorBitmaps[1]);					
-					left_car_color.setVisibility(View.VISIBLE);								
-					right_car_color.setVisibility(View.VISIBLE);	
 					
 					switch(mFrameToProcess.car_status()){
 						case ObjectDetector.NO_CAR:
@@ -326,14 +330,9 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 					return;
 				}
 				mCount = Integer.parseInt(lap_count.getText().toString());	
-				race = Race.getInstance();
-				race.newRace(mCount, Race.ROUND_MODE,tracks.get(mSpinnerPosition), mFrameToProcess.getNumberOfCars());
-				race.createPlayer(mFrameToProcess.car_status(),Race.ROUND_MODE, mCount);	
+				setPlayerName(Race.ROUND_MODE);										
 				
-				Intent intent = new Intent().setClass(v.getContext(), RaceActivity.class);
-				startActivity(intent);							
-				Log.i("debug", "Moved to Race-Activity!");
-				finish();
+				
 			}
 		});
 		
@@ -347,15 +346,10 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 					Toast.makeText(v.getContext(), "Bitte Minutenanzahl angeben!", Toast.LENGTH_SHORT).show();
 					return;
 				}
-				mCount = Integer.parseInt(min_count.getText().toString());	
-				race = Race.getInstance();
-				race.newRace(mCount, Race.TIMER_MODE,tracks.get(mSpinnerPosition), mFrameToProcess.getNumberOfCars());
-				race.createPlayer(mFrameToProcess.car_status(),Race.TIMER_MODE, mCount);
+				mCount = Integer.parseInt(min_count.getText().toString());				
+				setPlayerName(Race.TIMER_MODE);				
 				
-				Intent intent = new Intent().setClass(v.getContext(), RaceActivity.class);
-				startActivity(intent);						
-				Log.i("debug", "Moved to Race-Activity!");
-				finish();
+				
 			}
 		});	
 	}
@@ -400,6 +394,95 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 		super.onResume();
 		Log.i("debug", "onResume (StartFragament) called");
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, this, mLoaderCallback);
+	}
+	
+	private void setPlayerName(int mode){
+		final int _mode = mode;
+		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		final LayoutInflater inflater = this.getLayoutInflater();
+		if(ObjectDetector.getInstance().car_status() == ObjectDetector.BOTH_CAR){
+			final View layout = inflater.inflate(R.layout.two_player_names, null);
+			builder.setView(layout)
+			.setTitle("Spielernamen erforderlich")
+			.setPositiveButton(R.string.dialog_enter, new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					mPlayerNames.clear();
+					EditText left_playername = (EditText) layout.findViewById(R.id.dialog_left_player_name);
+					EditText right_playername = (EditText) layout.findViewById(R.id.dialog_right_player_name);
+					if(left_playername.getText().toString() == ""){		
+						builder.show();
+						left_playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
+						left_playername.setHint(R.string.dialog_name_warning);
+						
+					}
+					mPlayerNames.add(left_playername.getText().toString());	
+					
+					if(right_playername.getText().toString() == ""){						
+						right_playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
+						right_playername.setHint(R.string.dialog_name_warning);
+						builder.show();
+					}						
+					mPlayerNames.add(right_playername.getText().toString());
+					start(_mode);
+					Log.i("debug", "Moved to Race-Activity!");
+					
+				}
+			})
+			.setNegativeButton(R.string.dialog_cancel, new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Automatisch generierter Methodenstub
+					
+				}
+			});
+
+		}
+		else
+		{
+			final View layout = inflater.inflate(R.layout.one_player_name, null);
+			builder.setView(layout)
+			.setTitle("Spielername erforderlich")
+			.setPositiveButton(R.string.dialog_enter, new OnClickListener() {				
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					mPlayerNames.clear();
+					EditText playername = (EditText) layout.findViewById(R.id.dialog_player_name);
+					if(playername.getText().toString() == ""){
+						builder.show();
+						playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
+						playername.setHint(R.string.dialog_name_warning);
+						
+					}
+					mPlayerNames.add(playername.getText().toString());
+					start(_mode);
+					Log.i("debug", "Moved to Race-Activity!");
+					
+				}
+			})
+			.setNegativeButton(R.string.dialog_cancel, new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Automatisch generierter Methodenstub
+					
+				}
+			});
+		}	
+		
+		builder.show();
+	}
+	
+	private void start(int mode){
+		int _mode = mode;		
+		Race.getInstance().newRace(mCount, _mode,tracks.get(mSpinnerPosition), mFrameToProcess.getNumberOfCars());
+		Race.getInstance().createPlayer(mFrameToProcess.car_status(),_mode, mCount, mPlayerNames);				
+		Intent intent = new Intent().setClass(mContext, RaceActivity.class);
+		startActivity(intent);
+		finish();
 	}
 	
 	@Override

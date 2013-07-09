@@ -21,46 +21,125 @@ public class FinishActivity extends Activity {
 	public static int RACE = 1;
 	public static int END_RACE = 2;
 	private Context mContext;
-	private Button go_to_results = null;
-	private Button new_race = null;	
+	private Button go_to_results;
+	private Button new_race;	
 	private TextView finish_track;
 	private TextView finish_mode;
+	private TextView finish_heading;
+	
 	private TextView finish_attempt;
 	private TextView finish_meters;
 	private TextView finish_fastest;
 	private TextView finish_avg_speed;
 	private TextView finish_timemode_driven_rounds;
 	private TextView finish_roundmode_driven_time;
+	
+	private TextView finish_right_attempt;
+	private TextView finish_right_meters;
+	private TextView finish_right_fastest;
+	private TextView finish_right_avg_speed;
+	private TextView finish_right_timemode_driven_rounds;
+	private TextView finish_right_roundmode_driven_time;
+	
+	private TextView finish_left_attempt;
+	private TextView finish_left_meters;
+	private TextView finish_left_fastest;
+	private TextView finish_left_avg_speed;
+	private TextView finish_left_timemode_driven_rounds;
+	private TextView finish_left_roundmode_driven_time;
+	
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.finish);
-		//Making Views and Buttons from XML-View accessible via Java Code
+		int lane;
+		if(ObjectDetector.getInstance().car_status() != ObjectDetector.BOTH_CAR)
+		{		
+			
+			if(ObjectDetector.getInstance().car_status() == ObjectDetector.LEFT_CAR)
+				lane = Race.LEFT_LANE;
+			else
+				lane = Race.RIGHT_LANE;
+			setContentView(R.layout.finish_oneplayer);
+	        //Setting Views and doing stuff for One-Player-Game	        
+	        finish_heading = (TextView) findViewById(R.id.finish_heading);
+	        finish_attempt = (TextView) findViewById(R.id.finish_attempt_view);
+	        finish_meters = (TextView) findViewById(R.id.finish_meters_view);
+	        finish_fastest = (TextView) findViewById(R.id.finish_fastest_view);
+	        finish_avg_speed = (TextView) findViewById(R.id.finish_avg_speed_view);
+	        finish_timemode_driven_rounds = (TextView) findViewById(R.id.finish_timemode_driven_rounds_view);
+	        finish_roundmode_driven_time = (TextView) findViewById(R.id.finish_roundmode_driven_time_view);
+	        finish_heading.setText("Einzelspieler");
+	        if(Race.getInstance().getGameMode() == Race.ROUND_MODE){        	
+	        	finish_mode.setText("Rundenrennen");
+	        	finish_roundmode_driven_time.setVisibility(View.VISIBLE);
+	        	finish_roundmode_driven_time.setText(Race.getInstance().getFinishedTime());
+	        }
+	        else{
+	        	finish_mode.setText("Zeitfahren");
+	        	finish_timemode_driven_rounds.setVisibility(View.VISIBLE);
+	        	finish_timemode_driven_rounds.setText(Race.getInstance().getCurrentRound(lane));
+	        }        
+	        
+	        finish_attempt.setText(Race.getInstance().getAttempt(lane));
+	        finish_meters.setText(Race.getInstance().getDrivenMeters(lane));
+	        finish_fastest.setText(Race.getInstance().getFastestRound(lane));
+	        finish_avg_speed.setText(Race.getInstance().getAvgSpeed(lane));
+		}
+		else
+		{
+			setContentView(R.layout.finish_twoplayer);
+			//Setting Views  and doing stuff for Two-Player-Game
+			finish_heading = (TextView) findViewById(R.id.finish_heading);
+	        //Views for the Left Lane
+	        finish_left_attempt = (TextView) findViewById(R.id.finish_left_attempt_view);
+	        finish_left_meters = (TextView) findViewById(R.id.finish_left_meters_view);
+	        finish_left_fastest = (TextView) findViewById(R.id.finish_left_fastest_view);
+	        finish_left_avg_speed = (TextView) findViewById(R.id.finish_left_avg_speed_view);
+	        finish_left_timemode_driven_rounds = (TextView) findViewById(R.id.finish_left_timemode_driven_rounds_view);
+	        finish_left_roundmode_driven_time = (TextView) findViewById(R.id.finish_left_roundmode_driven_time_view);	        
+	        //Views for the Right Lane
+	        finish_right_attempt = (TextView) findViewById(R.id.finish_right_attempt_view);
+	        finish_right_meters = (TextView) findViewById(R.id.finish_right_meters_view);
+	        finish_right_fastest = (TextView) findViewById(R.id.finish_right_fastest_view);
+	        finish_right_avg_speed = (TextView) findViewById(R.id.finish_right_avg_speed_view);
+	        finish_right_timemode_driven_rounds = (TextView) findViewById(R.id.finish_right_timemode_driven_rounds_view);
+	        finish_right_roundmode_driven_time = (TextView) findViewById(R.id.finish_right_roundmode_driven_time_view);
+	        
+	        finish_heading.setText("Mehrspieler");
+	        
+	        if(Race.getInstance().getGameMode() == Race.ROUND_MODE){        	
+	        	finish_mode.setText("Rundenrennen");
+	        	finish_right_roundmode_driven_time.setVisibility(View.VISIBLE);
+	        	finish_right_roundmode_driven_time.setText(Race.getInstance().getFinishedTime());
+	        	finish_left_roundmode_driven_time.setVisibility(View.VISIBLE);
+	        	finish_left_roundmode_driven_time.setText(Race.getInstance().getFinishedTime());
+	        }
+	        else{
+	        	finish_mode.setText("Zeitfahren");
+	        	finish_left_timemode_driven_rounds.setVisibility(View.VISIBLE);
+	        	finish_left_timemode_driven_rounds.setText(Race.getInstance().getCurrentRound(Race.LEFT_LANE));
+	        	finish_right_timemode_driven_rounds.setVisibility(View.VISIBLE);
+	        	finish_right_timemode_driven_rounds.setText(Race.getInstance().getCurrentRound(Race.RIGHT_LANE));
+	        }
+	        finish_left_attempt.setText(Race.getInstance().getAttempt(Race.LEFT_LANE));
+	        finish_left_meters.setText(Race.getInstance().getDrivenMeters(Race.LEFT_LANE));
+	        finish_left_fastest.setText(Race.getInstance().getFastestRound(Race.LEFT_LANE));
+	        finish_left_avg_speed.setText(Race.getInstance().getAvgSpeed(Race.LEFT_LANE));
+	        
+	        finish_right_attempt.setText(Race.getInstance().getAttempt(Race.RIGHT_LANE));
+	        finish_right_meters.setText(Race.getInstance().getDrivenMeters(Race.RIGHT_LANE));
+	        finish_right_fastest.setText(Race.getInstance().getFastestRound(Race.RIGHT_LANE));
+	        finish_right_avg_speed.setText(Race.getInstance().getAvgSpeed(Race.RIGHT_LANE));
+	        
+		}		
+		//Setting Views that are Inflated wether one or Two-Player Game
 		go_to_results = (Button) findViewById(R.id.go_to_results);		
         new_race = (Button) findViewById(R.id.new_race);
-        finish_track = (Button) findViewById(R.id.finish_track_view);
-        finish_mode = (Button) findViewById(R.id.finish_mode_view);
-        finish_attempt = (Button) findViewById(R.id.finish_attempt_view);
-        finish_meters = (Button) findViewById(R.id.finish_meters_view);
-        finish_fastest = (Button) findViewById(R.id.finish_fastest_view);
-        finish_avg_speed = (Button) findViewById(R.id.finish_avg_speed_view);
-        finish_timemode_driven_rounds = (Button) findViewById(R.id.finish_timemode_driven_rounds_view);
-        finish_roundmode_driven_time = (Button) findViewById(R.id.finish_roundmode_driven_time_view);
+        finish_track = (TextView) findViewById(R.id.finish_track_view);
+        finish_mode = (TextView) findViewById(R.id.finish_mode_view);    
         
-        finish_track.setText(Race.getInstance().getTrackName());
-        if(Race.getInstance().getGameMode() == Race.ROUND_MODE){
-        	finish_mode.setText("Rundenrennen");
-        	finish_roundmode_driven_time.setText(Race.getInstance().getFinishedTime());
-        }
-        else{
-        	finish_mode.setText("Zeitfahren");
-        finish_timemode_driven_rounds.setText(Race.getInstance().getCurrentRound(Race.LEFT_LANE));
-        }        
-        
-        //finish_attempt.setText(Race.getInstance().getAttempt(Race.LEFT_LANE));
-        //finish_meters.setText(Race.getInstance().getDrivenMeters(Race.LEFT_LANE));
-        //finish_fastest.setText(Race.getInstance().getFastestRound(Race.LEFT_LANE));
-        //finish_avg_speed.setText(Race.getInstance().getAvgSpeed(Race.LEFT_LANE));      
+        finish_track.setText(Race.getInstance().getTrackName());        
         
         go_to_results.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
