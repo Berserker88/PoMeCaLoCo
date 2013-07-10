@@ -18,7 +18,7 @@ public class Track {
 	/**
 	 * Constructor: Creates a Track with a given name, logical value of crossed, length and an image.
 	 * @param name The name of the track.
-	 * @param isCrossed Do the lane Cross each other every Round.
+	 * @param isCrossed Do the lane Cross each other every Round?.
 	 * @param length The lenght of the track in meter.
 	 * @param image An Image of the track.
 	 */
@@ -29,7 +29,7 @@ public class Track {
 		this.mImage = image;		
 	}
 	/**
-	 * This Method gets the track name
+	 * This Method gets the track name.
 	 * @return The track name
 	 */
 	public String getName(){

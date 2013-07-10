@@ -558,8 +558,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	
 	private void start(int mode){
 		int _mode = mode;		
-		Race.getInstance().newRace(mCount, _mode,tracks.get(mSpinnerPosition), mFrameToProcess.getNumberOfCars());
-		Race.getInstance().createPlayer(mFrameToProcess.car_status(),_mode, mCount, mPlayerNames);				
+		Race.getInstance().newRace(mCount, _mode,tracks.get(mSpinnerPosition), mFrameToProcess.car_status(), mPlayerNames);					
 		Intent intent = new Intent().setClass(mContext, RaceActivity.class);
 		startActivity(intent);
 		finish();

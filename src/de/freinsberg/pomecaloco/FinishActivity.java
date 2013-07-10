@@ -87,7 +87,7 @@ public class FinishActivity extends Activity {
 	        }        
 	        
 	        finish_attempt.setText(Race.getInstance().getAttempt(lane));
-	        finish_meters.setText(Race.getInstance().getDrivenMeters(lane));
+	        finish_meters.setText(""+Race.getInstance().getDrivenMeters(lane));
 	        finish_fastest.setText(Race.getInstance().getFastestRound(lane));
 	        finish_avg_speed.setText(Race.getInstance().getAvgSpeed(lane));
 		}
@@ -133,12 +133,12 @@ public class FinishActivity extends Activity {
 	        	finish_right_timemode_driven_rounds.setText(Race.getInstance().getCurrentRound(Race.RIGHT_LANE));
 	        }
 	        finish_left_attempt.setText(Race.getInstance().getAttempt(Race.LEFT_LANE));
-	        finish_left_meters.setText(Race.getInstance().getDrivenMeters(Race.LEFT_LANE));
+	        finish_left_meters.setText(""+Race.getInstance().getDrivenMeters(Race.LEFT_LANE));
 	        finish_left_fastest.setText(Race.getInstance().getFastestRound(Race.LEFT_LANE));
 	        finish_left_avg_speed.setText(Race.getInstance().getAvgSpeed(Race.LEFT_LANE));
 	        
 	        finish_right_attempt.setText(Race.getInstance().getAttempt(Race.RIGHT_LANE));
-	        finish_right_meters.setText(Race.getInstance().getDrivenMeters(Race.RIGHT_LANE));
+	        finish_right_meters.setText(""+Race.getInstance().getDrivenMeters(Race.RIGHT_LANE));
 	        finish_right_fastest.setText(Race.getInstance().getFastestRound(Race.RIGHT_LANE));
 	        finish_right_avg_speed.setText(Race.getInstance().getAvgSpeed(Race.RIGHT_LANE));
 	        

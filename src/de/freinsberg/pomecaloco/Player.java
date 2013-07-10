@@ -13,6 +13,7 @@ import android.util.Log;
 public class Player {
 	
 	private String mName;
+	private int mAttempt;
 	private int mLane;
 	private int mMode;
 	private double[] mRGB;
@@ -30,6 +31,7 @@ public class Player {
 
 	 */
 	public Player(String name, int lane, int mode, Scalar color){
+		mAttempt = 0;
 		mName = name;
 		mLane = lane;
 		mMode = mode;
@@ -67,6 +69,20 @@ public class Player {
 	public int getMode(){
 		
 		return mMode;	
+	}
+	
+	/**
+	 * This Method increases the number of attempts by 1.
+	 */
+	public void incAttempt(){
+		mAttempt = mAttempt + 1;
+	}
+	/**
+	 * This Mehtod returns the number of attempts this player has done.
+	 * @return The number of attempts.
+	 */
+	public int getAttempt(){
+		return mAttempt;
 	}
 	
 	/**

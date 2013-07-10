@@ -314,7 +314,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		
 		public void start(){			
 			mCountdown.start();			
-			Race.getInstance().initRace(this, raceview_time_updater, raceview_best_time_updater);
+			Race.getInstance().initRace(this, raceview_time_updater);
 		}
 		
 		public void cancel(){
