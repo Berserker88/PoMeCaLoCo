@@ -33,7 +33,10 @@ public class Race {
 	private int mActRightRound;
 	private double mActLeftSpeed;
 	private double mActRightSpeed;
-	private double mOldBestTime;
+	private double mOldBestTimeLeft;
+	private int[] mOldBestTimeLeftArray;
+	private int[] mOldBestTimeRightArray;
+	private double mOldBestTimeRight;
 	private String mActLeftRoundTime;		
 	private String mActRightRoundTime;
 	private String mBestTime;
@@ -120,7 +123,8 @@ public class Race {
 			mLeftTimes.clear();
 		if(!mRightTimes.isEmpty())
 			mRightTimes.clear();
-		mOldBestTime = Double.MAX_VALUE;
+		mOldBestTimeLeft = Double.MAX_VALUE;
+		mOldBestTimeRight = Double.MAX_VALUE;
 		mRaceStarted = false;		
 		mTimer = time;
 		mActLeftRound = 0;
@@ -367,9 +371,8 @@ public class Race {
 	 * @return The driven meters.
 	 */
 	public double getDrivenMeters(int lane){
-		double d;
-		d = 12.54;
-		return d;
+		
+		return calcDrivenMeters(lane);		
 	}
 	
 	/**
@@ -378,10 +381,11 @@ public class Race {
 	 * @return The fastest round after the race.
 	 */
 	public String getFastestRound(int lane){
-		String s;
-		s = "fastesttemp";
-		
-		return s;		
+		if (lane == LEFT_LANE)
+			return mOldBestTimeLeftArray[0]+":"+mOldBestTimeLeftArray[1]+":"+mOldBestTimeLeftArray[2];
+		else
+			return mOldBestTimeRightArray[0]+":"+mOldBestTimeRightArray[1]+":"+mOldBestTimeRightArray[2];
+
 	}
 	
 	/**
@@ -389,11 +393,9 @@ public class Race {
 	 * @param lane The lane for which the avg speed is needed.
 	 * @return The average speed.
 	 */
-	public String getAvgSpeed(int lane){
-		String s;
-		s = "avgspeedtemp";
-		
-		return s;
+	public double getAvgSpeed(int lane){				
+				return calcAvgSpeed(lane);
+
 	}
 	
 	/**
@@ -477,9 +479,12 @@ public class Race {
 			}
 			Log.i("debug", "Rundenzeit:"+curr[0]+":"+curr[1]+":"+curr[2]);
 			_curr = (curr[0]*60)+(curr[1])+ (curr[2] / 100.0); 
-			if(mOldBestTime > _curr){
-				mOldBestTime = _curr;
-				setBestTime(curr[0]+":"+curr[1]+":"+curr[2], lane);
+			if(mOldBestTimeLeft > _curr){
+				mOldBestTimeLeft = _curr;
+				if(_curr < mOldBestTimeRight){
+					mOldBestTimeLeftArray = curr;
+					setBestTime(curr[0]+":"+curr[1]+":"+curr[2], lane);
+				}
 			}
 			Log.i("debug", "Rundenzeit Links: "+_curr);
 			mActLeftSpeed = mTrack.getLength()/ _curr;
@@ -511,9 +516,12 @@ public class Race {
 				curr[1] = curr[1] - 1;
 			}				
 			_curr = (curr[0]*60) + (curr[1]) + (curr[2] / 100.0); 
-			if(mOldBestTime > _curr){
-				mOldBestTime = _curr;
-				setBestTime(curr[0]+":"+curr[1]+":"+curr[2], lane);
+			if(mOldBestTimeRight > _curr){
+				mOldBestTimeRight = _curr;
+				if(_curr < mOldBestTimeLeft){
+					mOldBestTimeRightArray = curr;
+					setBestTime(curr[0]+":"+curr[1]+":"+curr[2], lane);
+				}
 			}
 			Log.i("debug", "Rundenzeit Rechts: "+_curr);
 			mActRightSpeed = mTrack.getLength() / _curr;
@@ -522,6 +530,29 @@ public class Race {
 			Log.i("debug","Alte Zeit rechts: "+mOldTimeRight);
 		}		
 	}	
+	
+	private double calcDrivenMeters(int lane){
+		
+		double drivenMeters = 0;
+		if(lane == LEFT_LANE)
+			return drivenMeters = mActLeftRound * mTrack.getLength();
+		else
+			return drivenMeters = mActRightRound * mTrack.getLength();		
+	}
+	
+	private double calcAvgSpeed(int lane){
+		if(lane == LEFT_LANE){
+			if(mMode == ROUND_MODE)
+				return calcDrivenMeters(lane)/(mChronometer.getTimeElapsed()/1000);			
+			else
+				return calcDrivenMeters(lane)/(mCount*60);
+		}
+		else
+			if(mMode == ROUND_MODE)
+				return calcDrivenMeters(lane)/(mChronometer.getTimeElapsed()/1000);			
+			else
+				return calcDrivenMeters(lane)/(mCount*60);
+	}
 
 	/**
 	 * This Method parses a given String with format mm:ss:ms to an integer array with 3 values
@@ -577,13 +608,19 @@ public class Race {
 	 * The truth value of mRaceStarted is set to FALSE.
 	 */
 	public void stop(){		
-		if(mMode == TIMER_MODE){			
+		if(mMode == TIMER_MODE){
+			for(Player p :mPlayerArray){
+				p.incAttempt();
+			}
 			processResults();
 			mRaceStarted = false;
 		}
 		else
 		{
 			mChronometer.stop();
+			for(Player p :mPlayerArray){
+				p.incAttempt();
+			}
 			processResults();	
 			mRaceStarted = false;
 		}	
@@ -637,7 +674,7 @@ public class Race {
 		if(mMode == TIMER_MODE)
 			finishedTime = "00:00:00";
 		else
-			finishedTime = Long.toString(mChronometer.getTimeElapsed());		
+			finishedTime = mChronometer.getTimeElapsedString();		
 		return finishedTime;
 	}
 	

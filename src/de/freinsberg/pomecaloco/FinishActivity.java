@@ -30,6 +30,8 @@ public class FinishActivity extends Activity {
 	private TextView finish_avg_speed;
 	private TextView finish_timemode_driven_rounds;
 	private TextView finish_roundmode_driven_time;
+	private TextView finish_timemode_driven_rounds_header;
+	private TextView finish_roundmode_driven_time_header;
 	private TextView finish_right_name;
 	private TextView finish_right_attempt;
 	private TextView finish_right_meters;
@@ -66,30 +68,41 @@ public class FinishActivity extends Activity {
 			initPlaymodeIndependentViews();
 	        finish_heading = (TextView) findViewById(R.id.finish_heading);
 	        finish_attempt = (TextView) findViewById(R.id.finish_attempt_view);
-	        finish_name = (TextView) findViewById(R.id.finish_name);
+	        finish_name = (TextView) findViewById(R.id.finish_name_view);
 	        finish_meters = (TextView) findViewById(R.id.finish_meters_view);
 	        finish_fastest = (TextView) findViewById(R.id.finish_fastest_view);
 	        finish_avg_speed = (TextView) findViewById(R.id.finish_avg_speed_view);
-	        finish_timemode_driven_rounds = (TextView) findViewById(R.id.finish_timemode_driven_rounds_view);
-	        finish_roundmode_driven_time = (TextView) findViewById(R.id.finish_roundmode_driven_time_view);
+
 	        Log.i("debug", "Initialized 1 Player Views");
 	        finish_heading.setText("Einzelspieler");
+	        finish_name.setTextColor(getResources().getColor(R.color.white));
 	        finish_name.setText(Race.getInstance().getPlayerName(0));
+	        
 	        if(Race.getInstance().getGameMode() == Race.ROUND_MODE){        	
 	        	finish_mode.setText("Rundenrennen");
+	        	finish_roundmode_driven_time_header = (TextView) findViewById(R.id.finish_roundmode_driven_time);
+	        	finish_roundmode_driven_time_header.setVisibility(View.VISIBLE);
+		        finish_roundmode_driven_time = (TextView) findViewById(R.id.finish_roundmode_driven_time_view);
 	        	finish_roundmode_driven_time.setVisibility(View.VISIBLE);
 	        	finish_roundmode_driven_time.setText(Race.getInstance().getFinishedTime());
 	        }
 	        else{
 	        	finish_mode.setText("Zeitfahren");
+	        	finish_timemode_driven_rounds_header = (TextView) findViewById(R.id.finish_timemode_driven_rounds);
+	        	finish_timemode_driven_rounds_header.setVisibility(View.VISIBLE);
+	        	finish_timemode_driven_rounds = (TextView) findViewById(R.id.finish_timemode_driven_rounds_view);
 	        	finish_timemode_driven_rounds.setVisibility(View.VISIBLE);
 	        	finish_timemode_driven_rounds.setText(Race.getInstance().getCurrentRound(lane));
 	        }        
 	        
-	        finish_attempt.setText(Race.getInstance().getAttempt(lane));
+	        finish_attempt.setTextColor(getResources().getColor(R.color.white));
+	        finish_attempt.setText(""+Race.getInstance().getAttempt(lane));
+	        finish_meters.setTextColor(getResources().getColor(R.color.white));
 	        finish_meters.setText(""+Race.getInstance().getDrivenMeters(lane));
+	        finish_fastest.setTextColor(getResources().getColor(R.color.white));
 	        finish_fastest.setText(Race.getInstance().getFastestRound(lane));
-	        finish_avg_speed.setText(Race.getInstance().getAvgSpeed(lane));
+	        finish_avg_speed.setTextColor(getResources().getColor(R.color.white));
+	        finish_avg_speed.setText(String.format("%.2f",Race.getInstance().getAvgSpeed(lane))+" m/s");	        
 		}
 		else
 		{
@@ -132,28 +145,44 @@ public class FinishActivity extends Activity {
 	        	finish_right_timemode_driven_rounds.setVisibility(View.VISIBLE);
 	        	finish_right_timemode_driven_rounds.setText(Race.getInstance().getCurrentRound(Race.RIGHT_LANE));
 	        }
-	        finish_left_attempt.setText(Race.getInstance().getAttempt(Race.LEFT_LANE));
+	        Log.i("debug", "Initialized 2 Player Views 50%");
+	        finish_left_attempt.setTextColor(getResources().getColor(R.color.white));
+	        finish_left_attempt.setText(""+Race.getInstance().getAttempt(Race.LEFT_LANE));
+	        Log.i("debug", "Initialized 2 Player Views 51%");
+	        finish_left_meters.setTextColor(getResources().getColor(R.color.white));
 	        finish_left_meters.setText(""+Race.getInstance().getDrivenMeters(Race.LEFT_LANE));
+	        Log.i("debug", "Initialized 2 Player Views 52%");
+	        finish_left_fastest.setTextColor(getResources().getColor(R.color.white));
 	        finish_left_fastest.setText(Race.getInstance().getFastestRound(Race.LEFT_LANE));
-	        finish_left_avg_speed.setText(Race.getInstance().getAvgSpeed(Race.LEFT_LANE));
+	        Log.i("debug", "Initialized 2 Player Views 53%");
+	        finish_left_avg_speed.setTextColor(getResources().getColor(R.color.white));
+	        finish_left_avg_speed.setText(String.format("%.2f",Race.getInstance().getAvgSpeed(Race.LEFT_LANE))+" m/s");
+	        Log.i("debug", "Initialized 2 Player Views 54%");
 	        
-	        finish_right_attempt.setText(Race.getInstance().getAttempt(Race.RIGHT_LANE));
+	        finish_right_attempt.setTextColor(getResources().getColor(R.color.white));
+	        finish_right_attempt.setText(""+Race.getInstance().getAttempt(Race.RIGHT_LANE));
+	        Log.i("debug", "Initialized 2 Player Views 55%");
+	        finish_right_meters.setTextColor(getResources().getColor(R.color.white));
 	        finish_right_meters.setText(""+Race.getInstance().getDrivenMeters(Race.RIGHT_LANE));
+	        Log.i("debug", "Initialized 2 Player Views 56%");
+	        finish_right_fastest.setTextColor(getResources().getColor(R.color.white));
 	        finish_right_fastest.setText(Race.getInstance().getFastestRound(Race.RIGHT_LANE));
-	        finish_right_avg_speed.setText(Race.getInstance().getAvgSpeed(Race.RIGHT_LANE));
+	        Log.i("debug", "Initialized 2 Player Views 57%");
+	        finish_right_avg_speed.setTextColor(getResources().getColor(R.color.white));
+	        finish_right_avg_speed.setText(String.format("%.2f",Race.getInstance().getAvgSpeed(Race.RIGHT_LANE))+ " m/s");
+	        Log.i("debug", "Initialized 2 Player Views 58%");
 	        
 		}		
 		
  
-        Log.i("debug", "Initialized Playerunabhängige Views");
-      
+        Log.i("debug", "Initialized Playerunabhängige Views");      
         finish_track.setText(Race.getInstance().getTrackName());        
         
         go_to_results.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	Intent intent = new Intent(v.getContext(), SettingsFragmentActivity.class);     
             	startActivity(intent);  
-            	finish();
+            	
             }
         });	        
 

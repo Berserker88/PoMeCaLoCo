@@ -42,7 +42,7 @@ public class ObjectDetector{
 	private Mat mEdges = null; 
 	private Mat mHoughLines = null;
 	private int mHLthreshold = 30;
-    private int mHLminLineSize = 200;
+    private int mHLminLineSize = 50;
     private int mHLlineGap = 20;    
     private Scalar mLeftLaneColor;
     private Scalar mRightLaneColor;
@@ -288,14 +288,9 @@ public class ObjectDetector{
 		mEdges = new Mat();
 		mHoughLines = new Mat();
 		mEmptyTrack = new Mat();
-		mStaticImage = Highgui
-				.imread(Environment
-						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-						+ "track.jpg");
+		//mStaticImage = Highgui.imread(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+ "track.jpg");
 
-		track_overlay = new Mat(new Size(mInputFrame.cols(), mInputFrame
-				.rows()), mInputFrame.type(), new Scalar(0, 0, 0,
-				0));
+		track_overlay = new Mat(new Size(mInputFrame.cols(), mInputFrame.rows()), mInputFrame.type(), new Scalar(0, 0, 0,0));
 		Log.i("debug", "Channels: " + track_overlay.channels());
 
 		Imgproc.cvtColor(mInputFrame, mGray, Imgproc.COLOR_RGBA2GRAY);
@@ -324,8 +319,8 @@ public class ObjectDetector{
 		Imgproc.Canny(mGray, mEdges, mLowerThreshold, mUpperThreshold);
 		//mGray.release();
 		// Highgui.imwrite("/houghlines.png", mHoughLines);
-		Log.i("debug","Status Sd-Karte: "+ Environment.getExternalStorageState());
-		mStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+		//Log.i("debug","Status Sd-Karte: "+ Environment.getExternalStorageState());
+		//mStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
 
 //		mCannyEdgeImage = new File(mStorageDir, "canny.bmp");
 //		mPath = mCannyEdgeImage.toString();
@@ -337,8 +332,7 @@ public class ObjectDetector{
 		
 		if((!mEdges.empty() && !mInputFrame.empty()))
 		{	
-			Imgproc.HoughLinesP(mEdges, mHoughLines, 1, Math.PI / 180,
-					mHLthreshold, mHLminLineSize, mHLlineGap);
+			Imgproc.HoughLinesP(mEdges, mHoughLines, 1, Math.PI / 180, mHLthreshold, mHLminLineSize, mHLlineGap);
 			
 			for (int x = 0; x < mHoughLines.cols(); x++) {
 				double[] vec = mHoughLines.get(0, x);

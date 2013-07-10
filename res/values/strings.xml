@@ -71,7 +71,7 @@
     <string name="attempt">Versuch</string>
     <string name="finish_meters">gefahrene Meter</string>
     <string name="finish_roundmode_fastest">Schnellste Runde</string>
-    <string name="finish_roundmode_avg_speed">Ø km/h</string>
+    <string name="finish_roundmode_avg_speed">Ø m/s</string>
     <string name="finish_roundmode_driven_time">Gesamtzeit</string>
     <string name="finish_timemode_driven_rounds">vollendete Runden</string>
     <string name="finish_track_view">track</string>

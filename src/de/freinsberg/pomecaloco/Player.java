@@ -16,6 +16,11 @@ public class Player {
 	private int mAttempt;
 	private int mLane;
 	private int mMode;
+	private double mWholeDrivenMeters;
+	private double mLastDrivenMeters;
+	private Pair<Track,String> mFastestRound;
+	private Pair<Track, Double> mLastAvgSpeed;
+	private Pair<Track, Double> mWholeAvgSpeed;
 	private double[] mRGB;
 	private Scalar mColor;
 	private Color mRGBColor;
@@ -32,6 +37,11 @@ public class Player {
 	 */
 	public Player(String name, int lane, int mode, Scalar color){
 		mAttempt = 0;
+		mWholeDrivenMeters = 0;
+		mLastDrivenMeters = 0;
+		mFastestRound = new Pair<Track,String>(null, null);
+		mLastAvgSpeed = new Pair<Track, Double>(null, null);
+		mWholeAvgSpeed = new Pair<Track, Double>(null, null);
 		mName = name;
 		mLane = lane;
 		mMode = mode;
@@ -83,6 +93,57 @@ public class Player {
 	 */
 	public int getAttempt(){
 		return mAttempt;
+	}
+	
+	public void setLastDrivenMeters(double meters){
+		
+		mLastDrivenMeters = meters;		
+	}
+	
+	public double getLastDrivenMeters(){
+		
+		return mLastDrivenMeters;
+	}
+	
+	public void setWholeDrivenMeters(double meters){
+		
+		mWholeDrivenMeters = meters;
+	}
+	
+	public double getWholeDrivenMeters(){
+		
+		return mWholeDrivenMeters;
+	}
+	
+	public void setFastestRound(Track t, String time){
+		
+		mFastestRound.setL(t);
+		mFastestRound.setR(time);
+	}
+	
+	public String getFastestRound(Track t){
+		return mFastestRound.getR();
+	}
+	
+	public void setLastAverageSpeed(Track t, double speed){
+		
+		mLastAvgSpeed.setL(t);
+		mLastAvgSpeed.setR(speed);		
+	}
+	
+	public double getLastAverageSpeed(Track t){
+		return mLastAvgSpeed.getR();
+	}
+	
+	public void setWholeAverageSpeed(Track t, double speed){
+		
+		mWholeAvgSpeed.setL(t);
+		mWholeAvgSpeed.setR(speed);		
+	}	
+	
+	public double getWholeAverageSpeed(Track t){
+		
+		return mWholeAvgSpeed.getR();
 	}
 	
 	/**

@@ -212,6 +212,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 					cancel();
 					Intent intent = new Intent().setClass(v.getContext(), FinishActivity.class);
 					startActivity(intent);
+					finish();
 				}
 			});							
 		
