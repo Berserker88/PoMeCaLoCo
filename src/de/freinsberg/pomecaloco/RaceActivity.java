@@ -246,29 +246,38 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		}
 	
 		@Override
-		public Mat onCameraFrame(CvCameraViewFrame inputFrame) {		
-			MovementDetector md;
-			Mat m = inputFrame.rgba();
-			if(Race.getInstance().hasRaceBeenStarted())
-			{
-				if(!m.empty()) {				
-					md = new MovementDetector(m.clone());				
-					//detecting cars
-					Scalar s = Race.getInstance().getPlayerColor(Race.LEFT_LANE);				
-					if(s != null)
+		public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
+			final Mat m = inputFrame.rgba();
+			Thread thr = new Thread(new Runnable() {				
+				@Override
+				public void run() {
+					MovementDetector md;
+					
+					if(Race.getInstance().hasRaceBeenStarted())
 					{
-						boolean recognized = md.colorDetected(s);	
-						countMovement(recognized, Race.LEFT_LANE);
+						if(!m.empty()) {				
+							md = new MovementDetector(m.clone());				
+							//detecting cars
+							Scalar s = Race.getInstance().getPlayerColor(Race.LEFT_LANE);				
+							if(s != null)
+							{
+								boolean recognized = md.colorDetected(s);	
+								countMovement(recognized, Race.LEFT_LANE);
+							}
+							s = Race.getInstance().getPlayerColor(Race.RIGHT_LANE);
+							if(s != null)
+							{
+								boolean recognized = md.colorDetected(s);			
+								countMovement(recognized, Race.RIGHT_LANE);
+							}				
+							md.clear();			
+						}	
 					}
-					s = Race.getInstance().getPlayerColor(Race.RIGHT_LANE);
-					if(s != null)
-					{
-						boolean recognized = md.colorDetected(s);			
-						countMovement(recognized, Race.RIGHT_LANE);
-					}				
-					md.clear();			
-				}	
-			}
+					
+				}
+			});
+			thr.start();
+
 			return m;
 		}
 		
@@ -350,7 +359,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			runOnUiThread(new Runnable() {
 			     public void run() {			    	 
 			    	 	raceview_best_time_updater.setText(Race.getInstance().getBestTime().getL());			    	 
-			    	 	raceview_best_time_updater.setTextColor(Race.getInstance().getPlayerRGBColor(lane));
+			    	 	raceview_best_time_updater.setTextColor(Race.getInstance().getPlayerRGBColor(Race.getInstance().getBestTime().getR()));
 			    	 	if(Race.getInstance().getGameMode() == Race.ROUND_MODE)
 			    	 	{
 							if(lane == Race.LEFT_LANE)	

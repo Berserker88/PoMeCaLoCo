@@ -92,7 +92,7 @@ public class FinishActivity extends Activity {
 	        	finish_timemode_driven_rounds_header.setVisibility(View.VISIBLE);
 	        	finish_timemode_driven_rounds = (TextView) findViewById(R.id.finish_timemode_driven_rounds_view);
 	        	finish_timemode_driven_rounds.setVisibility(View.VISIBLE);
-	        	finish_timemode_driven_rounds.setText(Race.getInstance().getCurrentRound(lane));
+	        	finish_timemode_driven_rounds.setText(""+Race.getInstance().getCurrentRound(lane));
 	        }        
 	        
 	        finish_attempt.setTextColor(getResources().getColor(R.color.white));
@@ -133,6 +133,8 @@ public class FinishActivity extends Activity {
 	        finish_right_name.setText(Race.getInstance().getPlayerName(1));
 	        if(Race.getInstance().getGameMode() == Race.ROUND_MODE){        	
 	        	finish_mode.setText("Rundenrennen");
+	        	finish_roundmode_driven_time_header = (TextView) findViewById(R.id.finish_roundmode_driven_time);
+	        	finish_roundmode_driven_time_header.setVisibility(View.VISIBLE);
 	        	finish_right_roundmode_driven_time.setVisibility(View.VISIBLE);
 	        	finish_right_roundmode_driven_time.setText(Race.getInstance().getFinishedTime());
 	        	finish_left_roundmode_driven_time.setVisibility(View.VISIBLE);
@@ -140,10 +142,12 @@ public class FinishActivity extends Activity {
 	        }
 	        else{
 	        	finish_mode.setText("Zeitfahren");
+	        	finish_timemode_driven_rounds_header = (TextView) findViewById(R.id.finish_timemode_driven_rounds);
+	        	finish_timemode_driven_rounds_header.setVisibility(View.VISIBLE);
 	        	finish_left_timemode_driven_rounds.setVisibility(View.VISIBLE);
-	        	finish_left_timemode_driven_rounds.setText(Race.getInstance().getCurrentRound(Race.LEFT_LANE));
+	        	finish_left_timemode_driven_rounds.setText(""+Race.getInstance().getCurrentRound(Race.LEFT_LANE));
 	        	finish_right_timemode_driven_rounds.setVisibility(View.VISIBLE);
-	        	finish_right_timemode_driven_rounds.setText(Race.getInstance().getCurrentRound(Race.RIGHT_LANE));
+	        	finish_right_timemode_driven_rounds.setText(""+Race.getInstance().getCurrentRound(Race.RIGHT_LANE));
 	        }
 	        Log.i("debug", "Initialized 2 Player Views 50%");
 	        finish_left_attempt.setTextColor(getResources().getColor(R.color.white));
