@@ -41,6 +41,7 @@ import android.widget.Toast;
 public class StartActivity extends Activity implements CvCameraViewListener2 {
 
 	public static boolean mScanningComplete = false;	
+	private DBHelper mDbHelper;
 	private Handler mHandler = new Handler();
 	private Timer mShotTimer = new Timer();
 	private TimerTask mShotTask;
@@ -54,9 +55,9 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	private InputMethodManager inputManager = null;
 	private boolean isFirstInitialisation = true;
 	private Dialog mDialogIsEmpty;
-	private Track bridge;
-	private Track crossed;
-	private List<Track> tracks = new ArrayList<Track>();
+//	private Track bridge;
+//	private Track crossed;
+//	private List<Track> tracks = new ArrayList<Track>();
 	private List<String> mPlayerNames = new ArrayList<String>();
 	private MyTrackSpinnerAdapter mTracksAdapter;
 	private Mat bridge_image = null; 
@@ -89,7 +90,10 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.start);
+		//open connection to the database
 		mContext = getApplicationContext();
+		mDbHelper = new DBHelper(mContext);
+		mDbHelper.openDB();
 		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_stream_prepare);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		Log.i("debug", "setCVCameraViewListener properly");
@@ -123,7 +127,8 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 		
 		// Specify the layout to use when the list of choices appears
 		//mTracksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		mTracksAdapter = new MyTrackSpinnerAdapter(this,R.layout.choose_track_spinner,  R.layout.choose_track_spinner_item, tracks);
+		
+		mTracksAdapter = new MyTrackSpinnerAdapter(this,R.layout.choose_track_spinner,  R.layout.choose_track_spinner_item, mDbHelper.getAllTracksWithImages());
 		// Apply the adapter to the spinner		
 		mTracks.setAdapter(mTracksAdapter);		
 		mTracks.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -558,7 +563,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	
 	private void start(int mode){
 		int _mode = mode;		
-		Race.getInstance().newRace(mCount, _mode,tracks.get(mSpinnerPosition), mFrameToProcess.car_status(), mPlayerNames);					
+		Race.getInstance().newRace(mContext, mCount, _mode,mTracks.getSelectedItem(), mFrameToProcess.car_status(), mPlayerNames);					
 		Intent intent = new Intent().setClass(mContext, RaceActivity.class);
 		startActivity(intent);
 		finish();
@@ -588,25 +593,25 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				Log.i("debug", "OpenCV loaded successfully");					
 				mOpenCvCameraView.enableView();
 				//Static adding of tracks		
-				if(isFirstInitialisation){
-					try { 	
-					    bridge_image = Utils.loadResource(mContext,R.drawable.bridge_image); 
-					    } catch (IOException e) { 
-					     e.printStackTrace(); 
-					    } 
-					try { 		
-					    crossed_image = Utils.loadResource(mContext,R.drawable.crossed_image); 
-					    } catch (IOException e) { 
-					     e.printStackTrace(); 
-					    }
-					bridge = new Track("Brückenbahn", false, 5, bridge_image);
-					crossed = new Track("Kreuzungsbahn", true, 7, crossed_image);		
-					tracks.add(bridge);
-					tracks.add(crossed);		
-					mTracksAdapter.notifyDataSetChanged();
-					isFirstInitialisation = false;
-					break;
-				}
+//				if(isFirstInitialisation){
+//					try { 	
+//					    bridge_image = Utils.loadResource(mContext,R.drawable.bridge_image); 
+//					    } catch (IOException e) { 
+//					     e.printStackTrace(); 
+//					    } 
+//					try { 		
+//					    crossed_image = Utils.loadResource(mContext,R.drawable.crossed_image); 
+//					    } catch (IOException e) { 
+//					     e.printStackTrace(); 
+//					    }
+//					bridge = new Track("Brückenbahn", false, 5, bridge_image);
+//					crossed = new Track("Kreuzungsbahn", true, 7, crossed_image);		
+//					tracks.add(bridge);
+//					tracks.add(crossed);		
+//					mTracksAdapter.notifyDataSetChanged();
+//					isFirstInitialisation = false;
+//					break;
+//				}
 				
 			}
 			default: {

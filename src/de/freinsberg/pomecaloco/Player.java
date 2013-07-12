@@ -36,8 +36,7 @@ public class Player {
 
 	 */
 	public Player(String name, int lane, int mode, Scalar color){
-		mAttempt = 0;
-		mWholeDrivenMeters = 0;
+		mAttempt = 0;		
 		mLastDrivenMeters = 0;
 		mFastestRound = new Pair<Track,String>(null, null);
 		mLastAvgSpeed = new Pair<Track, Double>(null, null);

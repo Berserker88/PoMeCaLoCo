@@ -26,6 +26,7 @@ public class Race {
 	private boolean mRightMovement = false;
 	private boolean mRaceStarted = false;
 	private boolean mTimeIsUp = false;
+	private DBHelper mDbHelper;
 	private int mMode;
 	private int mCount;
 	private int mCarStatus;
@@ -42,8 +43,8 @@ public class Race {
 	private String mBestTime;
 	private String mOldTimeLeft;
 	private String mOldTimeRight;
-	private Track mTrack;
-	private double mLength;
+	private String mTrackName;
+	private float mTrackLength;
 	private int mNumberOfPlayers;
 	private Pair<String,Integer> mBestTimeOnLane;
 	public List<Player> mPlayerArray = new ArrayList<Player>();
@@ -77,14 +78,18 @@ public class Race {
 	 * @param track The track to drive on.
 	 * @param numberofplayers The Number of players on this track.
 	 */
-	public void newRace(int count, int mode, Track track, int carStatus, List<String> names) {				
-		mPlayerArray.clear();
+	@SuppressWarnings("unchecked")
+	public void newRace(Context context, int count, int mode, Object track, int carStatus, List<String> names) {				
+		mDbHelper = new DBHelper(context);
+		mDbHelper.openDB();
+		mPlayerArray.clear();		
 		mMode = mode;
 		mCount = count;
-		mTrack = track;
+		mTrackName = ((Pair<String, byte[]>) track).getL();
+		mTrackLength = mDbHelper.getTrackLength(mTrackName);
 		mCarStatus = carStatus;
 		createPlayer(names);
-		Log.i("debug","Neues Rennen:(1=Rundenrennen,2=Zeitrennen)Spielmodus"+mMode+", Counter: "+mCount+", Track: "+mTrack+", NumberOfPlayers: "+mNumberOfPlayers+" erstellt");		
+		Log.i("debug","Neues Rennen:(1=Rundenrennen,2=Zeitrennen)Spielmodus"+mMode+", Counter: "+mCount+", Track: "+mTrackName+", NumberOfPlayers: "+mNumberOfPlayers+" erstellt");		
 	}
 
 	/**
@@ -131,7 +136,7 @@ public class Race {
 		mActRightRound = 0;
 		mActLeftRoundTime = "00:00:00";
 		mActRightRoundTime = "00:00:00";
-		mLength = mTrack.getLength();
+		
 		if(mMode == TIMER_MODE)
 		{
 			mRaceTimer = new MyTimer(mCount*60000, 10, mTimer);
@@ -313,7 +318,7 @@ public class Race {
 	 * @return The track name.
 	 */
 	public String getTrackName() {
-		return mTrack.getName();
+		return mTrackName;
 	}
 	
 	/**
@@ -487,7 +492,7 @@ public class Race {
 				}
 			}
 			Log.i("debug", "Rundenzeit Links: "+_curr);
-			mActLeftSpeed = mTrack.getLength()/ _curr;
+			mActLeftSpeed = mTrackLength/ _curr;
 			mActLeftRoundTime = (curr[0])+":"+(curr[1])+":"+(curr[2]); 			
 			mOldTimeLeft = time;
 			Log.i("debug","Alte Zeit links: "+mOldTimeLeft);
@@ -524,7 +529,7 @@ public class Race {
 				}
 			}
 			Log.i("debug", "Rundenzeit Rechts: "+_curr);
-			mActRightSpeed = mTrack.getLength() / _curr;
+			mActRightSpeed = mTrackLength / _curr;
 			mActRightRoundTime = (curr[0])+":"+(curr[1])+":"+(curr[2]); 
 			mOldTimeRight = time;
 			Log.i("debug","Alte Zeit rechts: "+mOldTimeRight);
@@ -535,9 +540,9 @@ public class Race {
 		
 		double drivenMeters = 0;
 		if(lane == LEFT_LANE)
-			return drivenMeters = mActLeftRound * mTrack.getLength();
+			return drivenMeters = mActLeftRound * mTrackLength;
 		else
-			return drivenMeters = mActRightRound * mTrack.getLength();		
+			return drivenMeters = mActRightRound * mTrackLength;		
 	}
 	
 	private double calcAvgSpeed(int lane){
