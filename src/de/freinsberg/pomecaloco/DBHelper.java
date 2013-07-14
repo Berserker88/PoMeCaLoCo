@@ -48,6 +48,7 @@ public class DBHelper extends SQLiteOpenHelper{
 		private static final String COL_ATTEMPT = "attempt";
 		private static final String COL_FASTESTROUND = "fastestround";
 		private static final String COL_LASTDRIVENMETERS = "lastdrivenmeters";		
+		private static final String COL_WHOLEDRIVENMETERS = "wholedrivenmeters";	
 		private static final String COL_LASTAVERAGESPEED = "lastaveragespeed";
 		private static final String COL_WHOLEAVERAGESPEED = "wholeaveragespeed";		
 	}
@@ -55,9 +56,7 @@ public class DBHelper extends SQLiteOpenHelper{
 		
 		private static final String NAME = "player";
 		private static final String COL_NAME = "name";
-		private static final String COL_COLOR = "color";
-		private static final String COL_INTCOLOR = "intcolor";
-		private static final String COL_WHOLEDRIVENMETERS ="wholedrivenmeters";
+		private static final String COL_LIFETIMEMETERS ="lifetimemeters";
 	}
 	
 	private class TblRoundGhost {
@@ -92,10 +91,8 @@ public class DBHelper extends SQLiteOpenHelper{
 		//Creating the Player Table
 		db.execSQL(
 				"CREATE TABLE " + TblPlayer.NAME + 
-				"("+ TblPlayer.COL_NAME + " VARCHAR(30) PRIMARY KEY,"				
-				+TblPlayer.COL_COLOR + " VARCHAR(16),"
-				+TblPlayer.COL_INTCOLOR + " INTEGER, "
-				+ TblPlayer.COL_WHOLEDRIVENMETERS + " FLOAT(5))"
+				"("+ TblPlayer.COL_NAME + " VARCHAR(30) PRIMARY KEY,"	
+				+ TblPlayer.COL_LIFETIMEMETERS + " FLOAT(5))"
 			);
 		
 		//Creating the RoundGhost Table
@@ -127,7 +124,8 @@ public class DBHelper extends SQLiteOpenHelper{
 				+ TblPlayer_Track.COL_MODE + " INTEGER, "
 				+ TblPlayer_Track.COL_ATTEMPT + " INTEGER,"
 				+ TblPlayer_Track.COL_FASTESTROUND + " VARCHAR(9),"
-				+ TblPlayer_Track.COL_LASTDRIVENMETERS + " FLOAT(5),"				
+				+ TblPlayer_Track.COL_LASTDRIVENMETERS + " FLOAT(5),"	
+				+ TblPlayer_Track.COL_WHOLEDRIVENMETERS + " FLOAT(5),"
 				+ TblPlayer_Track.COL_LASTAVERAGESPEED + " FLOAT(5),"
 				+ TblPlayer_Track.COL_WHOLEAVERAGESPEED + " FLOAT(5),"
 				+ "PRIMARY KEY (" + TblPlayer_Track.COL_PLAYERNAME + ", " + TblPlayer_Track.COL_TRACKNAME + ", " + TblPlayer_Track.COL_MODE + "), "
@@ -161,14 +159,12 @@ public class DBHelper extends SQLiteOpenHelper{
 		createTrack("Kreuzungsbahn", true, (float)5.50, stream.toByteArray());		
 	}
 	
-	public void createPlayer(String name, String color, int int_color, int wholedrivenmeters){
+	public void createPlayer(String name){
 		mDB.execSQL(
 				"INSERT INTO "+ TblPlayer.NAME + "(" 
-				+ TblPlayer.COL_NAME + ", " 				
-				+ TblPlayer.COL_COLOR + ", " 
-				+ TblPlayer.COL_INTCOLOR + ", "
-				+ TblPlayer.COL_WHOLEDRIVENMETERS + ")"
-				+ "VALUES('" + name + "', " + color + "', " + int_color + ", " + wholedrivenmeters +")"
+				+ TblPlayer.COL_NAME + ", " 
+				+ TblPlayer.COL_LIFETIMEMETERS + ")"
+				+ "VALUES('" + name + "', " + 0 +")"
 			);
 	}
 		
@@ -209,7 +205,7 @@ public class DBHelper extends SQLiteOpenHelper{
 			);
 	}
 	
-	public void createPlayerTrack(String playername, String trackname, int mode, int attempt, String fastestround, float lastaveragespeed, float wholeaveragespeed, float lastdrivenmeters){
+	public void createPlayerTrack(String playername, String trackname, int mode, int attempt, String fastestround, float averagespeed, float drivenmeters){
 		
 		mDB.execSQL(
 				"INSERT INTO "+ TblPlayer_Track.NAME + "("
@@ -220,8 +216,9 @@ public class DBHelper extends SQLiteOpenHelper{
 				+ TblPlayer_Track.COL_FASTESTROUND + ", "
 				+ TblPlayer_Track.COL_LASTAVERAGESPEED + ", "
 				+ TblPlayer_Track.COL_WHOLEAVERAGESPEED + ", "
-				+ TblPlayer_Track.COL_LASTDRIVENMETERS + ", "				
-				+ "VALUES('" + playername + "', '" + trackname + "', " + mode + ", " + attempt + ", '" + fastestround + "', '" + lastaveragespeed + "','" + wholeaveragespeed + "','" + lastdrivenmeters + ")"
+				+ TblPlayer_Track.COL_LASTDRIVENMETERS + ", "	
+				+ TblPlayer_Track.COL_WHOLEDRIVENMETERS + ") "	
+				+ "VALUES('" + playername + "', '" + trackname + "', " + mode + ", " + attempt + ", '" + fastestround + "', '" + averagespeed + "','" + averagespeed + "','" + drivenmeters + "', '" + drivenmeters + "')"
 			);
 	}
 	
@@ -252,7 +249,7 @@ public class DBHelper extends SQLiteOpenHelper{
 		cursor.moveToFirst();
 		
 		length = cursor.getFloat(0);
-		
+		cursor.close();
 		return length;
 		
 	}
@@ -268,42 +265,87 @@ public class DBHelper extends SQLiteOpenHelper{
 			names.add(cursor.getString(0));
 			cursor.moveToNext();			
 		}
+		cursor.close();
 		return names;
 	}
 	
-	public String getPlayerColor(String name){
-		String color;
+	public boolean isPlayerPresent(String name){
 		
-		Cursor cursor = mDB.query(TblPlayer.NAME, new String[]{TblPlayer.COL_COLOR}, TblPlayer.COL_NAME + "=?", new String[]{name}, null, null, null);
+		boolean isPresent = false;
 		
-		cursor.moveToFirst();
+		Cursor cursor = mDB.query(TblPlayer.NAME, new String[]{TblPlayer.COL_NAME}, TblPlayer.COL_NAME + "=?", new String[]{name}, null, null, null);
 		
-		color = cursor.getString(0);
-		
-		return color;		
+		if(cursor.moveToFirst())
+			isPresent = true;
+		cursor.close();
+		return isPresent;	
 	}
 	
-	public int getPlayerIntColor(String name){
-		int intcolor;
+	public boolean isPlayerTrackPresent(String player, String track, int mode) {
+	
+		boolean isPresent = false;
+		String whereClause = TblPlayer_Track.COL_PLAYERNAME + "=? AND " + TblPlayer_Track.COL_TRACKNAME + "=? AND " + TblPlayer_Track.COL_MODE + "=?"; 
 		
-		Cursor cursor = mDB.query(TblPlayer.NAME, new String[]{TblPlayer.COL_INTCOLOR}, TblPlayer.COL_NAME + "=?", new String[]{name}, null, null, null);
+		Cursor cursor = mDB.query(TblPlayer_Track.NAME, new String[]{TblPlayer_Track.COL_ATTEMPT}, whereClause, new String[]{player, track, ""+mode}, null, null, null);
 		
-		cursor.moveToFirst();
-		
-		intcolor = cursor.getInt(0);
-		
-		return intcolor;		
+		if(cursor.moveToFirst())
+			isPresent = true;
+		cursor.close();
+		return isPresent;
 	}
 	
-	public float getPlayerWholeDrivenMeters(String name) {
+	public ArrayList<String> getPlayerInfos(String player, String track){
+		
+		ArrayList<String> playerinfos = new ArrayList<String>();
+		
+		String whereClause = TblPlayer_Track.COL_PLAYERNAME + "=? AND " + TblPlayer_Track.COL_TRACKNAME + "=?";
+		
+		Cursor cursor = mDB.query(TblPlayer_Track.NAME, new String[]{TblPlayer_Track.COL_ATTEMPT, TblPlayer_Track.COL_FASTESTROUND, TblPlayer_Track.COL_LASTAVERAGESPEED, TblPlayer_Track.COL_WHOLEAVERAGESPEED, TblPlayer_Track.COL_LASTDRIVENMETERS}, whereClause, new String[]{player, track}, null, null, null);
+		
+		if(!cursor.moveToFirst())
+			Log.i("debug", "No Infos for Player '"+player+"' on Track '" + track + "' in Player_Track table!");
+		
+		//Insert the Attempt into the ArrayList
+		playerinfos.add(""+cursor.getInt(0));
+		
+		//Insert the Fastest Round into the ArrayList
+		playerinfos.add(cursor.getString(1));
+		
+		//Insert the last average Speed into the ArrayList
+		playerinfos.add(""+cursor.getFloat(2));
+		
+		//Insert the whole average Speed into the ArrayList
+		playerinfos.add(""+cursor.getFloat(3));
+		
+		//Insert the last driven Meters into the ArrayList
+		playerinfos.add(""+cursor.getFloat(4));
+		
+		whereClause = TblPlayer.COL_NAME + "=?";
+		
+		cursor = mDB.query(TblPlayer.NAME, new String[]{TblPlayer.COL_LIFETIMEMETERS}, whereClause, new String[]{player}, null, null, null);
+		
+		if(!cursor.moveToFirst())
+			Log.i("debug", "No Player '"+player+"' in Player table!");
+		
+		//Insert the whole driven Meters into the ArrayList
+		playerinfos.add(""+cursor.getFloat(0));
+		
+		cursor.close();
+		
+		return playerinfos;		
+	}	
+
+	
+	public float getPlayerLifetimeMeters(String name) {
 		float meters;
 		
-		Cursor cursor = mDB.query(TblPlayer.NAME, new String[]{TblPlayer.COL_WHOLEDRIVENMETERS}, TblPlayer.COL_NAME + "=?", new String[]{name}, null, null, null);
+		Cursor cursor = mDB.query(TblPlayer.NAME, new String[]{TblPlayer.COL_LIFETIMEMETERS}, TblPlayer.COL_NAME + "=?", new String[]{name}, null, null, null);
 		
 		cursor.moveToFirst();
 		
 		meters = cursor.getFloat(0);
 		
+		cursor.close();
 		return meters;	
 		
 	}
@@ -318,6 +360,7 @@ public class DBHelper extends SQLiteOpenHelper{
 		
 		times = cursor.getString(0);
 		
+		cursor.close();
 		return times;		
 	}
 	
@@ -331,10 +374,85 @@ public class DBHelper extends SQLiteOpenHelper{
 		
 		times = cursor.getString(0);
 		
+		cursor.close();
 		return times;		
 	}
-
 	
+	public void updatePlayerStats(String player, String track, int mode, String fastestround, float avgspeed, float drivenmeters){		
+		
+		drivenmeters = getPlayerLifetimeMeters(player) + drivenmeters;
+		ContentValues values = new ContentValues();
+		
+		values.put(TblPlayer.COL_LIFETIMEMETERS, drivenmeters);
+		
+		mDB.update(TblPlayer.NAME, values, TblPlayer.COL_NAME + "=?", new String[]{player});
+		
+		values.clear();
+		
+		int attempt = getPlayerTrackAttempt(player,track, mode) + 1;
+		float wholedrivenmeters = getPlayerTrackWholeDrivenMeters(player, track, mode) + drivenmeters;
+		float wholeavgspeed = ((getPlayerTrackWholeDrivenMeters(player, track, mode) + drivenmeters) / ((getPlayerTrackWholeDrivenMeters(player, track, mode) / getPlayerTrackWholeAverageSpeed(player, track, mode)) + (drivenmeters /avgspeed)));
+			
+		
+		values.put(TblPlayer_Track.COL_ATTEMPT, attempt);
+		values.put(TblPlayer_Track.COL_FASTESTROUND, fastestround);
+		values.put(TblPlayer_Track.COL_LASTAVERAGESPEED, avgspeed);
+		values.put(TblPlayer_Track.COL_WHOLEAVERAGESPEED, wholeavgspeed);
+		values.put(TblPlayer_Track.COL_LASTDRIVENMETERS, drivenmeters);
+		values.put(TblPlayer_Track.COL_WHOLEDRIVENMETERS, wholedrivenmeters);
+		
+		String whereClause = TblPlayer_Track.COL_PLAYERNAME + "=? AND " + TblPlayer_Track.COL_TRACKNAME + "=? AND " + TblPlayer_Track.COL_MODE + "=?";
+		mDB.update(TblPlayer_Track.NAME, values, whereClause, new String[]{player, track, ""+mode});
+		
+		
+	}
+
+	public int getPlayerTrackAttempt(String player, String track, int mode) {
+		
+		int attempt;
+		String whereClause = TblPlayer_Track.COL_PLAYERNAME + "=? AND " + TblPlayer_Track.COL_TRACKNAME + "=? AND " + TblPlayer_Track.COL_MODE + "=?";
+		
+		Cursor cursor = mDB.query(TblPlayer_Track.NAME, new String[]{TblPlayer_Track.COL_ATTEMPT}, whereClause, new String[]{player, track, ""+mode}, null, null, null);
+		
+		cursor.moveToFirst();
+		
+		attempt = cursor.getInt(0);		
+		
+		cursor.close();
+		return attempt;
+	}
+	
+	public float getPlayerTrackWholeDrivenMeters(String player, String track, int mode){
+		
+		float wholedrivenmeters;
+		
+		String whereClause = TblPlayer_Track.COL_PLAYERNAME + "=? AND " + TblPlayer_Track.COL_TRACKNAME + "=? AND " + TblPlayer_Track.COL_MODE + "=?";
+		
+		Cursor cursor = mDB.query(TblPlayer_Track.NAME, new String[]{TblPlayer_Track.COL_WHOLEDRIVENMETERS}, whereClause, new String[]{player, track, ""+mode}, null, null, null);
+		
+		cursor.moveToFirst();
+		
+		wholedrivenmeters = cursor.getFloat(0);		
+		
+		cursor.close();
+		return wholedrivenmeters;	
+	}
+	
+	public float getPlayerTrackWholeAverageSpeed(String player, String track, int mode){
+		
+		float wholeavgspeed;
+		
+		String whereClause = TblPlayer_Track.COL_PLAYERNAME + "=? AND " + TblPlayer_Track.COL_TRACKNAME + "=? AND " + TblPlayer_Track.COL_MODE + "=?";
+		
+		Cursor cursor = mDB.query(TblPlayer_Track.NAME, new String[]{TblPlayer_Track.COL_WHOLEAVERAGESPEED}, whereClause, new String[]{player, track, ""+mode}, null, null, null);
+		
+		cursor.moveToFirst();
+		
+		wholeavgspeed = cursor.getFloat(0);	
+		
+		cursor.close();
+		return wholeavgspeed;	
+	}
 	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

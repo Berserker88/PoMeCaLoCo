@@ -32,6 +32,7 @@
     <string name="scan_cars">Fahrzeuge scannen</string>
     <string name="dialog_one_player">Spielername</string>
     <string name="dialog_one_player_hint">Name</string>
+    <string name="dialog_new_player">Neu erstellen</string>
     <string name="dialog_left_player">Spielername Links</string>
     <string name="dialog_left_player_hint">Name</string>
     <string name="dialog_right_player">Spielername Rechts</string>
@@ -39,6 +40,7 @@
     <string name="dialog_enter">Bestätigen</string>
     <string name="dialog_cancel">Abbrechen</string>
     <string name="dialog_name_warning">Name eingeben!</string>
+    <string name="dialog_name_exists">Name existiert bereits!</string>
     <string name="complete">Fertig</string>
     <string name="rescan">Neuer Scan</string>
     <string name="faster">Schneller</string>

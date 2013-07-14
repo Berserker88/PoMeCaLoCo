@@ -130,6 +130,8 @@ public class Race {
 			mRightTimes.clear();
 		mOldBestTimeLeft = Double.MAX_VALUE;
 		mOldBestTimeRight = Double.MAX_VALUE;
+		mOldBestTimeLeftArray = new int[3];
+		mOldBestTimeRightArray = new int[3];
 		mRaceStarted = false;		
 		mTimer = time;
 		mActLeftRound = 0;
@@ -581,6 +583,69 @@ public class Race {
 	 */
 	public void processResults() {
 		Log.i("debug", "Processing Results.....");
+		
+		//Insert new Players into Database
+		switch(mCarStatus){
+		case ObjectDetector.NO_CAR:			
+			break;
+		case ObjectDetector.RIGHT_CAR:	
+			if(mDbHelper.isPlayerPresent(mPlayerArray.get(0).getName()))
+			{				
+				if(mDbHelper.isPlayerTrackPresent(mPlayerArray.get(0).getName(), mTrackName, getGameMode()))
+				{				
+					mDbHelper.updatePlayerStats(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), getFastestRound(RIGHT_LANE), (float) getAvgSpeed(RIGHT_LANE), (float) getDrivenMeters(RIGHT_LANE));
+				}
+				else
+				{
+					mDbHelper.createPlayerTrack(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), 1, getFastestRound(RIGHT_LANE), (float) getAvgSpeed(RIGHT_LANE), (float) getDrivenMeters(RIGHT_LANE));
+				}
+				break;
+			}
+			else				
+				break;
+		case ObjectDetector.LEFT_CAR:							
+			if(mDbHelper.isPlayerPresent(mPlayerArray.get(0).getName()))
+			{				
+				if(mDbHelper.isPlayerTrackPresent(mPlayerArray.get(0).getName(), mTrackName, getGameMode()))
+				{				
+					mDbHelper.updatePlayerStats(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), getFastestRound(LEFT_LANE), (float) getAvgSpeed(LEFT_LANE), (float) getDrivenMeters(LEFT_LANE));
+				}
+				else
+				{
+					mDbHelper.createPlayerTrack(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), 1, getFastestRound(LEFT_LANE), (float) getAvgSpeed(LEFT_LANE), (float) getDrivenMeters(LEFT_LANE));
+				}
+				break;
+			}
+			else				
+				break;
+		case ObjectDetector.BOTH_CAR:
+			if(mDbHelper.isPlayerPresent(mPlayerArray.get(0).getName()))
+			{				
+				if(mDbHelper.isPlayerTrackPresent(mPlayerArray.get(0).getName(), mTrackName, getGameMode()))
+				{				
+					mDbHelper.updatePlayerStats(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), getFastestRound(LEFT_LANE), (float) getAvgSpeed(LEFT_LANE), (float) getDrivenMeters(LEFT_LANE));
+				}
+				else
+				{
+					mDbHelper.createPlayerTrack(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), 1, getFastestRound(LEFT_LANE), (float) getAvgSpeed(LEFT_LANE), (float) getDrivenMeters(LEFT_LANE));
+				}
+			}
+			if(mDbHelper.isPlayerPresent(mPlayerArray.get(1).getName()))
+			{				
+				if(mDbHelper.isPlayerTrackPresent(mPlayerArray.get(1).getName(), mTrackName, getGameMode()))
+				{				
+					mDbHelper.updatePlayerStats(mPlayerArray.get(1).getName(), mTrackName, getGameMode(), getFastestRound(RIGHT_LANE), (float) getAvgSpeed(RIGHT_LANE), (float) getDrivenMeters(RIGHT_LANE));
+				}
+				else
+				{
+					mDbHelper.createPlayerTrack(mPlayerArray.get(1).getName(), mTrackName, getGameMode(), 1, getFastestRound(RIGHT_LANE), (float) getAvgSpeed(RIGHT_LANE), (float) getDrivenMeters(RIGHT_LANE));
+				}
+			}
+			break;	
+		default:
+			break;		
+		}
+		
 		Log.i("debug", "Rundenzeiten links: "+mLeftTimes);
 		Log.i("debug","Rundenzeiten rechts: "+mRightTimes);		
 		//Gibt das Ergebnis an Results-Klasse weiter.

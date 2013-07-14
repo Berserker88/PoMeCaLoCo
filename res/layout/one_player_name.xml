@@ -2,11 +2,19 @@
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
+    
+    <RadioGroup
+        android:id="@+id/dialog_select_playername" 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+    </RadioGroup>
 
     <EditText
         android:id="@+id/dialog_player_name"
         android:layout_width="210dp"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/dialog_select_playername"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
