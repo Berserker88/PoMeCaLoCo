@@ -17,7 +17,8 @@ import android.widget.TextView;
 
 public class FinishActivity extends Activity {	
 	
-	private Context mContext;
+//	private Context mContext;
+	private DBHelper mDbHelper;
 	private Button go_to_results;
 	private Button new_race;	
 	private TextView finish_track;
@@ -51,6 +52,8 @@ public class FinishActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
+		mDbHelper = new DBHelper(this);
+		mDbHelper.openDB();
 		int lane;
 		if(ObjectDetector.getInstance().car_status() != ObjectDetector.BOTH_CAR)
 		{			
@@ -96,7 +99,7 @@ public class FinishActivity extends Activity {
 	        }        
 	        
 	        finish_attempt.setTextColor(getResources().getColor(R.color.white));
-	        finish_attempt.setText(""+Race.getInstance().getAttempt(lane));
+	        finish_attempt.setText(""+mDbHelper.getPlayerTrackAttempt(Race.getInstance().getPlayerName(0), Race.getInstance().getTrackName(), Race.getInstance().getGameMode()));
 	        finish_meters.setTextColor(getResources().getColor(R.color.white));
 	        finish_meters.setText(""+Race.getInstance().getDrivenMeters(lane));
 	        finish_fastest.setTextColor(getResources().getColor(R.color.white));

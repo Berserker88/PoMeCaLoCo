@@ -682,7 +682,8 @@ public class Race {
 			for(Player p :mPlayerArray){
 				p.incAttempt();
 			}
-			processResults();
+			if(mRaceStarted)
+				processResults();
 			mRaceStarted = false;
 		}
 		else
@@ -691,7 +692,8 @@ public class Race {
 			for(Player p :mPlayerArray){
 				p.incAttempt();
 			}
-			processResults();	
+			if(mRaceStarted)
+				processResults();	
 			mRaceStarted = false;
 		}	
 		
