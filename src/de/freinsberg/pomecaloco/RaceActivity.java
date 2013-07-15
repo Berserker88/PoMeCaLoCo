@@ -297,6 +297,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 	        	.setCancelable(false)
 	        	.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
 	        		public void onClick(DialogInterface dialog, int id) {
+	        			cancel();
 	        			finish();
 	        		}
 	        	})

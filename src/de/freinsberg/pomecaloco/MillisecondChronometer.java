@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.TextView;
 import java.text.DecimalFormat;
 
@@ -24,7 +25,7 @@ public class MillisecondChronometer extends TextView {
     private long mBase;
     private boolean mVisible;
     private boolean mStarted;
-    private boolean mRunning;
+    private boolean mRunning;    
     private OnChronometerTickListener mOnChronometerTickListener;
 
     private static final int TICK_WHAT = 2;
@@ -32,18 +33,21 @@ public class MillisecondChronometer extends TextView {
     private long timeElapsed;
     private String mTimeElapsedString;
     
-    public MillisecondChronometer(Context context) {
+    public MillisecondChronometer(Context context) {    	
         this (context, null, 0);
+        Log.i("debug", "Konstruktor: Milliseconds Chronometer(context)");
     }
 
     public MillisecondChronometer(Context context, AttributeSet attrs) {
         this (context, attrs, 0);
+        Log.i("debug", "Konstruktor: Milliseconds Chronometer(context, attrs)");
     }
 
     public MillisecondChronometer(Context context, AttributeSet attrs, int defStyle) {
         super (context, attrs, defStyle);
-
         init();
+        
+        Log.i("debug", "Konstruktor: Milliseconds Chronometer(context,attrs, defstyle)");
     }
 
     private void init() {
@@ -126,6 +130,8 @@ public class MillisecondChronometer extends TextView {
        	text += df.format(minutes) + ":";
        	text += df.format(seconds) + ":";
        	text += Integer.toString(milliseconds);
+       	if(Race.getInstance().mGhostMode)
+       		Race.getInstance().checkGhostTime(text);
        	mTimeElapsedString = text;
         setText(text);
     }

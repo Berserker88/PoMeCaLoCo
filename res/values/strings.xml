@@ -37,7 +37,8 @@
     <string name="dialog_left_player_hint">Name</string>
     <string name="dialog_right_player">Spielername Rechts</string>
     <string name="dialog_right_player_hint">Name</string>
-    <string name="dialog_enter">Bestätigen</string>
+    <string name="dialog_enter">Los gehts!</string>
+    <string name="dialog_ghost">Geist</string>
     <string name="dialog_cancel">Abbrechen</string>
     <string name="dialog_name_warning">Name eingeben!</string>
     <string name="dialog_name_exists">Name existiert bereits!</string>

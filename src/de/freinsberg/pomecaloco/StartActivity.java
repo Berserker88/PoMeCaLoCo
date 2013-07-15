@@ -425,6 +425,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	private void setPlayerName(int mode){
 		final int _mode = mode;		
 		
@@ -437,6 +438,9 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 					
 			dialog.setContentView(R.layout.two_player_names);
 			dialog.setTitle("Spielernamen erforderlich");
+			final RadioGroup left_radioGroup = inflateRadioGroup((RadioGroup) dialog.findViewById(R.id.dialog_select_playername_left), playerlist, DIALOG_RADIOBUTTON_LEFT_INPUT_ID);				
+			final RadioGroup right_radioGroup = inflateRadioGroup((RadioGroup) dialog.findViewById(R.id.dialog_select_playername_right), playerlist, DIALOG_RADIOBUTTON_RIGHT_INPUT_ID);				
+			
 			if(playerlist.size() != 0){
 				mCheckedIdLeft = 0;
 				mCheckedIdRight = 0;
@@ -444,12 +448,10 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				left_player.setVisibility(View.GONE);
 				TextView right_player = (TextView) dialog.findViewById(R.id.dialog_right_player);
 				right_player.setVisibility(View.GONE);
-				mFirstRadioGroup = inflateRadioGroup((RadioGroup) dialog.findViewById(R.id.dialog_select_playername_left), playerlist, DIALOG_RADIOBUTTON_LEFT_INPUT_ID);				
-				mSecondRadioGroup = inflateRadioGroup((RadioGroup) dialog.findViewById(R.id.dialog_select_playername_right), playerlist, DIALOG_RADIOBUTTON_RIGHT_INPUT_ID);				
-				mFirstRadioGroup.invalidate();
-				mSecondRadioGroup.invalidate();
+				left_radioGroup.invalidate();
+				right_radioGroup.invalidate();
 				
-				mFirstRadioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {					
+				left_radioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {					
 					@Override
 					public void onCheckedChanged(RadioGroup group, int checkedId) {
 						
@@ -459,17 +461,17 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 						else{
 							mLeftRadioButtonClicked = true;
 							left_playername.setVisibility(View.INVISIBLE);	
-							if(mFirstRadioGroup.getChildAt(mCheckedIdLeft-1) != null){
-							if(mSecondRadioGroup.getChildAt(mCheckedIdLeft-1).isEnabled() == false)
-								mSecondRadioGroup.getChildAt(mCheckedIdLeft-1).setEnabled(true);
+							if(left_radioGroup.getChildAt(mCheckedIdLeft-1) != null){
+							if(right_radioGroup.getChildAt(mCheckedIdLeft-1).isEnabled() == false)
+								right_radioGroup.getChildAt(mCheckedIdLeft-1).setEnabled(true);
 							}
 							mCheckedIdLeft = checkedId;
-							mSecondRadioGroup.getChildAt(checkedId-1).setEnabled(false);
+							right_radioGroup.getChildAt(checkedId-1).setEnabled(false);
 						}						
 					}
 				});
 				
-				mSecondRadioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {					
+				right_radioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {					
 					@Override
 					public void onCheckedChanged(RadioGroup group, int checkedId) {						
 						EditText right_playername = (EditText) dialog.findViewById(R.id.dialog_right_player_name);								
@@ -478,12 +480,12 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 						else{
 							mRightRadioButtonClicked = true;
 							right_playername.setVisibility(View.INVISIBLE);	
-							if(mFirstRadioGroup.getChildAt(mCheckedIdRight-1) != null){
-								if(mFirstRadioGroup.getChildAt(mCheckedIdRight-1).isEnabled() == false)
-									mFirstRadioGroup.getChildAt(mCheckedIdRight-1).setEnabled(true);
+							if(left_radioGroup.getChildAt(mCheckedIdRight-1) != null){
+								if(left_radioGroup.getChildAt(mCheckedIdRight-1).isEnabled() == false)
+									left_radioGroup.getChildAt(mCheckedIdRight-1).setEnabled(true);
 							}
 							mCheckedIdRight = checkedId;
-							mFirstRadioGroup.getChildAt(checkedId-1).setEnabled(false);
+							left_radioGroup.getChildAt(checkedId-1).setEnabled(false);
 						}							
 					}
 				});				
@@ -497,60 +499,14 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				@Override
 				public void onClick(View v) {
 					mPlayerNames.clear();
-					boolean all_ok = true;
 					EditText left_playername = (EditText) dialog.findViewById(R.id.dialog_left_player_name);
-					if(left_playername.getVisibility() != View.INVISIBLE){					
-					
-						if(left_playername.getText().toString().isEmpty()){	
-							all_ok = false;
-							left_playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
-							left_playername.setHint(R.string.dialog_name_warning);												
-						}
-						else if(mDbHelper.isPlayerPresent(left_playername.getText().toString()))
-						{
-							all_ok = false;
-							left_playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
-							left_playername.setHint(R.string.dialog_name_exists);		
-						}				
-					}
-					
 					EditText right_playername = (EditText) dialog.findViewById(R.id.dialog_right_player_name);
-					if(right_playername.getVisibility() != View.INVISIBLE){	
-						if(right_playername.getText().toString().isEmpty())
-						{	
-							all_ok = false;
-							right_playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
-							right_playername.setHint(R.string.dialog_name_warning);							
-						}
-						else if(mDbHelper.isPlayerPresent(right_playername.getText().toString()))
-						{
-							all_ok = false;
-							right_playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
-							right_playername.setHint(R.string.dialog_name_exists);		
-						}			
-					}
-					if(all_ok)
-					{
-						if(left_playername.getVisibility() != View.INVISIBLE){
-							mPlayerNames.add(left_playername.getText().toString());	
-						mDbHelper.createPlayer(left_playername.getText().toString());
-						}							
-						else
-						{
-							mPlayerNames.add(((RadioButton) mFirstRadioGroup.getChildAt(mCheckedIdLeft-1)).getText().toString());
-						}
-						if(right_playername.getVisibility() != View.INVISIBLE)
-						{
-							mPlayerNames.add(right_playername.getText().toString());
-							mDbHelper.createPlayer(right_playername.getText().toString());
-						}
-							
-						else{
-							mPlayerNames.add(((RadioButton) mSecondRadioGroup.getChildAt(mCheckedIdRight-1)).getText().toString());
-						}
-						start(_mode);
+					if(checkDialogInputTwoPlayer(left_playername, right_playername, left_radioGroup, right_radioGroup)){
+
+						start(_mode, false);
 						Log.i("debug", "Moved to Race-Activity!");
-					}				
+					}
+									
 				}
 			});			
 			cancelButton.setOnClickListener(new OnClickListener() {
@@ -567,12 +523,11 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 			
 			dialog.setContentView(R.layout.one_player_name);
 			dialog.setTitle("Spielername erforderlich");
-			
+			final RadioGroup radioGroup = inflateRadioGroup((RadioGroup) dialog.findViewById(R.id.dialog_select_playername), playerlist, DIALOG_RADIOBUTTON_INPUT_ID);
 			if(playerlist.size() != 0){
-				mCheckedId = 0;
-				mFirstRadioGroup = inflateRadioGroup((RadioGroup) dialog.findViewById(R.id.dialog_select_playername), playerlist, DIALOG_RADIOBUTTON_INPUT_ID);
-				mFirstRadioGroup.invalidate();
-				mFirstRadioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {					
+				mCheckedId = 0;					
+				radioGroup.invalidate();
+				radioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {					
 					@Override
 					public void onCheckedChanged(RadioGroup group, int checkedId) {
 						
@@ -588,43 +543,47 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				});				
 			}			
 			
-			Button okButton = (Button) dialog.findViewById(R.id.dialog_ok);
+			Button okButton = (Button) dialog.findViewById(R.id.dialog_ok);			
 			Button cancelButton = (Button) dialog.findViewById(R.id.dialog_cancel);
 			okButton.setOnClickListener(new OnClickListener() {
 				@Override
-				public void onClick(View v) {
-					mPlayerNames.clear();
+				public void onClick(View v) {		
 					EditText playername = (EditText) dialog.findViewById(R.id.dialog_player_name);
-					Log.i("debug","Spielername: |"+playername.getText().toString()+"|");
-					if(playername.getVisibility() != View.INVISIBLE){		
-						if(playername.getText().toString().isEmpty()){						
-							Log.i("debug","Spielername is empty");					
-							playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
-							playername.setHint(R.string.dialog_name_warning);					
-						}else if(mDbHelper.isPlayerPresent(playername.getText().toString()))
-						{
-							playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
-							playername.setHint(R.string.dialog_name_exists);		
-						}
-						else
-						{
-							mPlayerNames.add(playername.getText().toString());
-							mDbHelper.createPlayer(playername.getText().toString());
-						}
-					}
-					else
-					{
-						if(mCheckedId != 0)							
-							mPlayerNames.add(((RadioButton) mFirstRadioGroup.getChildAt(mCheckedId-1)).getText().toString());
-					}
-					if(!mPlayerNames.isEmpty())
-					{						
-						start(_mode);					
+					if(checkDialogInputOnePlayer(playername, radioGroup)){
+						start(_mode, false);					
 						Log.i("debug", "Moved to Race-Activity!");	
-						dialog.dismiss();		
+						dialog.dismiss();
 					}
 				}
-			});			
+			});	
+			
+			Button ghostButton = (Button) dialog.findViewById(R.id.dialog_ghost);
+			if(_mode == Race.ROUND_MODE){
+				if(mDbHelper.isRoundGhostPresent(((Pair<String,byte[]>) mTracks.getSelectedItem()).getL(), mCount)){	
+					Log.i("debug", "Ghost is available, settings are, Trackname:" + ((Pair<String,byte[]>) mTracks.getSelectedItem()).getL() + ", Rounds: " + mCount + ", Times: " + mDbHelper.getRoundGhost(((Pair<String,byte[]>) mTracks.getSelectedItem()).getL(), mCount));
+					ghostButton.setEnabled(true);		
+				}
+			}
+			else{
+					if(mDbHelper.isTimeGhostPresent(((Pair<String,byte[]>) mTracks.getSelectedItem()).getL(), mCount)){
+						Log.i("debug", "Ghost is available, settings are, Trackname:" + ((Pair<String,byte[]>) mTracks.getSelectedItem()).getL() + ", Rounds: " + mCount + ", Times: " + mDbHelper.getTimeGhost(((Pair<String,byte[]>) mTracks.getSelectedItem()).getL(), mCount));
+						ghostButton.setEnabled(true);	
+					}
+			}
+				
+				ghostButton.setOnClickListener(new OnClickListener() {					
+					@Override
+					public void onClick(View v) {
+						EditText playername = (EditText) dialog.findViewById(R.id.dialog_player_name);
+						if(checkDialogInputOnePlayer(playername, radioGroup)){
+							start(_mode, true);					
+							Log.i("debug", "Moved to Race-Activity!");	
+							dialog.dismiss();
+						}
+					}
+				});
+			
+				
 			cancelButton.setOnClickListener(new OnClickListener() {
 				
 				@Override
@@ -635,6 +594,94 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 			});
 		}		
 		dialog.show();
+	}
+	
+	private boolean checkDialogInputOnePlayer(EditText playername, RadioGroup radioGroup) {
+		mPlayerNames.clear();
+		
+		Log.i("debug","Spielername: |"+playername.getText().toString()+"|");
+		if(playername.getVisibility() != View.INVISIBLE){		
+			if(playername.getText().toString().isEmpty()){						
+				Log.i("debug","Spielername is empty");					
+				playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
+				playername.setHint(R.string.dialog_name_warning);					
+			}else if(mDbHelper.isPlayerPresent(playername.getText().toString()))
+			{
+				playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
+				playername.setHint(R.string.dialog_name_exists);		
+			}
+			else
+			{
+				mPlayerNames.add(playername.getText().toString());
+				mDbHelper.createPlayer(playername.getText().toString());
+			}
+		}
+		else
+		{
+			if(mCheckedId != 0)							
+				mPlayerNames.add(((RadioButton) radioGroup.getChildAt(mCheckedId-1)).getText().toString());
+		}
+		if(!mPlayerNames.isEmpty())		
+			return true;
+		else
+			return false;	
+	}
+	
+	private boolean checkDialogInputTwoPlayer(EditText left_playername, EditText right_playername, RadioGroup left_radioGroup, RadioGroup right_radioGroup){
+		boolean all_ok = true;					
+		if(left_playername.getVisibility() != View.INVISIBLE){					
+		
+			if(left_playername.getText().toString().isEmpty()){	
+				all_ok = false;
+				left_playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
+				left_playername.setHint(R.string.dialog_name_warning);												
+			}
+			else if(mDbHelper.isPlayerPresent(left_playername.getText().toString()))
+			{
+				all_ok = false;
+				left_playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
+				left_playername.setHint(R.string.dialog_name_exists);		
+			}				
+		}
+		
+		
+		if(right_playername.getVisibility() != View.INVISIBLE){	
+			if(right_playername.getText().toString().isEmpty())
+			{	
+				all_ok = false;
+				right_playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
+				right_playername.setHint(R.string.dialog_name_warning);							
+			}
+			else if(mDbHelper.isPlayerPresent(right_playername.getText().toString()))
+			{
+				all_ok = false;
+				right_playername.setHintTextColor(getResources().getColor(R.color.loosing_red));
+				right_playername.setHint(R.string.dialog_name_exists);		
+			}			
+		}
+		if(all_ok)
+		{
+			if(left_playername.getVisibility() != View.INVISIBLE){
+				mPlayerNames.add(left_playername.getText().toString());	
+			mDbHelper.createPlayer(left_playername.getText().toString());
+			}							
+			else
+			{
+				mPlayerNames.add(((RadioButton) left_radioGroup.getChildAt(mCheckedIdLeft-1)).getText().toString());
+			}
+			if(right_playername.getVisibility() != View.INVISIBLE)
+			{
+				mPlayerNames.add(right_playername.getText().toString());
+				mDbHelper.createPlayer(right_playername.getText().toString());
+			}
+				
+			else{
+				mPlayerNames.add(((RadioButton) right_radioGroup.getChildAt(mCheckedIdRight-1)).getText().toString());
+			}
+			return true;
+		}else
+			return false;
+		
 	}
 	
 	private RadioGroup inflateRadioGroup(RadioGroup group, ArrayList<String> playerlist, int id){	
@@ -656,9 +703,9 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 		return group;		
 	}
 	
-	private void start(int mode){
-		int _mode = mode;		
-		Race.getInstance().newRace(mContext, mCount, _mode,mTracks.getSelectedItem(), mCarStatus, mPlayerNames);					
+	private void start(int mode, boolean ghostMode){
+		int _mode = mode;	
+		Race.getInstance().newRace(mContext, mCount, _mode,mTracks.getSelectedItem(), mCarStatus, mPlayerNames, ghostMode);					
 		Intent intent = new Intent().setClass(mContext, RaceActivity.class);
 		startActivity(intent);
 		finish();

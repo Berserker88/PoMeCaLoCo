@@ -71,10 +71,14 @@ public class MyTimer extends CountDownTimer{
 				mCountdown++;
 			}
 			else
-			{				
+			{
+				String msCountdown = (parse(mMsCountdown));
+				if(Race.getInstance().mGhostMode)
+					Race.getInstance().checkGhostTime(msCountdown);
 				mTv.setTextColor(mTv.getResources().getColor(R.color.white));				
-				mTv.setText((parse(mMsCountdown)));
-				mMsCountdown = millisUntilFinished;				
+				mTv.setText(msCountdown);				
+				mMsCountdown = millisUntilFinished;
+				
 			}		
 		
 	}	

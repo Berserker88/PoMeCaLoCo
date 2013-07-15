@@ -1,5 +1,6 @@
 package de.freinsberg.pomecaloco;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class Race {
 	private int mMode;
 	private int mCount;
 	private int mCarStatus;
+	public boolean mGhostMode;
 	private int mActLeftRound;
 	private int mActRightRound;
 	private double mActLeftSpeed;
@@ -40,6 +42,7 @@ public class Race {
 	private double mOldBestTimeRight;
 	private String mActLeftRoundTime;		
 	private String mActRightRoundTime;
+	private ArrayList<String> mGhostTimes;
 	private String mBestTime;
 	private String mOldTimeLeft;
 	private String mOldTimeRight;
@@ -53,8 +56,8 @@ public class Race {
 	private TextView mTimer;
 	private TextView mSpeedUpdater;
 	private TextView mBestTimeUpdater;
-	private List<String> mLeftTimes = new ArrayList<String>();
-	private List<String> mRightTimes = new ArrayList<String>();	
+	private ArrayList<String> mLeftTimes = new ArrayList<String>();
+	private ArrayList<String> mRightTimes = new ArrayList<String>();	
 	private static Race mInstance = new Race();	
 	
 	/**
@@ -79,7 +82,7 @@ public class Race {
 	 * @param numberofplayers The Number of players on this track.
 	 */
 	@SuppressWarnings("unchecked")
-	public void newRace(Context context, int count, int mode, Object track, int carStatus, List<String> names) {				
+	public void newRace(Context context, int count, int mode, Object track, int carStatus, List<String> names, boolean ghostMode) {				
 		mDbHelper = new DBHelper(context);
 		mDbHelper.openDB();
 		mPlayerArray.clear();		
@@ -88,6 +91,7 @@ public class Race {
 		mTrackName = ((Pair<String, byte[]>) track).getL();
 		mTrackLength = mDbHelper.getTrackLength(mTrackName);
 		mCarStatus = carStatus;
+		mGhostMode = ghostMode;
 		createPlayer(names);
 		Log.i("debug","Neues Rennen:(1=Rundenrennen,2=Zeitrennen)Spielmodus"+mMode+", Counter: "+mCount+", Track: "+mTrackName+", NumberOfPlayers: "+mNumberOfPlayers+" erstellt");		
 	}
@@ -137,17 +141,21 @@ public class Race {
 		mActLeftRound = 0;
 		mActRightRound = 0;
 		mActLeftRoundTime = "00:00:00";
-		mActRightRoundTime = "00:00:00";
+		mActRightRoundTime = "00:00:00";		
 		
 		if(mMode == TIMER_MODE)
 		{
 			mRaceTimer = new MyTimer(mCount*60000, 10, mTimer);
+			if(mGhostMode)
+				mGhostTimes = mDbHelper.getTimeGhost(mTrackName, mCount);
 			mOldTimeLeft = mRaceTimer.getCurrentTime();
 			mOldTimeRight = mRaceTimer.getCurrentTime();
 		}
 		else
 		{
 			mChronometer = ((MillisecondChronometer)((RaceActivity) c).findViewById(R.id.raceview_chronometer));
+			if(mGhostMode)
+				mGhostTimes = mDbHelper.getRoundGhost(mTrackName, mCount);
 			mOldTimeLeft = "00:00:00";
 			mOldTimeRight = "00:00:00";
 			((RaceActivity) c).findViewById(R.id.raceview_time_updater).setVisibility(View.GONE);
@@ -457,6 +465,7 @@ public class Race {
 	 */
 	private void calcSpeedAndTime(int lane, int mode, String time) {		
 		
+		DecimalFormat df = new DecimalFormat("00");
 		int[] _new = parseTimeString(time);
 		int[] curr= new int[3];
 		double _curr;
@@ -490,12 +499,12 @@ public class Race {
 				mOldBestTimeLeft = _curr;
 				if(_curr < mOldBestTimeRight){
 					mOldBestTimeLeftArray = curr;
-					setBestTime(curr[0]+":"+curr[1]+":"+curr[2], lane);
+					setBestTime(df.format((curr[0]))+":"+df.format((curr[1]))+":"+df.format((curr[2])), lane);
 				}
 			}
 			Log.i("debug", "Rundenzeit Links: "+_curr);
 			mActLeftSpeed = mTrackLength/ _curr;
-			mActLeftRoundTime = (curr[0])+":"+(curr[1])+":"+(curr[2]); 			
+			mActLeftRoundTime = df.format((curr[0]))+":"+df.format((curr[1]))+":"+df.format((curr[2])); 			
 			mOldTimeLeft = time;
 			Log.i("debug","Alte Zeit links: "+mOldTimeLeft);
 		}
@@ -527,12 +536,12 @@ public class Race {
 				mOldBestTimeRight = _curr;
 				if(_curr < mOldBestTimeLeft){
 					mOldBestTimeRightArray = curr;
-					setBestTime(curr[0]+":"+curr[1]+":"+curr[2], lane);
+					setBestTime(df.format((curr[0]))+":"+df.format((curr[1]))+":"+df.format((curr[2])), lane);
 				}
 			}
 			Log.i("debug", "Rundenzeit Rechts: "+_curr);
 			mActRightSpeed = mTrackLength / _curr;
-			mActRightRoundTime = (curr[0])+":"+(curr[1])+":"+(curr[2]); 
+			mActRightRoundTime = df.format((curr[0]))+":"+df.format((curr[1]))+":"+df.format((curr[2])); 
 			mOldTimeRight = time;
 			Log.i("debug","Alte Zeit rechts: "+mOldTimeRight);
 		}		
@@ -570,12 +579,18 @@ public class Race {
 		int[] i = new int[3];
 		String[] split;
 		String s = time;
-		Log.i("debug","Time unparsed.."+s);
+		Log.i("debug","Time unparsed: "+s);
 		split = s.split(":");
 		i[0] = Integer.parseInt(split[0]);
 		i[1] = Integer.parseInt(split[1]);
-		i[2] = Integer.parseInt(split[2]);
+		i[2] = Integer.parseInt(split[2]);		
+		Log.i("debug","Time parsed: "+i[0] + ":" + i[1] + ":" + i[2]);
 		return i;
+	}
+	
+	
+	public void checkGhostTime(String time) {
+		Log.i("debug", "is ghost present at "+ time +"?");
 	}
 	
 	/**
@@ -590,7 +605,11 @@ public class Race {
 			break;
 		case ObjectDetector.RIGHT_CAR:	
 			if(mDbHelper.isPlayerPresent(mPlayerArray.get(0).getName()))
-			{				
+			{
+				if(mMode == Race.ROUND_MODE)
+					mDbHelper.createRoundGhost(mTrackName, mCount, mRightTimes);
+				else
+					mDbHelper.createTimeGhost(mTrackName, mCount, mRightTimes);
 				if(mDbHelper.isPlayerTrackPresent(mPlayerArray.get(0).getName(), mTrackName, getGameMode()))
 				{				
 					mDbHelper.updatePlayerStats(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), getFastestRound(RIGHT_LANE), (float) getAvgSpeed(RIGHT_LANE), (float) getDrivenMeters(RIGHT_LANE));
@@ -605,7 +624,12 @@ public class Race {
 				break;
 		case ObjectDetector.LEFT_CAR:							
 			if(mDbHelper.isPlayerPresent(mPlayerArray.get(0).getName()))
-			{				
+			{
+				if(mMode == Race.ROUND_MODE)
+					mDbHelper.createRoundGhost(mTrackName, mCount, mLeftTimes);
+				else
+					mDbHelper.createTimeGhost(mTrackName, mCount, mLeftTimes);
+				
 				if(mDbHelper.isPlayerTrackPresent(mPlayerArray.get(0).getName(), mTrackName, getGameMode()))
 				{				
 					mDbHelper.updatePlayerStats(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), getFastestRound(LEFT_LANE), (float) getAvgSpeed(LEFT_LANE), (float) getDrivenMeters(LEFT_LANE));
@@ -621,6 +645,10 @@ public class Race {
 		case ObjectDetector.BOTH_CAR:
 			if(mDbHelper.isPlayerPresent(mPlayerArray.get(0).getName()))
 			{				
+				if(mMode == Race.ROUND_MODE)
+					mDbHelper.createRoundGhost(mTrackName, mCount, mLeftTimes);
+				else
+					mDbHelper.createTimeGhost(mTrackName, mCount, mLeftTimes);
 				if(mDbHelper.isPlayerTrackPresent(mPlayerArray.get(0).getName(), mTrackName, getGameMode()))
 				{				
 					mDbHelper.updatePlayerStats(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), getFastestRound(LEFT_LANE), (float) getAvgSpeed(LEFT_LANE), (float) getDrivenMeters(LEFT_LANE));
@@ -631,7 +659,11 @@ public class Race {
 				}
 			}
 			if(mDbHelper.isPlayerPresent(mPlayerArray.get(1).getName()))
-			{				
+			{			
+				if(mMode == Race.ROUND_MODE)
+					mDbHelper.createRoundGhost(mTrackName, mCount, mRightTimes);
+				else
+					mDbHelper.createTimeGhost(mTrackName, mCount, mRightTimes);
 				if(mDbHelper.isPlayerTrackPresent(mPlayerArray.get(1).getName(), mTrackName, getGameMode()))
 				{				
 					mDbHelper.updatePlayerStats(mPlayerArray.get(1).getName(), mTrackName, getGameMode(), getFastestRound(RIGHT_LANE), (float) getAvgSpeed(RIGHT_LANE), (float) getDrivenMeters(RIGHT_LANE));
@@ -679,21 +711,25 @@ public class Race {
 	 */
 	public void stop(){		
 		if(mMode == TIMER_MODE){
-			for(Player p :mPlayerArray){
-				p.incAttempt();
-			}
-			if(mRaceStarted)
+
+			if(mRaceStarted){
+				for(Player p :mPlayerArray){
+					p.incAttempt();
+				}
 				processResults();
+			}
 			mRaceStarted = false;
 		}
 		else
 		{
 			mChronometer.stop();
-			for(Player p :mPlayerArray){
-				p.incAttempt();
-			}
-			if(mRaceStarted)
+
+			if(mRaceStarted){
+				for(Player p :mPlayerArray){
+					p.incAttempt();
+				}
 				processResults();	
+			}
 			mRaceStarted = false;
 		}	
 		

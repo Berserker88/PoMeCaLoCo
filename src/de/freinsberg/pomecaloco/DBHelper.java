@@ -2,6 +2,7 @@ package de.freinsberg.pomecaloco;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.opencv.core.Mat;
 
@@ -187,22 +188,77 @@ public class DBHelper extends SQLiteOpenHelper{
 //			);
 	}
 	
-	public void createRoundGhost(String name, int rounds, String times) {
+	public void createRoundGhost(String name, int rounds, ArrayList<String> timesList) {
+		
+		String times = "";
+		boolean isPresent;
+		for(String s : timesList){
+			times += s + ";";			
+		}
+		if(times.length() > 1)
+			times = times.substring(0, times.length() -2);
+		String whereClause = TblRoundGhost.COL_NAME + "=? AND " + TblRoundGhost.COL_ROUNDS + "=?";
+		Cursor cursor = mDB.query(TblRoundGhost.NAME, new String[]{TblRoundGhost.COL_TIMES}, whereClause , new String[]{name, ""+rounds}, null, null, null);
+		isPresent = cursor.moveToFirst();
+		if(isPresent){			
+			if(times.compareTo(cursor.getString(0)) < 0){	
+				ContentValues values = new ContentValues();
+				values.put(TblRoundGhost.COL_TIMES, times);
+				mDB.update(TblRoundGhost.NAME, values, whereClause, new String[]{name, ""+rounds});
+//				mDB.execSQL(
+//						"INSERT INTO " + TblRoundGhost.NAME + "("
+//						+ TblRoundGhost.COL_NAME + ", " + TblRoundGhost.COL_ROUNDS + ", " +  TblRoundGhost.COL_TIMES + ")"
+//						+ "VALUES('" + name + "', " + rounds + ", '" + times + "')"				
+//					);
+				Log.i("debug", "Updating new ghost time into database on track: " + name + "with count: " + rounds);			
+			}else if (times.compareTo(cursor.getString(0)) == 0)
+				Log.i("debug", "Same Ghost Times on track: " + name + "with count: " + rounds + ", no database action!");
+			else
+				Log.i("debug", "Player is slower than Ghost in database on track: " + name + "with count: " + rounds);
+		}else{			
 		
 		mDB.execSQL(
 				"INSERT INTO " + TblRoundGhost.NAME + "("
 				+ TblRoundGhost.COL_NAME + ", " + TblRoundGhost.COL_ROUNDS + ", " +  TblRoundGhost.COL_TIMES + ")"
 				+ "VALUES('" + name + "', " + rounds + ", '" + times + "')"				
 			);
+		}
 	}
-	
-	public void createTimeGhost(String name, int time, String times) {
+	// TODO: This function needs a correct ghost insertion too.
+	public void createTimeGhost(String name, int time, ArrayList<String> timesList) {
 		
+		String times = "";
+		boolean isPresent;
+		for(String s : timesList){
+			times += s + ";";			
+		}
+		if(times.length() > 1)
+			times = times.substring(0, times.length() -2);
+		String whereClause = TblRoundGhost.COL_NAME + "=? AND " + TblRoundGhost.COL_ROUNDS + "=?";
+		Cursor cursor = mDB.query(TblRoundGhost.NAME, new String[]{TblRoundGhost.COL_TIMES}, TblRoundGhost.COL_NAME + "=? AND " + TblRoundGhost.COL_ROUNDS + "=?" , new String[]{name, ""+time}, null, null, null);
+		isPresent = cursor.moveToFirst();
+		if(isPresent){			
+			if(times.compareTo(cursor.getString(0)) < 0){	
+				ContentValues values = new ContentValues();
+				values.put(TblTimeGhost.COL_TIMES, times);
+				mDB.update(TblTimeGhost.NAME, values, whereClause, new String[]{name, ""+times});
+//				mDB.execSQL(
+//						"INSERT INTO " + TblTimeGhost.NAME + "("
+//						+ TblTimeGhost.COL_NAME + ", " + TblTimeGhost.COL_TIME + ", " +  TblTimeGhost.COL_TIMES + ")"
+//						+ "VALUES('" + name + "', " + time + ", '" + times + "')"				
+//					);
+				Log.i("debug", "Updating new ghost Time into database on track: " + name + "with count: " + time);			
+			}else if (times.compareTo(cursor.getString(0)) == 0)
+				Log.i("debug", "Same Ghost Times on track: " + name + "with count: " + time + ", no database action!");
+			else
+				Log.i("debug", "Player is slower than Ghost in database on track: " + name + "with count: " + time);
+		}else{		
 		mDB.execSQL(
 				"INSERT INTO " + TblTimeGhost.NAME + "("
 				+ TblTimeGhost.COL_NAME + ", " + TblTimeGhost.COL_TIME + ", " + TblTimeGhost.COL_TIMES + ")"
 				+ "VALUES('" + name + "', " + time + "', '" + times + "')"				
 			);
+		}
 	}
 	
 	public void createPlayerTrack(String playername, String trackname, int mode, int attempt, String fastestround, float averagespeed, float drivenmeters){
@@ -350,8 +406,36 @@ public class DBHelper extends SQLiteOpenHelper{
 		
 	}
 	
-	public String getRoundGhost(String track, int rounds) {
+	public boolean isRoundGhostPresent(String track, int rounds){
+		
+		boolean isPresent;
+		
+		Cursor cursor = mDB.query(TblRoundGhost.NAME, new String[]{TblRoundGhost.COL_TIMES}, TblRoundGhost.COL_NAME + "=? AND " + TblRoundGhost.COL_ROUNDS + "=?", new String[]{track, ""+rounds}, null, null, null);
+		isPresent = cursor.moveToFirst();
+		cursor.close();
+		
+		if(isPresent)
+			return true;		
+		else
+			return false;		
+	}
+	
+	public boolean isTimeGhostPresent(String track, int time) {
+		boolean isPresent;
+		
+		Cursor cursor = mDB.query(TblTimeGhost.NAME, new String[]{TblTimeGhost.COL_TIMES}, TblTimeGhost.COL_NAME + "=? AND " + TblTimeGhost.COL_TIME + "=?", new String[]{track, ""+time}, null, null, null);
+		isPresent = cursor.moveToFirst();
+		cursor.close();
+		
+		if(isPresent)
+			return true;		
+		else
+			return false;		
+	}
+	
+	public ArrayList<String> getRoundGhost(String track, int rounds) {
 		String times;
+		ArrayList<String> timesList;
 		
 		String whereClause = TblRoundGhost.COL_ROUNDS+"=? AND "+ TblRoundGhost.COL_NAME +"=?";
 		
@@ -359,13 +443,15 @@ public class DBHelper extends SQLiteOpenHelper{
 		cursor.moveToFirst();
 		
 		times = cursor.getString(0);
+		timesList = new ArrayList<String>(Arrays.asList(times.split(";")));
 		
 		cursor.close();
-		return times;		
+		return timesList;		
 	}
 	
-	public String getTimeGhost(String track, int time) {
+	public ArrayList<String> getTimeGhost(String track, int time) {
 		String times;
+		ArrayList<String> timesList;
 		
 		String whereClause = TblTimeGhost.COL_TIME+"='?' AND "+ TblTimeGhost.COL_NAME +"=?";
 		
@@ -373,9 +459,10 @@ public class DBHelper extends SQLiteOpenHelper{
 		cursor.moveToFirst();
 		
 		times = cursor.getString(0);
+		timesList = new ArrayList<String>(Arrays.asList(times.split(";")));
 		
 		cursor.close();
-		return times;		
+		return timesList;		
 	}
 	
 	public void updatePlayerStats(String player, String track, int mode, String fastestround, float avgspeed, float drivenmeters){		

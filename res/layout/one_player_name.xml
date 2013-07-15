@@ -27,13 +27,22 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/dialog_player_name"
         android:text="@string/dialog_enter" />
+    
+    <Button
+        android:id="@+id/dialog_ghost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:layout_alignBaseline="@+id/dialog_ok"
+        android:layout_toRightOf="@+id/dialog_ok"        
+        android:text="@string/dialog_ghost" />
 
     <Button
         android:id="@+id/dialog_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/dialog_ok"
-        android:layout_toRightOf="@+id/dialog_ok"
+        android:layout_alignBaseline="@+id/dialog_ghost"
+        android:layout_toRightOf="@+id/dialog_ghost"
         android:text="@string/dialog_cancel" />
 
 </RelativeLayout>
