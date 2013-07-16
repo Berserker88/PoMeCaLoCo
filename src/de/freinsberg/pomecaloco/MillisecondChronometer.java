@@ -129,8 +129,8 @@ public class MillisecondChronometer extends TextView {
         
        	text += df.format(minutes) + ":";
        	text += df.format(seconds) + ":";
-       	text += Integer.toString(milliseconds);
-       	if(Race.getInstance().mGhostMode)
+       	text += df.format(milliseconds);
+       	if(Race.getInstance().mGhostMode && Race.getInstance().hasRaceBeenStarted())
        		Race.getInstance().checkGhostTime(text);
        	mTimeElapsedString = text;
         setText(text);

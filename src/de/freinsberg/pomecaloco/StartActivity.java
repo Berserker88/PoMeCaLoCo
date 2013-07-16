@@ -341,7 +341,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 		
 		results.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				Intent intent = new Intent().setClass(v.getContext(), ResultsFragment.class);
+				Intent intent = new Intent().setClass(v.getContext(), SettingsFragmentActivity.class);
 				startActivity(intent);
 			}
 		});	

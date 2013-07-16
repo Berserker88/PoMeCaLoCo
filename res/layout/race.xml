@@ -146,6 +146,18 @@
         android:layout_marginTop="11dp"
         android:text="@string/game_mode"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    	<ImageView
+	    android:id="@+id/raceview_ghost_overlay"
+	    android:layout_width="wrap_content"
+	    android:layout_height="250dp"	    
+        android:layout_below="@+id/view2"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="48dp"
+	    android:alpha=".00"
+	    android:contentDescription="@string/ghost_overlay"
+	    android:src="@drawable/ghost_overlay" />
 
     <ImageView
         android:id="@+id/left_car_color"
@@ -204,7 +216,7 @@
         android:layout_centerHorizontal="true" 
         android:text="@string/raceview_time_updater"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/dummy_gray"
+        android:textColor="@color/white"
         android:visibility="gone" />
 
     <TextView

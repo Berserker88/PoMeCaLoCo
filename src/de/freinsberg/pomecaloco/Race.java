@@ -19,14 +19,16 @@ import android.widget.Toast;
 public class Race {
 	
 	private Mat mPreparedTrack;	
-	public static int ROUND_MODE = 1;
-	public static int TIMER_MODE = 2;	
-	public static int LEFT_LANE = 1;
-	public static int RIGHT_LANE = 2;
+	final public static int ROUND_MODE = 1;
+	final public static int TIMER_MODE = 2;	
+	final public static int LEFT_LANE = 1;
+	final public static int RIGHT_LANE = 2;
+	final public static int GHOST_LANE = 3;
 	private boolean mLeftMovement = false;
 	private boolean mRightMovement = false;
 	private boolean mRaceStarted = false;
 	private boolean mTimeIsUp = false;
+	private ArrayList<Double> mGhostSpeeds;
 	private DBHelper mDbHelper;
 	private int mMode;
 	private int mCount;
@@ -34,8 +36,10 @@ public class Race {
 	public boolean mGhostMode;
 	private int mActLeftRound;
 	private int mActRightRound;
+	private int mActGhostRound;
 	private double mActLeftSpeed;
 	private double mActRightSpeed;
+	private double mActGhostSpeed;
 	private double mOldBestTimeLeft;
 	private int[] mOldBestTimeLeftArray;
 	private int[] mOldBestTimeRightArray;
@@ -43,6 +47,8 @@ public class Race {
 	private String mActLeftRoundTime;		
 	private String mActRightRoundTime;
 	private ArrayList<String> mGhostTimes;
+	private String mRoundGhostFinishedTime;
+	private ArrayList<String> mDriveThroughTimesGhost;
 	private String mBestTime;
 	private String mOldTimeLeft;
 	private String mOldTimeRight;
@@ -57,7 +63,8 @@ public class Race {
 	private TextView mSpeedUpdater;
 	private TextView mBestTimeUpdater;
 	private ArrayList<String> mLeftTimes = new ArrayList<String>();
-	private ArrayList<String> mRightTimes = new ArrayList<String>();	
+	private ArrayList<String> mRightTimes = new ArrayList<String>();
+	private RaceActivity mRaceActivity;	
 	private static Race mInstance = new Race();	
 	
 	/**
@@ -140,22 +147,36 @@ public class Race {
 		mTimer = time;
 		mActLeftRound = 0;
 		mActRightRound = 0;
+		mActGhostRound = 0;
 		mActLeftRoundTime = "00:00:00";
-		mActRightRoundTime = "00:00:00";		
+		mActRightRoundTime = "00:00:00";	
+		mRoundGhostFinishedTime = "";
 		
+		Log.i("debug", "Mode: " + mMode);
 		if(mMode == TIMER_MODE)
 		{
 			mRaceTimer = new MyTimer(mCount*60000, 10, mTimer);
-			if(mGhostMode)
+			Log.i("debug", "TimerMode with Ghostmode? " + mGhostMode);
+			if(mGhostMode){
 				mGhostTimes = mDbHelper.getTimeGhost(mTrackName, mCount);
+				mDriveThroughTimesGhost = calcDriveThroughTimesGhost();
+				mGhostSpeeds = calcGhostSpeeds();
+			}
+			Log.i("debug", "ghostTimes: " + mGhostTimes);
 			mOldTimeLeft = mRaceTimer.getCurrentTime();
 			mOldTimeRight = mRaceTimer.getCurrentTime();
 		}
 		else
 		{
 			mChronometer = ((MillisecondChronometer)((RaceActivity) c).findViewById(R.id.raceview_chronometer));
-			if(mGhostMode)
+			Log.i("debug", "RoundMode with Ghostmode? " + mGhostMode);
+			if(mGhostMode){
 				mGhostTimes = mDbHelper.getRoundGhost(mTrackName, mCount);
+				mDriveThroughTimesGhost = calcDriveThroughTimesGhost();
+				mGhostSpeeds = calcGhostSpeeds();
+				mRoundGhostFinishedTime = generateFinishedTimeFromRounds();
+			}
+			Log.i("debug", "ghostTimes: " + mGhostTimes);
 			mOldTimeLeft = "00:00:00";
 			mOldTimeRight = "00:00:00";
 			((RaceActivity) c).findViewById(R.id.raceview_time_updater).setVisibility(View.GONE);
@@ -167,6 +188,14 @@ public class Race {
 		//Es muss bei jeder Fahrzeugerkennung ein Zähler hochgezählt werden
 		// Bei Ende processResults()		
 	}
+	
+	
+	public void setRaceActivity(RaceActivity ra){
+		
+		mRaceActivity = ra;		
+		
+	}
+	
 	
 	/**
 	 * This Method starts the Timer (Timermode) or the Counter (Roundmode).
@@ -284,12 +313,20 @@ public class Race {
 				return LEFT_LANE;
 			if (mActRightRound == mCount)
 				return RIGHT_LANE;
+			//Log.i("debug", "Chronometer elapsed Time: " + mChronometer.getTimeElapsedString());
+			if(mGhostMode && (mChronometer.getTimeElapsedString().compareTo(mRoundGhostFinishedTime) > 0 ))
+				return GHOST_LANE;
+				
 		}
 		else if(mMode == TIMER_MODE)			
 		{
 			
 			if(mRaceTimer.isFinished())
 			{
+				if(mGhostMode){
+					if(mDbHelper.getTimeGhostRounds(mTrackName, mCount) < mActLeftRound || mDbHelper.getTimeGhostRounds(mTrackName, mCount) < mActRightRound)
+						return GHOST_LANE;
+				}
 				if(mActLeftRound > mActRightRound)
 					return LEFT_LANE;
 				else
@@ -297,6 +334,38 @@ public class Race {
 			}				
 		}
 		return 0;		
+	}
+	
+	public int getUsedLane(){
+		switch(mCarStatus){		
+		case ObjectDetector.RIGHT_CAR:			
+			return RIGHT_LANE;			
+		case ObjectDetector.LEFT_CAR:							
+			return LEFT_LANE;		
+		default:
+			return 0;				
+		}
+	}
+	
+	private String generateFinishedTimeFromRounds(){
+		
+		DecimalFormat df = new DecimalFormat("00");
+		int[] values = new int[3];
+		values[0] = 0;
+		values[1] = 0;
+		values[2] = 0;
+		for(String s : mGhostTimes){			
+			values[0]+=parseTimeString(s)[0];
+			values[1]+=parseTimeString(s)[1];
+			values[2]+=parseTimeString(s)[2];		
+		}
+		values[1] += values[2] / 100;
+		values[2] = values[2] % 100;
+		values[0] += values[1] / 100;
+		values[1] = values[1] % 100;
+		
+		Log.i("debug", "Generated finished time: " + df.format(values[0]) + ":" + df.format(values[1]) + ":" + df.format(values[2]));
+		return df.format(values[0]) + ":" + df.format(values[1]) + ":" + df.format(values[2]);	
 	}
 	
 	/**
@@ -307,8 +376,10 @@ public class Race {
 	public int getCurrentRound(int lane) {		
 		if(lane == LEFT_LANE)			
 			return mActLeftRound;		
-		else
+		else if(lane == RIGHT_LANE)	
 			return mActRightRound;
+		else 
+			return mActGhostRound;
 	}
 	
 	/**
@@ -319,8 +390,10 @@ public class Race {
 	public double getCurrentSpeed (int lane) {
 		if(lane == LEFT_LANE)
 			return mActLeftSpeed;		
-		else
+		else if(lane == RIGHT_LANE)
 			return mActRightSpeed;
+		else
+			return mActGhostSpeed;
 	}
 	
 	/**
@@ -508,7 +581,7 @@ public class Race {
 			mOldTimeLeft = time;
 			Log.i("debug","Alte Zeit links: "+mOldTimeLeft);
 		}
-		else
+		else if(lane == RIGHT_LANE)
 		{
 			int[] old = parseTimeString(mOldTimeRight);
 			if(mode == TIMER_MODE)
@@ -545,15 +618,16 @@ public class Race {
 			mOldTimeRight = time;
 			Log.i("debug","Alte Zeit rechts: "+mOldTimeRight);
 		}		
+
 	}	
 	
 	private double calcDrivenMeters(int lane){
 		
-		double drivenMeters = 0;
+		
 		if(lane == LEFT_LANE)
-			return drivenMeters = mActLeftRound * mTrackLength;
+			return mActLeftRound * mTrackLength;
 		else
-			return drivenMeters = mActRightRound * mTrackLength;		
+			return mActRightRound * mTrackLength;		
 	}
 	
 	private double calcAvgSpeed(int lane){
@@ -579,18 +653,85 @@ public class Race {
 		int[] i = new int[3];
 		String[] split;
 		String s = time;
-		Log.i("debug","Time unparsed: "+s);
+		//Log.i("debug","Time unparsed: "+s);
 		split = s.split(":");
 		i[0] = Integer.parseInt(split[0]);
 		i[1] = Integer.parseInt(split[1]);
 		i[2] = Integer.parseInt(split[2]);		
-		Log.i("debug","Time parsed: "+i[0] + ":" + i[1] + ":" + i[2]);
+		//Log.i("debug","Time parsed: "+i[0] + ":" + i[1] + ":" + i[2]);
 		return i;
+	}
+	
+	public String getRoundGhostFinishedTime() {
+		
+		return mRoundGhostFinishedTime;		
 	}
 	
 	
 	public void checkGhostTime(String time) {
-		Log.i("debug", "is ghost present at "+ time +"?");
+				
+		if(!mDriveThroughTimesGhost.isEmpty())
+		{
+			if(time.compareTo(mDriveThroughTimesGhost.get(0)) >= 0){
+				Log.i("debug", "Verstrichene Zeit: " + time + ", Geistzeit: " + mDriveThroughTimesGhost.get(0));
+				Log.i("debug", "Geist erscheint!!!!");
+				if(mRaceActivity!=null){
+					mActGhostRound++;
+					mRaceActivity.updateGUIElements(GHOST_LANE);
+					
+				}				
+				mDriveThroughTimesGhost.remove(0);
+			}
+		}	
+	}
+	
+	public double getGhostSpeed(){
+		
+		if(!mGhostSpeeds.isEmpty()){
+			double speed = mGhostSpeeds.get(0);
+			mGhostSpeeds.remove(0);
+			return speed;
+		}
+		else
+			return 0;
+	}
+	
+	private ArrayList<Double> calcGhostSpeeds(){
+		
+		ArrayList<Double> ghostSpeeds = new ArrayList<Double>();
+		double time = 0.0;
+		
+		for(String s : mGhostTimes){
+			Log.i("debug", "ghost time: " + s);
+			int[] temp = parseTimeString(s);
+			time = (temp[0] * 60) + (temp[1]) + (temp[2] / 100.0);
+			ghostSpeeds.add(mTrackLength / time);
+			Log.i("debug", "ghost speeds: " + ghostSpeeds);
+		}	
+		return ghostSpeeds;
+	}
+	
+	private ArrayList<String> calcDriveThroughTimesGhost(){
+		DecimalFormat df = new DecimalFormat("00");
+		ArrayList <String> drivethroughtimes = new ArrayList <String>();
+		int[] accumulator = new int[3];
+		accumulator[0] = 0;
+		accumulator[1] = 0;
+		accumulator[2] = 0;		
+		for(String s : mGhostTimes){
+			accumulator[0] += parseTimeString(s)[0];
+			accumulator[1] += parseTimeString(s)[1];
+			accumulator[2] += parseTimeString(s)[2];
+			
+			accumulator[1] += accumulator[2] / 100;
+			accumulator[2] = accumulator[2] % 100;
+			accumulator[0] += accumulator[1] / 100;
+			accumulator[1] = accumulator[1] % 100;
+			
+			drivethroughtimes.add(df.format(accumulator[0]) + ":" + df.format(accumulator[1]) + ":" + df.format(accumulator[2]));		
+		}	
+		Log.i("debug", "DriveThroughTimesGhost: " + drivethroughtimes);
+		return drivethroughtimes;	
 	}
 	
 	/**
@@ -606,9 +747,9 @@ public class Race {
 		case ObjectDetector.RIGHT_CAR:	
 			if(mDbHelper.isPlayerPresent(mPlayerArray.get(0).getName()))
 			{
-				if(mMode == Race.ROUND_MODE)
+				if(mMode == Race.ROUND_MODE && mActRightRound == mCount)
 					mDbHelper.createRoundGhost(mTrackName, mCount, mRightTimes);
-				else
+				else if(mMode == Race.TIMER_MODE)
 					mDbHelper.createTimeGhost(mTrackName, mCount, mRightTimes);
 				if(mDbHelper.isPlayerTrackPresent(mPlayerArray.get(0).getName(), mTrackName, getGameMode()))
 				{				
@@ -625,9 +766,9 @@ public class Race {
 		case ObjectDetector.LEFT_CAR:							
 			if(mDbHelper.isPlayerPresent(mPlayerArray.get(0).getName()))
 			{
-				if(mMode == Race.ROUND_MODE)
+				if(mMode == Race.ROUND_MODE && mActLeftRound == mCount)
 					mDbHelper.createRoundGhost(mTrackName, mCount, mLeftTimes);
-				else
+				else if(mMode == Race.TIMER_MODE)
 					mDbHelper.createTimeGhost(mTrackName, mCount, mLeftTimes);
 				
 				if(mDbHelper.isPlayerTrackPresent(mPlayerArray.get(0).getName(), mTrackName, getGameMode()))
@@ -645,9 +786,9 @@ public class Race {
 		case ObjectDetector.BOTH_CAR:
 			if(mDbHelper.isPlayerPresent(mPlayerArray.get(0).getName()))
 			{				
-				if(mMode == Race.ROUND_MODE)
+				if(mMode == Race.ROUND_MODE && mActLeftRound == mCount)
 					mDbHelper.createRoundGhost(mTrackName, mCount, mLeftTimes);
-				else
+				else if(mMode == Race.TIMER_MODE)
 					mDbHelper.createTimeGhost(mTrackName, mCount, mLeftTimes);
 				if(mDbHelper.isPlayerTrackPresent(mPlayerArray.get(0).getName(), mTrackName, getGameMode()))
 				{				
@@ -660,9 +801,9 @@ public class Race {
 			}
 			if(mDbHelper.isPlayerPresent(mPlayerArray.get(1).getName()))
 			{			
-				if(mMode == Race.ROUND_MODE)
+				if(mMode == Race.ROUND_MODE && mActRightRound == mCount)
 					mDbHelper.createRoundGhost(mTrackName, mCount, mRightTimes);
-				else
+				else if(mMode == Race.TIMER_MODE)
 					mDbHelper.createTimeGhost(mTrackName, mCount, mRightTimes);
 				if(mDbHelper.isPlayerTrackPresent(mPlayerArray.get(1).getName(), mTrackName, getGameMode()))
 				{				
@@ -786,6 +927,11 @@ public class Race {
 		return finishedTime;
 	}
 	
+	
+	private void updateGhostUIElements(){	
+		
+		
+	}
 	
 //	public void prepareRace(boolean twoplayer, int mode){
 //		

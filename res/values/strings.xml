@@ -50,9 +50,11 @@
     <string name="raceview_round">Runde</string>
     <string name="raceview_speed">Speed</string>
     <string name="best_time">Schnellste Runde</string>
+    <string name="raceview_ghost_finished">Sieg für den Geist!</string>
     <string name="raceview_left_finished">Sieg für Links!</string>
     <string name="raceview_right_finished">Sieg für Rechts!</string>
     <string name="raceview_time_updater">*00.00.00*</string>
+    <string name="raceview_ghost_name">Geist</string>
     <string name="raceview_left_name">leftplayer</string>
     <string name="raceview_right_name">rightplayer</string>
     <string name="raceview_round_updater_left">Links</string>
@@ -106,7 +108,8 @@
     <string name="min_count_hint"># Minuten</string>
     <string name="lap_count_hint"># Runden</string>
     <string name="alpha_overlay">Alpha Overlay</string>
-    <string name="frame_track_overlay">Streckenoverlay</string>
+    <string name="frame_track_overlay">Strecken Overlay</string>
+    <string name="ghost_overlay">Geist Overlay</string>
     <string name="lane_overlay">The Lane Overlay</string>
     <string name="right_car_color">Farbe des rechten Fahrzeugs</string>
     <string name="left_car_color">Farbe des linken Fahrzeugs</string>

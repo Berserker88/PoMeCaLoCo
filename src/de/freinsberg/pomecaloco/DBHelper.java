@@ -178,14 +178,6 @@ public class DBHelper extends SQLiteOpenHelper{
 		vals.put(TblTrack.COL_LENGTH, length);
 		vals.put(TblTrack.COL_IMAGE, image);
 		mDB.insert(TblTrack.NAME, null, vals);
-//		mDB.execSQL(
-//				"INSERT INTO " + TblTrack.NAME + "(" 
-//				+ TblTrack.COL_NAME + ", " 
-//				+ TblTrack.COL_ISCROSSED + ", " 
-//				+ TblTrack.COL_LENGTH + ", " 
-//				+ TblTrack.COL_IMAGE + ")"
-//				+ "VALUES('" + name + "', " + iscrossed + ", '" + length + "', " + image + ")"
-//			);
 	}
 	
 	public void createRoundGhost(String name, int rounds, ArrayList<String> timesList) {
@@ -196,7 +188,7 @@ public class DBHelper extends SQLiteOpenHelper{
 			times += s + ";";			
 		}
 		if(times.length() > 1)
-			times = times.substring(0, times.length() -2);
+			times = times.substring(0, times.length() -1);
 		String whereClause = TblRoundGhost.COL_NAME + "=? AND " + TblRoundGhost.COL_ROUNDS + "=?";
 		Cursor cursor = mDB.query(TblRoundGhost.NAME, new String[]{TblRoundGhost.COL_TIMES}, whereClause , new String[]{name, ""+rounds}, null, null, null);
 		isPresent = cursor.moveToFirst();
@@ -205,26 +197,22 @@ public class DBHelper extends SQLiteOpenHelper{
 				ContentValues values = new ContentValues();
 				values.put(TblRoundGhost.COL_TIMES, times);
 				mDB.update(TblRoundGhost.NAME, values, whereClause, new String[]{name, ""+rounds});
-//				mDB.execSQL(
-//						"INSERT INTO " + TblRoundGhost.NAME + "("
-//						+ TblRoundGhost.COL_NAME + ", " + TblRoundGhost.COL_ROUNDS + ", " +  TblRoundGhost.COL_TIMES + ")"
-//						+ "VALUES('" + name + "', " + rounds + ", '" + times + "')"				
-//					);
-				Log.i("debug", "Updating new ghost time into database on track: " + name + "with count: " + rounds);			
+				Log.i("debug", "Updating new ghost time into database for track: " + name + " with count: " + rounds);			
 			}else if (times.compareTo(cursor.getString(0)) == 0)
-				Log.i("debug", "Same Ghost Times on track: " + name + "with count: " + rounds + ", no database action!");
+				Log.i("debug", "Same Ghost Times for track: " + name + "with count: " + rounds + ", no database action!");
 			else
-				Log.i("debug", "Player is slower than Ghost in database on track: " + name + "with count: " + rounds);
+				Log.i("debug", "Player is slower than Ghost for database on track: " + name + " with count: " + rounds + ", no database action!");
 		}else{			
-		
-		mDB.execSQL(
-				"INSERT INTO " + TblRoundGhost.NAME + "("
-				+ TblRoundGhost.COL_NAME + ", " + TblRoundGhost.COL_ROUNDS + ", " +  TblRoundGhost.COL_TIMES + ")"
-				+ "VALUES('" + name + "', " + rounds + ", '" + times + "')"				
-			);
+			
+			mDB.execSQL(
+					"INSERT INTO " + TblRoundGhost.NAME + "("
+					+ TblRoundGhost.COL_NAME + ", " + TblRoundGhost.COL_ROUNDS + ", " +  TblRoundGhost.COL_TIMES + ")"
+					+ "VALUES('" + name + "', " + rounds + ", '" + times + "')"				
+				);
+			Log.i("debug", "New Ghost Data Row written into database for track: " + name + " with count: " + rounds);
 		}
 	}
-	// TODO: This function needs a correct ghost insertion too.
+	
 	public void createTimeGhost(String name, int time, ArrayList<String> timesList) {
 		
 		String times = "";
@@ -233,8 +221,8 @@ public class DBHelper extends SQLiteOpenHelper{
 			times += s + ";";			
 		}
 		if(times.length() > 1)
-			times = times.substring(0, times.length() -2);
-		String whereClause = TblRoundGhost.COL_NAME + "=? AND " + TblRoundGhost.COL_ROUNDS + "=?";
+			times = times.substring(0, times.length() -1);
+		String whereClause = TblTimeGhost.COL_NAME + "=? AND " + TblTimeGhost.COL_TIME + "=?";
 		Cursor cursor = mDB.query(TblRoundGhost.NAME, new String[]{TblRoundGhost.COL_TIMES}, TblRoundGhost.COL_NAME + "=? AND " + TblRoundGhost.COL_ROUNDS + "=?" , new String[]{name, ""+time}, null, null, null);
 		isPresent = cursor.moveToFirst();
 		if(isPresent){			
@@ -242,23 +230,34 @@ public class DBHelper extends SQLiteOpenHelper{
 				ContentValues values = new ContentValues();
 				values.put(TblTimeGhost.COL_TIMES, times);
 				mDB.update(TblTimeGhost.NAME, values, whereClause, new String[]{name, ""+times});
-//				mDB.execSQL(
-//						"INSERT INTO " + TblTimeGhost.NAME + "("
-//						+ TblTimeGhost.COL_NAME + ", " + TblTimeGhost.COL_TIME + ", " +  TblTimeGhost.COL_TIMES + ")"
-//						+ "VALUES('" + name + "', " + time + ", '" + times + "')"				
-//					);
-				Log.i("debug", "Updating new ghost Time into database on track: " + name + "with count: " + time);			
+				Log.i("debug", "Updating new ghost Time into database for track: " + name + " with count: " + time);			
 			}else if (times.compareTo(cursor.getString(0)) == 0)
-				Log.i("debug", "Same Ghost Times on track: " + name + "with count: " + time + ", no database action!");
+				Log.i("debug", "Same Ghost Times for track: " + name + "with count: " + time + ", no database action!");
 			else
-				Log.i("debug", "Player is slower than Ghost in database on track: " + name + "with count: " + time);
+				Log.i("debug", "Player is slower than Ghost in database for track: " + name + " with count: " + time + ", no database action!");
 		}else{		
-		mDB.execSQL(
-				"INSERT INTO " + TblTimeGhost.NAME + "("
-				+ TblTimeGhost.COL_NAME + ", " + TblTimeGhost.COL_TIME + ", " + TblTimeGhost.COL_TIMES + ")"
-				+ "VALUES('" + name + "', " + time + "', '" + times + "')"				
-			);
+			
+			mDB.execSQL(
+					"INSERT INTO " + TblTimeGhost.NAME + "("
+					+ TblTimeGhost.COL_NAME + ", " + TblTimeGhost.COL_TIME + ", " + TblTimeGhost.COL_TIMES + ")"
+					+ "VALUES('" + name + "', " + time + ", '" + times + "')"				
+				);
+			Log.i("debug", "New Ghost Data Row written into database for track: " + name + " with count: " + time);
 		}
+	}
+	
+	public int getTimeGhostRounds(String track, int time) {
+		int rounds;
+				
+		String whereClause = TblTimeGhost.COL_NAME + "=? AND " + TblTimeGhost.COL_TIME + "=?";
+		Cursor cursor = mDB.query(TblTimeGhost.NAME, new String[]{TblTimeGhost.COL_TIMES}, whereClause, new String[]{track, ""+time}, null, null, null);
+		cursor.moveToFirst();
+		
+		rounds = new ArrayList<String>(Arrays.asList(cursor.getString(0).split(";"))).size();
+		Log.i("debug", "TimeGhost has '" + rounds + "' rounds.");
+		return rounds;
+		
+		
 	}
 	
 	public void createPlayerTrack(String playername, String trackname, int mode, int attempt, String fastestround, float averagespeed, float drivenmeters){
@@ -479,8 +478,7 @@ public class DBHelper extends SQLiteOpenHelper{
 		int attempt = getPlayerTrackAttempt(player,track, mode) + 1;
 		float wholedrivenmeters = getPlayerTrackWholeDrivenMeters(player, track, mode) + drivenmeters;
 		float wholeavgspeed = ((getPlayerTrackWholeDrivenMeters(player, track, mode) + drivenmeters) / ((getPlayerTrackWholeDrivenMeters(player, track, mode) / getPlayerTrackWholeAverageSpeed(player, track, mode)) + (drivenmeters /avgspeed)));
-			
-		
+				
 		values.put(TblPlayer_Track.COL_ATTEMPT, attempt);
 		values.put(TblPlayer_Track.COL_FASTESTROUND, fastestround);
 		values.put(TblPlayer_Track.COL_LASTAVERAGESPEED, avgspeed);
@@ -542,10 +540,7 @@ public class DBHelper extends SQLiteOpenHelper{
 	}
 	
 	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO Automatisch generierter Methodenstub
-		
-	}
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
 	
 	
 

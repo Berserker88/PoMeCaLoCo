@@ -58,7 +58,7 @@ public class MyTimer extends CountDownTimer{
 
 	@Override
 	public void onTick(long millisUntilFinished) {
-
+			Log.i("debug", "timer tick tick");
 			if(mCountdownValues != null)
 			{			
 				Log.i("debug", "Size: "+mCountdownValues.size()+", Counter: "+mCountdown);
