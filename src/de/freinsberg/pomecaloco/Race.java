@@ -24,6 +24,11 @@ public class Race {
 	final public static int LEFT_LANE = 1;
 	final public static int RIGHT_LANE = 2;
 	final public static int GHOST_LANE = 3;
+	final public static int SLOWER = -1;
+	final public static int SAME = 0;
+	final public static int FASTER = 1;
+	private Pair<Double, Integer> mActVisualSpeedValueLeft;
+	private Pair<Double, Integer> mActVisualSpeedValueRight;
 	private boolean mLeftMovement = false;
 	private boolean mRightMovement = false;
 	private boolean mRaceStarted = false;
@@ -40,10 +45,10 @@ public class Race {
 	private double mActLeftSpeed;
 	private double mActRightSpeed;
 	private double mActGhostSpeed;
-	private double mOldBestTimeLeft;
+	private String mOldBestTimeLeft;
 	private int[] mOldBestTimeLeftArray;
 	private int[] mOldBestTimeRightArray;
-	private double mOldBestTimeRight;
+	private String mOldBestTimeRight;
 	private String mActLeftRoundTime;		
 	private String mActRightRoundTime;
 	private ArrayList<String> mGhostTimes;
@@ -139,8 +144,11 @@ public class Race {
 			mLeftTimes.clear();
 		if(!mRightTimes.isEmpty())
 			mRightTimes.clear();
-		mOldBestTimeLeft = Double.MAX_VALUE;
-		mOldBestTimeRight = Double.MAX_VALUE;
+		mBestTimeOnLane  = null;
+		mActVisualSpeedValueLeft = null;
+		mActVisualSpeedValueRight = null;
+		mOldBestTimeLeft = "99:99:99";
+		mOldBestTimeRight ="99:99:99";
 		mOldBestTimeLeftArray = new int[3];
 		mOldBestTimeRightArray = new int[3];
 		mRaceStarted = false;		
@@ -470,9 +478,9 @@ public class Race {
 	 */
 	public String getFastestRound(int lane){
 		if (lane == LEFT_LANE)
-			return mOldBestTimeLeftArray[0]+":"+mOldBestTimeLeftArray[1]+":"+mOldBestTimeLeftArray[2];
+			return mOldBestTimeLeft;
 		else
-			return mOldBestTimeRightArray[0]+":"+mOldBestTimeRightArray[1]+":"+mOldBestTimeRightArray[2];
+			return mOldBestTimeRight;
 
 	}
 	
@@ -512,9 +520,12 @@ public class Race {
 	 * @param mode The game mode.
 	 * @param time The current time, measured when a correct movement was recognized. 
 	 */
-	private void calcStatistics(int lane, int mode, String time){		
+	private void calcStatistics(int lane, int mode, String time){	
+	
 		calcSpeedAndTime(lane, mode, time);
-		storeRoundTime(lane);		
+		storeRoundTime(lane);
+		
+		
 	}
 	
 	/**
@@ -540,86 +551,104 @@ public class Race {
 		
 		DecimalFormat df = new DecimalFormat("00");
 		int[] _new = parseTimeString(time);
+		
 		int[] curr= new int[3];
 		double _curr;
+		String __curr;
+		
 		if(lane == LEFT_LANE)
 		{
 			int[] old = parseTimeString(mOldTimeLeft);
-			
-			if(mode == TIMER_MODE)
-			{				
-				curr[0] = old[0] - _new[0];
-				curr[1] = old[1] - _new[1];				
-				curr[2] = old[2] - _new[2];		
-			}
-			else
-			{			
-				curr[0] = _new[0] - old[0];
-				curr[1] = _new[1] - old[1];
-				curr[2] = _new[2] - old[2];				
-			}			
-			if(curr[1] <0){
-				curr[1] = curr[1] + 60;
-				curr[0] = curr[0] - 1;
-			}
-			if(curr[2] <0){
-				curr[2] = curr[2] + 100;
-				curr[1] = curr[1] - 1;
-			}
-			Log.i("debug", "Rundenzeit:"+curr[0]+":"+curr[1]+":"+curr[2]);
-			_curr = (curr[0]*60)+(curr[1])+ (curr[2] / 100.0); 
-			if(mOldBestTimeLeft > _curr){
-				mOldBestTimeLeft = _curr;
-				if(_curr < mOldBestTimeRight){
-					mOldBestTimeLeftArray = curr;
-					setBestTime(df.format((curr[0]))+":"+df.format((curr[1]))+":"+df.format((curr[2])), lane);
-				}
-			}
-			Log.i("debug", "Rundenzeit Links: "+_curr);
-			mActLeftSpeed = mTrackLength/ _curr;
+			curr = calcRoundTime(mode, old, _new);
 			mActLeftRoundTime = df.format((curr[0]))+":"+df.format((curr[1]))+":"+df.format((curr[2])); 			
+			Log.i("debug", "Rundenzeit:"+curr[0]+":"+curr[1]+":"+curr[2]);
+			
+			_curr = (curr[0]*60)+(curr[1])+ (curr[2] / 100.0); 
+			__curr = df.format(curr[0])+":"+df.format(curr[1])+":"+df.format(curr[2]);
+//			if(mOldBestTimeLeft > _curr){
+//				mOldBestTimeLeft = _curr;
+//				if(_curr < mOldBestTimeRight){
+//					mOldBestTimeLeftArray = curr;
+//					setBestTime(df.format((curr[0]))+":"+df.format((curr[1]))+":"+df.format((curr[2])), lane);
+//				}
+//			}
+			calcVisualSpeedValue(lane);
+			if(mBestTimeOnLane == null)
+				setBestTime(__curr, lane);
+			else if(mBestTimeOnLane.getL().compareTo(__curr) > 0){
+				Log.i("debug", "Left lane is '" + mBestTimeOnLane.getL().compareTo(__curr) + "' faster than besttime");
+				setBestTime(__curr, lane);
+			}
+			if(mOldBestTimeLeft.compareTo(__curr) > 0)
+				mOldBestTimeLeft = __curr;
+			
+			Log.i("debug", "Rundenzeit Links: "+__curr);
+			mActLeftSpeed = mTrackLength/ _curr;
+			
 			mOldTimeLeft = time;
 			Log.i("debug","Alte Zeit links: "+mOldTimeLeft);
 		}
 		else if(lane == RIGHT_LANE)
 		{
-			int[] old = parseTimeString(mOldTimeRight);
-			if(mode == TIMER_MODE)
-			{								
-				curr[0] = old[0] - _new[0];
-				curr[1] = old[1] - _new[1];
-				curr[2] = old[2] - _new[2];
-			}
-			else
-			{								
-				curr[0] = _new[0] - old[0];
-				curr[1] = _new[1] - old[1];
-				curr[2] = _new[2] - old[2];
-			}	
-			if(curr[1] <0){
-				curr[1] = curr[1] + 60;
-				curr[0] = curr[0] - 1;
-			}				
-			if(curr[2] <0){
-				curr[2] = curr[2] + 100;
-				curr[1] = curr[1] - 1;
-			}				
-			_curr = (curr[0]*60) + (curr[1]) + (curr[2] / 100.0); 
-			if(mOldBestTimeRight > _curr){
-				mOldBestTimeRight = _curr;
-				if(_curr < mOldBestTimeLeft){
-					mOldBestTimeRightArray = curr;
-					setBestTime(df.format((curr[0]))+":"+df.format((curr[1]))+":"+df.format((curr[2])), lane);
-				}
-			}
-			Log.i("debug", "Rundenzeit Rechts: "+_curr);
-			mActRightSpeed = mTrackLength / _curr;
+			int[] old = parseTimeString(mOldTimeRight);			
+			curr = calcRoundTime(mode, old, _new);
 			mActRightRoundTime = df.format((curr[0]))+":"+df.format((curr[1]))+":"+df.format((curr[2])); 
+			_curr = (curr[0]*60) + (curr[1]) + (curr[2] / 100.0); 
+			__curr = df.format(curr[0])+":"+df.format(curr[1])+":"+df.format(curr[2]);
+			
+			
+//			if(mOldBestTimeRight > _curr){
+//				mOldBestTimeRight = _curr;
+//				if(_curr < mOldBestTimeLeft){
+//					mOldBestTimeRightArray = curr;
+//					setBestTime(df.format((curr[0]))+":"+df.format((curr[1]))+":"+df.format((curr[2])), lane);
+//				}
+//			}
+			calcVisualSpeedValue(lane);
+			if(mBestTimeOnLane == null)
+				setBestTime(__curr, lane);
+			else if(mBestTimeOnLane.getL().compareTo(__curr) > 0){
+				Log.i("debug", "Right lane is '" + mBestTimeOnLane.getL().compareTo(__curr) + "' faster than besttime");
+				setBestTime(__curr, lane);
+			}
+			if(mOldBestTimeRight.compareTo(__curr) > 0)
+				mOldBestTimeRight = __curr;
+			
+			
+			Log.i("debug", "Rundenzeit Rechts: "+__curr);
+			mActRightSpeed = mTrackLength / _curr;
+			
 			mOldTimeRight = time;
 			Log.i("debug","Alte Zeit rechts: "+mOldTimeRight);
 		}		
 
 	}	
+	
+	private int[] calcRoundTime(int mode, int[] old, int[] _new){
+		int[] curr = new int[3];
+		
+		if(mode == TIMER_MODE)
+		{				
+			curr[0] = old[0] - _new[0];
+			curr[1] = old[1] - _new[1];				
+			curr[2] = old[2] - _new[2];		
+		}
+		else
+		{			
+			curr[0] = _new[0] - old[0];
+			curr[1] = _new[1] - old[1];
+			curr[2] = _new[2] - old[2];				
+		}			
+		if(curr[1] <0){
+			curr[1] = curr[1] + 60;
+			curr[0] = curr[0] - 1;
+		}
+		if(curr[2] <0){
+			curr[2] = curr[2] + 100;
+			curr[1] = curr[1] - 1;
+		}
+		return curr;
+	}
 	
 	private double calcDrivenMeters(int lane){
 		
@@ -675,6 +704,15 @@ public class Race {
 			if(time.compareTo(mDriveThroughTimesGhost.get(0)) >= 0){
 				Log.i("debug", "Verstrichene Zeit: " + time + ", Geistzeit: " + mDriveThroughTimesGhost.get(0));
 				Log.i("debug", "Geist erscheint!!!!");
+				String actGhostTime = mGhostTimes.get(mActGhostRound);				
+				if (mBestTimeOnLane == null || mBestTimeOnLane.getL().compareTo(actGhostTime) > 0){
+					if(getUsedLane() == LEFT_LANE){
+						setBestTime(actGhostTime, RIGHT_LANE);
+					}
+					else{
+						setBestTime(actGhostTime, LEFT_LANE);
+					}
+				}
 				if(mRaceActivity!=null){
 					mActGhostRound++;
 					mRaceActivity.updateGUIElements(GHOST_LANE);
@@ -706,7 +744,7 @@ public class Race {
 			int[] temp = parseTimeString(s);
 			time = (temp[0] * 60) + (temp[1]) + (temp[2] / 100.0);
 			ghostSpeeds.add(mTrackLength / time);
-			Log.i("debug", "ghost speeds: " + ghostSpeeds);
+//			Log.i("debug", "ghost speeds: " + ghostSpeeds);
 		}	
 		return ghostSpeeds;
 	}
@@ -927,10 +965,69 @@ public class Race {
 		return finishedTime;
 	}
 	
+	private void calcVisualSpeedValue(int lane) {
+		int[] curr = new int[3];
+		double _curr;
+		int[] best = new int[3];
+		double _best;
+		if (lane == LEFT_LANE){
+			if(getBestTime() != null && !mActLeftRoundTime.isEmpty()){
+				best = parseTimeString(getBestTime().getL());			
+				curr = parseTimeString(mActLeftRoundTime);
+				
+				_best = (best[0]*60) + (best[1]) + (best[2] / 100.0);
+				_curr = (curr[0]*60) + (curr[1]) + (curr[2] / 100.0);
+				Log.i("debug", "Besttime: " + _best + ", Currenttime: " + _curr);
+				if((_best - _curr) < 0){
+					mActVisualSpeedValueLeft = new Pair<Double, Integer>(((_best - _curr)*-1), SLOWER);
+				} else if((_best - _curr) > 0){
+					mActVisualSpeedValueLeft = new Pair<Double, Integer>((_best - _curr), FASTER);
+				}else{
+					mActVisualSpeedValueLeft = new Pair<Double, Integer>(0.0, SAME);
+				}
+			}			
+		} else if (lane == RIGHT_LANE){
+			if(getBestTime() != null && !mActRightRoundTime.isEmpty()){
+				best = parseTimeString(getBestTime().getL());			
+				curr = parseTimeString(mActRightRoundTime);
+				
+				_best = (best[0]*60) + (best[1]) + (best[2] / 100.0);
+				_curr = (curr[0]*60) + (curr[1]) + (curr[2] / 100.0);
+				
+				if((_best - _curr) < 0){
+					mActVisualSpeedValueRight = new Pair<Double, Integer>(((_best - _curr)*-1), SLOWER);
+				} else if((_best - _curr) > 0){
+					mActVisualSpeedValueRight = new Pair<Double, Integer>((_best - _curr), FASTER);
+				}else{
+					mActVisualSpeedValueRight = new Pair<Double, Integer>(0.0, SAME);
+				}
+			}			
+		}
+		
+	}
 	
-	private void updateGhostUIElements(){	
-		
-		
+	
+	public Pair<Integer, Integer> getVisualSpeedValue(float scale, int lane ){	
+		//The Maximum Pixelvalue is 50 
+		int pixels;
+		if(lane == LEFT_LANE){
+			if(mActVisualSpeedValueLeft != null){
+				int value = (int) (mActVisualSpeedValueLeft.getL() * 10);
+				if(value > 50)
+					value = 50;
+				pixels = (int) (value * scale + 0.5f);
+				return new Pair<Integer, Integer>(pixels, mActVisualSpeedValueLeft.getR());  		
+			}
+		}else if (lane == RIGHT_LANE){
+			if(mActVisualSpeedValueRight != null){
+				int value = (int) (mActVisualSpeedValueRight.getL() * 10);
+				if(value > 50)
+					value = 50;
+				pixels = (int) (value * scale + 0.5f);
+				return new Pair<Integer, Integer>(pixels, mActVisualSpeedValueRight.getR());  		
+			}
+		}		
+		return null;
 	}
 	
 //	public void prepareRace(boolean twoplayer, int mode){

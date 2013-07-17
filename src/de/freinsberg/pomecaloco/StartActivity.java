@@ -60,7 +60,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	private int mAlphacounter;
 	private float mAlpha;
 	private int mSpinnerPosition;
-	private Race race;
+	//private Race race;
 	private Context mContext;
 	public static CameraBridgeViewBase mOpenCvCameraView;
 	private Mat mInputFrame;
@@ -88,8 +88,8 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	private int mCheckedIdLeft = 1;
 	private int mCheckedIdRight = 1;
 	private int mCheckedId = 1;
-	private RadioGroup mFirstRadioGroup;
-	private RadioGroup mSecondRadioGroup;	
+//	private RadioGroup mFirstRadioGroup;
+//	private RadioGroup mSecondRadioGroup;	
 	private EditText min_count = null;
 	private EditText lap_count = null;
 	private ImageView alpha_overlay = null;

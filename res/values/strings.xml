@@ -44,8 +44,8 @@
     <string name="dialog_name_exists">Name existiert bereits!</string>
     <string name="complete">Fertig</string>
     <string name="rescan">Neuer Scan</string>
-    <string name="faster">Schneller</string>
-    <string name="slower">Langsamer</string>
+    <string name="visual_speed_faster">Schneller</string>
+    <string name="visual_speed_slower">Langsamer</string>
     <string name="raceview_time">Zeit</string>
     <string name="raceview_round">Runde</string>
     <string name="raceview_speed">Speed</string>

@@ -7,7 +7,7 @@
     tools:context=".RaceActivity" >
 
     <View
-        android:id="@+id/view2"
+        android:id="@+id/visual_speed_x_axis"
         android:layout_width="150dp"
         android:layout_height="2dp"
         android:layout_centerHorizontal="true"
@@ -15,7 +15,7 @@
         android:background="@android:color/white" />
 
     <View
-        android:id="@+id/view1"
+        android:id="@+id/visual_speed_y_axis"
         android:layout_width="2dp"
         android:layout_height="55dp"
         android:layout_centerHorizontal="true"
@@ -23,28 +23,28 @@
         android:background="@android:color/white" />
 
     <ImageView
-        android:id="@+id/faster"
-        android:layout_width="40dp"
+        android:id="@+id/visual_speed_faster"
+        android:layout_width="wrap_content"
         android:layout_height="25dp"
-        android:layout_alignLeft="@+id/view1"
-        android:layout_alignTop="@+id/slower"
+        android:layout_alignLeft="@+id/visual_speed_y_axis"
+        android:layout_alignTop="@+id/visual_speed_slower"
         android:layout_marginLeft="2dp"
-        android:contentDescription="@string/faster"
-        android:maxHeight="25dp"
-        android:maxWidth="40dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/visual_speed_faster"
+        
         android:src="@color/winning_green" />
 
     <ImageView
-        android:id="@+id/slower"
-        android:layout_width="40dp"
+        android:id="@+id/visual_speed_slower"
+        android:layout_width="wrap_content"
         android:layout_height="25dp"
-        android:layout_alignRight="@+id/view1"
-        android:layout_alignTop="@+id/view1"
+        android:layout_alignRight="@+id/visual_speed_y_axis"
+        android:layout_alignTop="@+id/visual_speed_y_axis"
         android:layout_marginRight="2dp"
         android:layout_marginTop="14dp"
-        android:contentDescription="@string/slower"
-        android:maxHeight="25dp"
-        android:maxWidth="40dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/visual_speed_slower"
+        
         android:src="@color/loosing_red" />
 
     <TextView
@@ -81,7 +81,7 @@
         android:id="@+id/raceview_best_time_updater"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/faster"
+        android:layout_alignBottom="@+id/visual_speed_faster"
         android:layout_alignParentRight="true"
         android:text="@string/raceview_best_time_updater"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -91,7 +91,7 @@
         android:id="@+id/raceview_best_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/faster"
+        android:layout_above="@+id/visual_speed_faster"
         android:layout_alignParentRight="true"
         android:text="@string/best_time"
         android:textColor="@android:color/white" />
@@ -100,7 +100,7 @@
         android:id="@+id/track_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/slower"
+        android:layout_above="@+id/visual_speed_slower"
         android:layout_centerHorizontal="true"
         android:text="@string/track_name"
         android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -109,7 +109,7 @@
         android:id="@+id/camera_stream_race"
         android:layout_width="wrap_content"
         android:layout_height="250dp"
-        android:layout_below="@+id/view2"
+        android:layout_below="@+id/visual_speed_x_axis"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="48dp"
@@ -141,17 +141,17 @@
         android:id="@+id/game_mode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/view2"
+        android:layout_below="@+id/visual_speed_x_axis"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="11dp"
         android:text="@string/game_mode"
         android:textAppearance="?android:attr/textAppearanceMedium" />
     
-    	<ImageView
+  	<ImageView
 	    android:id="@+id/raceview_ghost_overlay"
 	    android:layout_width="wrap_content"
 	    android:layout_height="250dp"	    
-        android:layout_below="@+id/view2"
+        android:layout_below="@+id/visual_speed_x_axis"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="48dp"
@@ -163,7 +163,7 @@
         android:id="@+id/left_car_color"
         android:layout_width="39dp"
         android:layout_height="220dp"
-        android:layout_below="@+id/view2"
+        android:layout_below="@+id/visual_speed_x_axis"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="68dp"
         android:contentDescription="@string/left_car_color"
@@ -173,7 +173,7 @@
         android:id="@+id/right_car_color"
         android:layout_width="39dp"
         android:layout_height="220dp"
-        android:layout_below="@+id/view2"
+        android:layout_below="@+id/visual_speed_x_axis"
         android:layout_marginLeft="300dp"
         android:layout_marginTop="68dp"
         android:contentDescription="@string/right_car_color"
@@ -185,7 +185,7 @@
         android:layout_height="85dp"
         android:layout_below="@+id/camera_stream_race"
         android:layout_marginTop="40dp"
-        android:layout_toLeftOf="@+id/view1"
+        android:layout_toLeftOf="@+id/visual_speed_y_axis"
         android:background="@android:color/white" />
 
     <View

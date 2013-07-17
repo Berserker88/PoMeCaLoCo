@@ -40,7 +40,7 @@ public class MyShotTask {
 						if(mAlphaCounter>=1)
 						{										
 							mAlpha = (float) (mAlphaCounter/100.0);
-							Log.i("debug","Alpha: "+mAlpha);
+//							Log.i("debug","Alpha: "+mAlpha);
 							image.setAlpha(mAlpha);											
 						
 						mAlphaCounter--;

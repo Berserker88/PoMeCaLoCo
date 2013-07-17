@@ -154,7 +154,7 @@ public class FinishActivity extends Activity {
 	        }
 	        Log.i("debug", "Initialized 2 Player Views 50%");
 	        finish_left_attempt.setTextColor(getResources().getColor(R.color.white));
-	        finish_left_attempt.setText(""+Race.getInstance().getAttempt(Race.LEFT_LANE));
+	        finish_left_attempt.setText(""+""+mDbHelper.getPlayerTrackAttempt(Race.getInstance().getPlayerName(0), Race.getInstance().getTrackName(), Race.getInstance().getGameMode()));
 	        Log.i("debug", "Initialized 2 Player Views 51%");
 	        finish_left_meters.setTextColor(getResources().getColor(R.color.white));
 	        finish_left_meters.setText(""+Race.getInstance().getDrivenMeters(Race.LEFT_LANE));
@@ -167,7 +167,7 @@ public class FinishActivity extends Activity {
 	        Log.i("debug", "Initialized 2 Player Views 54%");
 	        
 	        finish_right_attempt.setTextColor(getResources().getColor(R.color.white));
-	        finish_right_attempt.setText(""+Race.getInstance().getAttempt(Race.RIGHT_LANE));
+	        finish_right_attempt.setText(""+""+mDbHelper.getPlayerTrackAttempt(Race.getInstance().getPlayerName(1), Race.getInstance().getTrackName(), Race.getInstance().getGameMode()));
 	        Log.i("debug", "Initialized 2 Player Views 55%");
 	        finish_right_meters.setTextColor(getResources().getColor(R.color.white));
 	        finish_right_meters.setText(""+Race.getInstance().getDrivenMeters(Race.RIGHT_LANE));

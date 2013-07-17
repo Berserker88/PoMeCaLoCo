@@ -48,8 +48,10 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		private int mPlayer;
 		
 		private TextView raceview_countdown = null;
-		private ImageView faster = null;
-		private ImageView slower = null;
+		private ImageView visual_speed_faster = null;
+		private ImageView visual_speed_slower = null;
+		private View visual_speed_x_axis;
+		private View visual_speed_y_axis;
 		private ImageView left_car_color;
 		private ImageView right_car_color;
 		private TextView raceview_time_updater = null;
@@ -111,8 +113,10 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			raceview_finished = (TextView) findViewById(R.id.raceview_finished);
 			raceview_game_mode = (TextView) findViewById(R.id.game_mode);
 			raceview_track_name = (TextView) findViewById(R.id.track_name);
-			faster = (ImageView) findViewById(R.id.faster);
-			slower = (ImageView) findViewById(R.id.slower);		
+			visual_speed_faster = (ImageView) findViewById(R.id.visual_speed_faster);
+			visual_speed_slower = (ImageView) findViewById(R.id.visual_speed_slower);
+			visual_speed_x_axis = (View) findViewById(R.id.visual_speed_x_axis);
+			visual_speed_y_axis = (View) findViewById(R.id.visual_speed_y_axis);
 			left_car_color = (ImageView) findViewById(R.id.left_car_color);
 			right_car_color = (ImageView) findViewById(R.id.right_car_color);
 			raceview_time_updater = (TextView) findViewById(R.id.raceview_time_updater);
@@ -144,6 +148,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			
 			switch(ObjectDetector.getInstance().car_status()){
 			case ObjectDetector.BOTH_CAR:
+				disableVisualSpeedUpdater();				
 				raceview_left_name.setText(Race.getInstance().getPlayerName(0));
 				raceview_right_name.setText(Race.getInstance().getPlayerName(1));
 				raceview_speed_updater_left.setTextColor(getResources().getColor(R.color.white));
@@ -169,7 +174,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 				right_car_color.setVisibility(View.VISIBLE);	
 				break;
 				
-			case ObjectDetector.LEFT_CAR:
+			case ObjectDetector.LEFT_CAR:			
 				if(Race.getInstance().mGhostMode)
 				{
 					raceview_right_name.setText(R.string.raceview_ghost_name);
@@ -293,14 +298,10 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		}
 	
 		@Override
-		public void onCameraViewStarted(int width, int height) {
-			// TODO Automatisch generierter Methodenstub			
-		}
+		public void onCameraViewStarted(int width, int height) {}
 	
 		@Override
-		public void onCameraViewStopped() {
-			// TODO Automatisch generierter Methodenstub			
-		}
+		public void onCameraViewStopped() {}
 	
 		@Override
 		public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
@@ -428,10 +429,35 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			
 			runOnUiThread(new Runnable() {
 			     public void run() {
-			    	 if(Race.getInstance().getBestTime() != null){
-			    	 	raceview_best_time_updater.setText(Race.getInstance().getBestTime().getL());			    	 
-			    	 	raceview_best_time_updater.setTextColor(Race.getInstance().getPlayerRGBColor(Race.getInstance().getBestTime().getR()));
+			    	 if(Race.getInstance().getBestTime() != null)
+			    	 {
+			    	 	raceview_best_time_updater.setText(Race.getInstance().getBestTime().getL());	
+			    	 	if(Race.getInstance().getBestTime().getR() == Race.getInstance().getUsedLane() || Race.getInstance().getNumberOfPlayers() == 2)
+			    	 	{
+			    	 		raceview_best_time_updater.setTextColor(Race.getInstance().getPlayerRGBColor(Race.getInstance().getBestTime().getR()));
+			    	 	}
 			    	 }
+			    	 
+			    	 final float scale = getBaseContext().getResources().getDisplayMetrics().density;
+			    	 final Pair<Integer,Integer> pair_visual_speed = Race.getInstance().getVisualSpeedValue(scale, lane);			    	 
+			    	 if(pair_visual_speed != null){
+			    		 if(pair_visual_speed.getR() == Race.SLOWER){
+			    			 Log.i("debug", "Pixels slower: " + pair_visual_speed.getL());
+			    			 visual_speed_slower.getLayoutParams().width = pair_visual_speed.getL();
+			    			 visual_speed_faster.getLayoutParams().width = 0;
+			    		 }
+			    		 else if(pair_visual_speed.getR() == Race.FASTER){
+			    			 Log.i("debug", "Pixels faster: " + pair_visual_speed.getL());
+			    			 visual_speed_faster.getLayoutParams().width = pair_visual_speed.getL();
+			    			 visual_speed_slower.getLayoutParams().width = 0;
+			    		 }else
+			    			 Log.i("debug", "Pixels zero on both: ");
+			    	 }
+			    		 
+			    		 
+					
+						
+						
 			    	 	if(Race.getInstance().getGameMode() == Race.ROUND_MODE)
 			    	 	{
 							if(lane == Race.LEFT_LANE)	
@@ -552,12 +578,11 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 
 		}
 		
-		private void showGhost(int resid) {
-	
+		public void disableVisualSpeedUpdater(){
+			
+			visual_speed_slower.setVisibility(View.INVISIBLE);
+			visual_speed_faster.setVisibility(View.INVISIBLE);
+			visual_speed_x_axis.setVisibility(View.INVISIBLE);
+			visual_speed_y_axis.setVisibility(View.INVISIBLE);		
 		}
-		
-
-
-}
-	
-
+	}

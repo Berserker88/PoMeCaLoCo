@@ -76,7 +76,6 @@ containing a value of this type.
         public static final int dialog_select_playername_right=0x7f040062;
         public static final int end_race=0x7f04003b;
         public static final int exit=0x7f040068;
-        public static final int faster=0x7f040035;
         public static final int finish_attempt=0x7f040010;
         public static final int finish_attempt_view=0x7f040019;
         public static final int finish_avg_speed=0x7f040013;
@@ -154,13 +153,14 @@ containing a value of this type.
         public static final int round_speed_separator=0x7f040038;
         public static final int scanner=0x7f040051;
         public static final int settings_menu=0x7f040069;
-        public static final int slower=0x7f040036;
         public static final int textView3=0x7f04004f;
         public static final int time_round_separator=0x7f04004a;
         public static final int track_name=0x7f04003e;
         public static final int value_separator=0x7f04003a;
-        public static final int view1=0x7f040034;
-        public static final int view2=0x7f040033;
+        public static final int visual_speed_faster=0x7f040035;
+        public static final int visual_speed_slower=0x7f040036;
+        public static final int visual_speed_x_axis=0x7f040033;
+        public static final int visual_speed_y_axis=0x7f040034;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -199,7 +199,6 @@ containing a value of this type.
         public static final int dialog_right_player=0x7f060019;
         public static final int dialog_right_player_hint=0x7f06001a;
         public static final int end_race=0x7f060035;
-        public static final int faster=0x7f060022;
         public static final int finish_attempt_view=0x7f060048;
         public static final int finish_avg_speed_view=0x7f06004b;
         public static final int finish_fastest_view=0x7f06004a;
@@ -279,8 +278,9 @@ containing a value of this type.
         public static final int settings_menu_new_race=0x7f060010;
         public static final int settings_section1=0x7f06000b;
         public static final int settings_section2=0x7f06000c;
-        public static final int slower=0x7f060023;
         public static final int track_name=0x7f060063;
+        public static final int visual_speed_faster=0x7f060022;
+        public static final int visual_speed_slower=0x7f060023;
     }
     public static final class style {
         /** 
