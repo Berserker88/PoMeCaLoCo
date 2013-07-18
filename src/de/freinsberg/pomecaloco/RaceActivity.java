@@ -398,9 +398,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 				if(Race.getInstance().isCorrectMovement(lane, recognized))
 				{
 					Log.i("debug", "Korrektes Movement "+lane);
-					Race.getInstance().countRounds(lane);	
-					
-					updateGUIElements(lane);
+					Race.getInstance().updateRoundsAndUI(lane);					
 				}
 			}
 			else
@@ -410,7 +408,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 					if(isOver == Race.GHOST_LANE)
 						lane = Race.GHOST_LANE;			
 					Log.i("debug", "Race is Over for LANE: " + lane);
-					Race.getInstance().end_race(lane);
+					Race.getInstance().endRaceAndUpdateUI(lane);
 					Log.i("debug", "Race stopped properly");
 				}
 			}		

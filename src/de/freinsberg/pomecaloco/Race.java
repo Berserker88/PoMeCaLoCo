@@ -304,12 +304,13 @@ public class Race {
 	 * This Method sets the actual Roundcounter + 1 for a specific lane.
 	 * @param lane The lane on which the round has to be added.
 	 */
-	public void countRounds(int lane) {
+	public void updateRoundsAndUI(int lane) {
 		
 		if(lane == LEFT_LANE)
 			mActLeftRound++;
 		else
-			mActRightRound++;	
+			mActRightRound++;
+		mRaceActivity.updateGUIElements(lane);
 	}
 
 	/**
@@ -997,7 +998,7 @@ public class Race {
 	 * The Method processResults() is called.
 	 * The truth value of mRaceStarted is set to FALSE.
 	 */
-	public void end_race(int lane){		
+	public void endRaceAndUpdateUI(int lane){		
 		if(mMode == TIMER_MODE){
 			
 				for(Player p :mPlayerArray){
