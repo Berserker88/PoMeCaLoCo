@@ -94,7 +94,7 @@ public class ObjectDetector{
 	 * @return An Instance of an ObjectDetector.
 	 */
 	public static ObjectDetector getInstance(Mat inputFrame){		
-
+		
 		mInputFrame = inputFrame;	
 		mInputFrame = inputFrame.t();		
 		Core.flip(mInputFrame, mInputFrame, 1);	
@@ -183,10 +183,12 @@ public class ObjectDetector{
 	 * @return The Bitmap with the found average color, Null if no color difference has been found.
 	 */
 	public Bitmap getColorInOffset(int x_offset, int y_offset, int lane){
+		mLeftCarColorScalar = null;
+		mRightCarColorScalar = null;
 		Log.i("debug", "Into getColorInOffset for lane :"+lane);	
 		if(mInputFrame.empty())
 			Log.i("debug","mInputFramePortrait is empty!");
-		mRgba = mInputFrame;
+		mRgba = mInputFrame.clone();
 		double[] oldColors = new double[4];
 		double[] newColors = new double[4];
 		double[] avg_oldColors = new double[4];
@@ -202,10 +204,15 @@ public class ObjectDetector{
 			for (int y = y_offset;y < y_offset+30;y++){
 				if(mEmptyTrack.empty())
 					Log.i("debug","mEmptyTrack is empty");
+				
 				if(mRgba.empty())
 					Log.i("debug","mRgba is empty");
-				mEmptyTrackPixelColor = mEmptyTrack.get(y, x);
+
+				
 				mScannedTrackPixelColor = mRgba.get(y, x);
+				
+				mEmptyTrackPixelColor = mEmptyTrack.get(y, x);
+				
 				if(mScannedTrackPixelColor == null)
 					Log.i("debug", "mScannedTrackPixelColor == null, at: "+x+", "+y);
 				if(mEmptyTrackPixelColor == null)
@@ -221,6 +228,7 @@ public class ObjectDetector{
 				}	
 			}		
 		}
+		mRgba.release();
 		Log.i("debug", "Between FOR getColorInOffset for lane :"+lane);	
 		for(int i = 0; i <= 3; i++) {
 			avg_oldColors[i] = oldColors[i] / scan_counter;
@@ -230,7 +238,7 @@ public class ObjectDetector{
 		Log.i("debug", "After FOR getColorInOffset for lane :"+lane);	
 		Log.i("debug", "avg_Old: r"+avg_oldColors[0]+ ", g"+avg_oldColors[1]+ ", b"+avg_oldColors[2]);
 		Log.i("debug", "avg_New: r"+avg_newColors[0]+ ", g"+avg_newColors[1]+ ", b"+avg_newColors[2]);
-		boolean colorDetected = isDifferent(avg_newColors, avg_oldColors);	
+		boolean colorDetected = isDifferent(avg_oldColors, avg_newColors);	
 		Log.i("farbeee", "color on left lane AFTER for loop and BEFORE ifelses: "+ mLeftCarColorScalar);
 		Log.i("farbeee", "color on right lane AFTER for loop and BEFORE ifelses: "+ mRightCarColorScalar);
 		if(lane == Race.LEFT_LANE)
@@ -239,7 +247,8 @@ public class ObjectDetector{
 				mColorsOnLeftLane = false;
 			else{
 				mColorsOnLeftLane = true;
-				mLeftCarColorScalar = new Scalar(avg_newColors);
+				if(mLeftCarColorScalar == null)
+					mLeftCarColorScalar = new Scalar(avg_newColors);
 				Log.i("farbeee", "color on left lane IN ifelses: "+ mLeftCarColorScalar);
 				mLeftCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFrame.type(),mLeftCarColorScalar);				
 				mLeftCarColorImage = Bitmap.createBitmap(mLeftCarColor.cols(), mLeftCarColor.rows(), Bitmap.Config.ARGB_8888);
@@ -256,7 +265,8 @@ public class ObjectDetector{
 				mColorsOnRightLane = false;
 			else{
 				mColorsOnRightLane = true;
-				mRightCarColorScalar = new Scalar(avg_newColors);
+				if(mRightCarColorScalar == null)
+					mRightCarColorScalar = new Scalar(avg_newColors);
 				Log.i("farbeee", "color on right lane IN ifelses: "+ mRightCarColorScalar);
 				mRightCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFrame.type(),mRightCarColorScalar);
 				mRightCarColorImage = Bitmap.createBitmap(mRightCarColor.cols(), mRightCarColor.rows(), Bitmap.Config.ARGB_8888);
@@ -473,6 +483,14 @@ public class ObjectDetector{
 		Log.i("debug", "Tschüss get_cars_colors!");	
 		return mCarColorImages;	
 		
+	}
+	
+	private boolean validInputFrame()
+	{
+		if(mInputFrame.get(1, 1)[0] != 0.0)
+			return true;
+		else
+			return false;
 	}
 
 }

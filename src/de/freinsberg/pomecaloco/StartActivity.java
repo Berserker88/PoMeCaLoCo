@@ -236,7 +236,8 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 						lane_overlay.setVisibility(View.VISIBLE);
 					}
 				} else if (scanner.getText() == getString(R.string.scan_cars)) {
-					mAlphacounter = 100;					
+					mAlphacounter = 100;
+					//while(ObjectDetector.getInstance().validInputFrame())
 					mCarColorBitmaps = mFrameToProcess.get_cars_colors();
 					if(mCarColorBitmaps[0] != null){
 						left_car_color.setVisibility(View.VISIBLE);	
@@ -407,20 +408,20 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	int i = 0;
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		
-		if(!inputFrame.rgba().empty()) {
+		Mat inputFrameToTest = inputFrame.rgba();
+		if(!inputFrameToTest.empty() && (inputFrameToTest.get(1, 1)[3] != 0)) {
 			if(mInputFrame != null)
 				mInputFrame.release();
 			
 			mInputFrame = inputFrame.rgba();
 		}
-		return inputFrame.rgba();
+		return mInputFrame;
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		Log.i("debug", "onResume (StartFragament) called");
+		Log.i("debug", "onResume (StartActivity) called");
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, this, mLoaderCallback);
 	}
 	
