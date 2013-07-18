@@ -388,16 +388,11 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		public void cancel(){
 			mCountdown.stop();
 			Race.getInstance().cancel();
-		}
-		
-		public void stop(){
-			Race.getInstance().stop();
-		}
-		
+		}		
 		
 		private void countMovement(boolean recognized, int lane){
-					
-				if((Race.getInstance().isOver() != lane) && (Race.getInstance().isOver() != Race.GHOST_LANE))
+				int isOver = Race.getInstance().isOver();
+				if((isOver != lane) && (isOver != Race.GHOST_LANE))
 				{							
 					
 					if(Race.getInstance().isCorrectMovement(lane, recognized))
@@ -409,10 +404,11 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 					}
 				}
 				else
-				{
-					stop();
-					if(Race.getInstance().isOver() == Race.GHOST_LANE)
-						lane = Race.GHOST_LANE;
+				{					
+					if(isOver == Race.GHOST_LANE)
+						lane = Race.GHOST_LANE;			
+					Log.i("debug", "Race is Over for LANE: " + lane);
+					Race.getInstance().end_race(lane);
 					Log.i("debug", "Race stopped properly");
 					finishGUIElements(lane);								
 				}		
@@ -436,6 +432,8 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			    	 	{
 			    	 		raceview_best_time_updater.setTextColor(Race.getInstance().getPlayerRGBColor(Race.getInstance().getBestTime().getR()));
 			    	 	}
+			    	 	else			    	 		
+			    	 		raceview_best_time_updater.setTextColor(getResources().getColor(R.color.dummy_gray));			    	 		
 			    	 }
 			    	 
 			    	 final float scale = getBaseContext().getResources().getDisplayMetrics().density;
@@ -446,11 +444,13 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			    			 visual_speed_slower.getLayoutParams().width = pair_visual_speed.getL();
 			    			 visual_speed_faster.getLayoutParams().width = 0;
 			    		 }
-			    		 else if(pair_visual_speed.getR() == Race.FASTER){
+			    		 else if(pair_visual_speed.getR() == Race.FASTER)
+			    		 {
 			    			 Log.i("debug", "Pixels faster: " + pair_visual_speed.getL());
 			    			 visual_speed_faster.getLayoutParams().width = pair_visual_speed.getL();
 			    			 visual_speed_slower.getLayoutParams().width = 0;
-			    		 }else
+			    		 }
+			    		 else
 			    			 Log.i("debug", "Pixels zero on both: ");
 			    	 }
 			    		 

@@ -82,6 +82,9 @@
     <string name="finish_track_view">track</string>
     <string name="finish_mode_view">mode</string>
     <string name="finish_name_view">name</string>
+    <string name="finish_win_status">Siegstatus</string>
+    <string name="finish_winner">Sieger</string>
+    <string name="finish_looser">Verlierer</string>
     <string name="finish_attempt_view">attempt</string>
     <string name="finish_meters_view">meters</string>
     <string name="finish_fastest_view">fastest</string>

@@ -58,7 +58,7 @@ public class MyTimer extends CountDownTimer{
 
 	@Override
 	public void onTick(long millisUntilFinished) {
-			Log.i("debug", "timer tick tick");
+			//Log.i("debug", "timer tick tick");
 			if(mCountdownValues != null)
 			{			
 				Log.i("debug", "Size: "+mCountdownValues.size()+", Counter: "+mCountdown);
@@ -72,11 +72,11 @@ public class MyTimer extends CountDownTimer{
 			}
 			else
 			{
-				String msCountdown = (parse(mMsCountdown));
+				String msUntilFinished = (parse(millisUntilFinished));
 				if(Race.getInstance().mGhostMode)
-					Race.getInstance().checkGhostTime(msCountdown);
+					Race.getInstance().checkGhostTime(msUntilFinished);
 				mTv.setTextColor(mTv.getResources().getColor(R.color.white));				
-				mTv.setText(msCountdown);				
+				mTv.setText(msUntilFinished);				
 				mMsCountdown = millisUntilFinished;
 				
 			}		

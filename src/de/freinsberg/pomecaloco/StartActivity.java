@@ -564,11 +564,12 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 					ghostButton.setEnabled(true);		
 				}
 			}
-			else{
-					if(mDbHelper.isTimeGhostPresent(((Pair<String,byte[]>) mTracks.getSelectedItem()).getL(), mCount)){
-						Log.i("debug", "Ghost is available, settings are, Trackname:" + ((Pair<String,byte[]>) mTracks.getSelectedItem()).getL() + ", Rounds: " + mCount + ", Times: " + mDbHelper.getTimeGhost(((Pair<String,byte[]>) mTracks.getSelectedItem()).getL(), mCount));
-						ghostButton.setEnabled(true);	
-					}
+			else if (_mode == Race.TIMER_MODE)
+			{
+				if(mDbHelper.isTimeGhostPresent(((Pair<String,byte[]>) mTracks.getSelectedItem()).getL(), mCount)){
+					Log.i("debug", "Ghost is available, settings are, Trackname:" + ((Pair<String,byte[]>) mTracks.getSelectedItem()).getL() + ", Rounds: " + mCount + ", Times: " + mDbHelper.getTimeGhost(((Pair<String,byte[]>) mTracks.getSelectedItem()).getL(), mCount));
+					ghostButton.setEnabled(true);	
+				}
 			}
 				
 				ghostButton.setOnClickListener(new OnClickListener() {					
