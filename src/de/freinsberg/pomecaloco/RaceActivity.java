@@ -271,7 +271,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 				@Override
 				public void onClick(View v) {
 					Log.i("debug", "go to end race manually");
-					cancel();
+					//cancel();
 					Intent intent = new Intent().setClass(v.getContext(), FinishActivity.class);
 					startActivity(intent);
 					finish();
@@ -283,7 +283,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		public void onPause() {
 			this.mWakeLock.release();
 			
-			mCountdown.cancel();
+			cancel();
 			if (mOpenCvCameraView != null)
 				mOpenCvCameraView.disableView();	
 			super.onPause();
@@ -391,27 +391,29 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		}		
 		
 		private void countMovement(boolean recognized, int lane){
-				int isOver = Race.getInstance().isOver();
-				if((isOver != lane) && (isOver != Race.GHOST_LANE))
-				{							
+			int isOver = Race.getInstance().isOver();
+			if((isOver != lane) && (isOver != Race.GHOST_LANE))
+			{							
+				
+				if(Race.getInstance().isCorrectMovement(lane, recognized))
+				{
+					Log.i("debug", "Korrektes Movement "+lane);
+					Race.getInstance().countRounds(lane);	
 					
-					if(Race.getInstance().isCorrectMovement(lane, recognized))
-					{
-						Log.i("debug", "Korrektes Movement "+lane);
-						Race.getInstance().countRounds(lane);	
-						
-						updateGUIElements(lane);
-					}
+					updateGUIElements(lane);
 				}
-				else
-				{					
+			}
+			else
+			{	
+				if(Race.getInstance().hasRaceBeenStarted()) //This is done to tell the Thread that he don't have to do this if a thread before has done this.
+				{
 					if(isOver == Race.GHOST_LANE)
 						lane = Race.GHOST_LANE;			
 					Log.i("debug", "Race is Over for LANE: " + lane);
 					Race.getInstance().end_race(lane);
 					Log.i("debug", "Race stopped properly");
-					finishGUIElements(lane);								
-				}		
+				}
+			}		
 		}
 		
 		
@@ -524,7 +526,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		
 			
 		}
-		private void finishGUIElements(final int lane){
+		public void finishGUIElements(final int lane){
 			runOnUiThread(new Runnable() {
 			     public void run() {
 			    	 if(Race.getInstance().getGameMode() == Race.ROUND_MODE)

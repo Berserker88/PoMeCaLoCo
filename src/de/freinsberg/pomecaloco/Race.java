@@ -980,7 +980,7 @@ public class Race {
 		if(mMode == TIMER_MODE){
 			mRaceTimer.stop();
 			//mTimer.setText(mRaceTimer.getCurrentTime());
-			Log.i("debug", "Race cancelled! at:"+mRaceTimer.getCurrentTime());
+			Log.i("debug", "Race cancelled at:"+mRaceTimer.getCurrentTime());
 			
 		}
 		else
@@ -999,29 +999,30 @@ public class Race {
 	 */
 	public void end_race(int lane){		
 		if(mMode == TIMER_MODE){
-
-			if(mRaceStarted){
+			
 				for(Player p :mPlayerArray){
 					p.incAttempt();
 				}
 				processResults(lane);
-			}
-			mRaceStarted = false;
+				mRaceActivity.finishGUIElements(lane);
+				mRaceStarted = false;
+			
 		}
 		else
 		{
-			mChronometer.stop();
-
-			if(mRaceStarted){
+			mChronometer.stop();			
 				for(Player p :mPlayerArray){
 					p.incAttempt();
 				}
 				processResults(lane);	
-			}
+				mRaceActivity.finishGUIElements(lane);
 			mRaceStarted = false;
 		}	
 		
 	}
+	
+	
+	
 	/**
 	 * This Method gets the players color as a Scalar according to the given lane. The value is get by using the method of the Player class.
 	 * @param lane The lane for which the color Scalar is needed.
