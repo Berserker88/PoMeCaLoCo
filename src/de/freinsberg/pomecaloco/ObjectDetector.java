@@ -35,31 +35,29 @@ public class ObjectDetector{
 	final public static int LEFT_CAR = 0x10;
 	final public static int BOTH_CAR = 0x11;
 	private static Mat mInputFrame;	
-	private Mat mStaticImage = null;
+//	private Mat mStaticImage = null;
 	private Mat mRgba = null;
 	private Mat mGray = null;
-	private Mat mHSV = null; 
+
 	private Mat mEdges = null; 
 	private Mat mHoughLines = null;
 	private int mHLthreshold = 30;
     private int mHLminLineSize = 50;
     private int mHLlineGap = 20;    
-    private Scalar mLeftLaneColor;
-    private Scalar mRightLaneColor;
+
     private Point mSeparatorPoint;
     private Point mLeftPoint;
     private Point mRightPoint;
     private boolean mFoundSeparatorLine;
     private boolean mFoundLeftLine;
     private boolean mFoundRightLine;
-    private boolean mDrawedLinesOnFrame;    
+     
     private boolean mColorsOnLeftLane;
     private boolean mColorsOnRightLane;
 	private int mLowerThreshold;
 	private int mUpperThreshold;
-	private Mat mThreshed = null; 
-	private Mat mLowerRangeImage = null;
-	private Mat mUpperRangeImage = null;
+
+
 	private Mat mEmptyTrack = null;
 	private Mat track_overlay = null;
 	private Bitmap mTrackOverlay= null;
@@ -76,11 +74,6 @@ public class ObjectDetector{
 	double[] mEmptyTrackPixelColor;
 	List <double[]> mFoundColors = new ArrayList<double[]>();	
 	private int avg_gray;
-	private File mStorageDir;
-	private File mHoughLinesImage;
-	private File mCannyEdgeImage;
-	private File mTrackColor;
-	private String mPath;
 	private static ObjectDetector mObjectDetector = new ObjectDetector();
 	
 	/**
@@ -189,11 +182,11 @@ public class ObjectDetector{
 		if(mInputFrame.empty())
 			Log.i("debug","mInputFramePortrait is empty!");
 		mRgba = mInputFrame.clone();
+		
 		double[] oldColors = new double[4];
 		double[] newColors = new double[4];
 		double[] avg_oldColors = new double[4];
-		double[] avg_newColors = new double[4];
-		double[] foundColor = new double[4];
+		double[] avg_newColors = new double[4];		
 		int scan_counter = 0;		
 		if(lane == Race.LEFT_LANE)
 			mColorsOnLeftLane = false;
@@ -253,7 +246,7 @@ public class ObjectDetector{
 				mLeftCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFrame.type(),mLeftCarColorScalar);				
 				mLeftCarColorImage = Bitmap.createBitmap(mLeftCarColor.cols(), mLeftCarColor.rows(), Bitmap.Config.ARGB_8888);
 				Utils.matToBitmap(mLeftCarColor, mLeftCarColorImage);					
-				mFoundColors.clear();
+				//mFoundColors.clear();
 				if(mColorsOnLeftLane)
 					Log.i("debug", "color on leftlane");
 				return mLeftCarColorImage;
@@ -271,7 +264,7 @@ public class ObjectDetector{
 				mRightCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFrame.type(),mRightCarColorScalar);
 				mRightCarColorImage = Bitmap.createBitmap(mRightCarColor.cols(), mRightCarColor.rows(), Bitmap.Config.ARGB_8888);
 				Utils.matToBitmap(mRightCarColor, mRightCarColorImage);				
-				mFoundColors.clear();
+				//mFoundColors.clear();
 				if(mColorsOnRightLane)
 					Log.i("debug", "color on rightlane");
 				return mRightCarColorImage;
@@ -356,7 +349,7 @@ public class ObjectDetector{
 					Point end = new Point(x2, y2);				
 					Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);
 					mSeparatorPoint = new Point(x1,y1);
-					mDrawedLinesOnFrame = true;
+					
 					mFoundSeparatorLine = true;						
 				}
 				
@@ -367,7 +360,7 @@ public class ObjectDetector{
 					Point end = new Point(x2, y2);				
 					Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);	
 					mLeftPoint = new Point(x1,y1);
-					mDrawedLinesOnFrame = true;
+					
 					mFoundLeftLine = true;
 				}
 				
@@ -378,7 +371,7 @@ public class ObjectDetector{
 					Point end = new Point(x2, y2);				
 					Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);			
 					mRightPoint = new Point(x1,y1);
-					mDrawedLinesOnFrame = true;
+					
 					mFoundRightLine = true;
 				}
 			}
@@ -400,6 +393,9 @@ public class ObjectDetector{
 	 * @return TRUE if colors are different, FALSE if colors are the same.
 	 */
 	public boolean isDifferent(double[] avg_oldColors, double[] avg_newColors){
+		
+		if((avg_newColors[0] == 0.0) && (avg_newColors[1] == 0.0) && (avg_newColors[2] == 0.0) && (avg_newColors[3] == 0.0))
+			return false;
 		
 		for(int i = 0; i < 4; i++)
 		{
@@ -485,9 +481,9 @@ public class ObjectDetector{
 		
 	}
 	
-	private boolean validInputFrame()
+	private boolean validInputFrame(Mat inputFrame)
 	{
-		if(mInputFrame.get(1, 1)[0] != 0.0)
+		if(inputFrame.get(1, 1)[3] != 0.0)
 			return true;
 		else
 			return false;
