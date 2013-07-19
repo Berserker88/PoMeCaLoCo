@@ -45,9 +45,9 @@ public class ObjectDetector{
     private int mHLminLineSize = 50;
     private int mHLlineGap = 20;    
 
-    private Point mSeparatorPoint;
-    private Point mLeftPoint;
-    private Point mRightPoint;
+    private int mSeparatorX;
+    private int mLeftX;
+    private int mRightX;
     private boolean mFoundSeparatorLine;
     private boolean mFoundLeftLine;
     private boolean mFoundRightLine;
@@ -117,8 +117,8 @@ public class ObjectDetector{
 	 */
 	public int[] getCenterOfLanes(){
 		int[] arr = new int[2];
-		arr[0] = (int) (((mSeparatorPoint.x - mLeftPoint.x) / 2) + mLeftPoint.x);
-		arr[1] = (int) (((mRightPoint.x -mSeparatorPoint.x) /2)+mSeparatorPoint.x);
+		arr[0] = (int) (((mSeparatorX - mLeftX) / 2) + mLeftX);
+		arr[1] = (int) (((mRightX -mSeparatorX) /2)+mSeparatorX);
 		
 		return arr;
 	}
@@ -291,6 +291,10 @@ public class ObjectDetector{
 		mEdges = new Mat();
 		mHoughLines = new Mat();
 		mEmptyTrack = new Mat();
+		
+		ArrayList<Point> separatorPointsList = new ArrayList<Point>();
+		ArrayList<Point> leftPointsList = new ArrayList<Point>();
+		ArrayList<Point> rightPointsList = new ArrayList<Point>();
 		//mStaticImage = Highgui.imread(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+ "track.jpg");
 
 		track_overlay = new Mat(new Size(mInputFrame.cols(), mInputFrame.rows()), mInputFrame.type(), new Scalar(0, 0, 0,0));
@@ -341,51 +345,143 @@ public class ObjectDetector{
 				double[] vec = mHoughLines.get(0, x);
 				double x1 = vec[0], y1 = vec[1], x2 = vec[2], y2 = vec[3];
 				//check for usable Lines at the center of the frame
-				if (x1 > mInputFrame.cols() / 2 - 30
-						&& x1 < mInputFrame.cols() / 2 + 30
-						&& x2 > mInputFrame.cols() / 2 - 30
-						&& x2 < mInputFrame.cols() / 2 + 30) {					
-					Point start = new Point(x1, y1);
-					Point end = new Point(x2, y2);				
-					Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);
-					mSeparatorPoint = new Point(x1,y1);
-					
+				if ((x1 > mInputFrame.cols() / 2 - 30) && (x1 < mInputFrame.cols() / 2 + 30) && (x2 > mInputFrame.cols() / 2 - 30)	&& (x2 < mInputFrame.cols() / 2 + 30)) 
+				{					
+					separatorPointsList.add(new Point(x1, y1));
+					separatorPointsList.add(new Point(x2, y2));					
+//					Point start = new Point(x1, y1);
+//					Point end = new Point(x2, y2);				
+					//Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);
+									
 					mFoundSeparatorLine = true;						
 				}
 				
 				//check for usable Lines at the left side of the frame
 				else if(x1 < 50 && x2 < 50)
 				{				
-					Point start = new Point(x1, y1);
-					Point end = new Point(x2, y2);				
-					Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);	
-					mLeftPoint = new Point(x1,y1);
-					
+					leftPointsList.add(new Point(x1, y1));
+					leftPointsList.add(new Point(x2, y2));	
+//					Point start = new Point(x1, y1);
+//					Point end = new Point(x2, y2);				
+//					Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);					
 					mFoundLeftLine = true;
 				}
 				
 				//check for usable Lines at the right side of the frame
 				else if(x1 > mInputFrame.cols() - 50 && x2 > mInputFrame.cols() - 50)
-				{				
-					Point start = new Point(x1, y1);
-					Point end = new Point(x2, y2);				
-					Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);			
-					mRightPoint = new Point(x1,y1);
-					
+				{			
+					rightPointsList.add(new Point(x1, y1));
+					rightPointsList.add(new Point(x2, y2));	
+//					Point start = new Point(x1, y1);
+//					Point end = new Point(x2, y2);				
+//					Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);								
 					mFoundRightLine = true;
 				}
-			}
+			}		
+			mSeparatorX = getTheMostlyMiddleX(separatorPointsList);				
+			Core.line(track_overlay, new Point(mSeparatorX, 0), new Point(mSeparatorX, mInputFrame.rows()-1),new Scalar(0, 0, 255, 255), 3);
+			mLeftX = getTheMostlyRightLeftX(leftPointsList);
+			Core.line(track_overlay, new Point(mLeftX, 0), new Point(mLeftX, mInputFrame.rows()-1),new Scalar(0, 0, 255, 255), 3);
+			mRightX = getTheMostlyLeftRightX(rightPointsList);
+			Core.line(track_overlay, new Point(mRightX, 0), new Point(mRightX, mInputFrame.rows()-1),new Scalar(0, 0, 255, 255), 3);
+			
+		}						
 			
 			mTrackOverlay = Bitmap.createBitmap(track_overlay.cols(),
 					track_overlay.rows(), Bitmap.Config.ARGB_8888);
 			Utils.matToBitmap(track_overlay, mTrackOverlay);
 			
 			mInputFrame.copyTo(mEmptyTrack); 	
+			return mTrackOverlay;
 		}
 
-		return mTrackOverlay;
-	}
 		
+	
+		
+	
+	
+	private int getTheMostlyMiddleX(ArrayList<Point> separatorPointsList){
+		
+		int distanceToTheMiddle = Integer.MAX_VALUE;
+		boolean leftFromTheMiddle = false;
+		boolean rightFromTheMiddle = false;
+		if(separatorPointsList != null)
+		{
+			for(Point p : separatorPointsList)
+			{
+				
+				if(p.x > mInputFrame.cols()/2)
+				{
+					Log.i("debug", "Separator Point Right to the Middle!");
+					if((p.x - mInputFrame.cols()/2) < distanceToTheMiddle){
+						distanceToTheMiddle = (int) (p.x - mInputFrame.cols()/2);
+						leftFromTheMiddle = false;
+						rightFromTheMiddle = true;
+						Log.i("debug", "It is '" + distanceToTheMiddle + "' Pixels away! Status for Left is: " + leftFromTheMiddle + " and for Right is: " + rightFromTheMiddle);
+					}
+						
+				}
+				else if(p.x < mInputFrame.cols()/2)
+				{
+					Log.i("debug", "Separator Point Left to the Middle!");
+					if((mInputFrame.cols()/2 - p.x) < distanceToTheMiddle)
+					{						
+						distanceToTheMiddle = (int) (mInputFrame.cols()/2 - p.x);
+						rightFromTheMiddle = false;
+						leftFromTheMiddle = true;
+						Log.i("debug", "It is '" + distanceToTheMiddle + "' Pixels away! Status for Left is: " + leftFromTheMiddle + " and for Right is: " + rightFromTheMiddle);
+					}
+				}
+			}
+			if(rightFromTheMiddle)
+				return mInputFrame.cols()/2 + distanceToTheMiddle;
+			else if(leftFromTheMiddle)
+				return mInputFrame.cols()/2 - distanceToTheMiddle;
+			else
+				return 0;
+			
+		}
+		else
+			return 0;
+	}
+	
+	
+	private int getTheMostlyRightLeftX(ArrayList<Point> leftPointsList){
+		int mostlyRightLeftX = Integer.MIN_VALUE;
+		
+		if(leftPointsList != null)
+		{
+			for(Point p : leftPointsList)
+			{
+				if(p.x > mostlyRightLeftX)
+				{
+					mostlyRightLeftX = (int) p.x;
+				}
+			}
+			return mostlyRightLeftX;
+		}
+		else
+			return 0;		
+	}
+	
+	private int getTheMostlyLeftRightX(ArrayList<Point> rightPointsList){
+		int mostlyLeftRightX = Integer.MAX_VALUE;
+		
+		if(rightPointsList != null)
+		{
+			for(Point p : rightPointsList)
+			{
+				if(p.x < mostlyLeftRightX)
+				{
+					mostlyLeftRightX = (int) p.x;
+				}
+			}
+			return mostlyLeftRightX;
+		}
+		else
+			return 0;		
+	}
+	
 	/**
 	 * This Function checks two given double[]'s for a value difference of certain amount in at least one value.
 	 * @param avg_oldColors The double[] with color values from the track lane.
@@ -451,7 +547,7 @@ public class ObjectDetector{
 	 * @return X-axis value for the rightLine.
 	 */
 	public int getRightSeparator(){
-		return (int) mRightPoint.x;
+		return mRightX;
 	}
 	
 	/**
@@ -459,7 +555,7 @@ public class ObjectDetector{
 	 * @return X-axis value for the leftLine.
 	 */
 	public int getLeftSeparator(){
-		return (int) mLeftPoint.x;
+		return mLeftX;
 	}
 
 	/**
