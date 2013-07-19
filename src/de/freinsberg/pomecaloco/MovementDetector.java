@@ -6,6 +6,8 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import android.util.Log;
+
 
 /**
  * This Class represents a MovementDetector
@@ -89,6 +91,7 @@ public class MovementDetector {
 		
 		double[] tmp;
 		boolean found = false;
+		
 		for(int i = 0; i < rgbImage.rows();i+=50){			
 			for(int j = ObjectDetector.getInstance().getLeftSeparator(); j < ObjectDetector.getInstance().getRightSeparator(); j+=50){
 				tmp = rgbImage.get(i, j);

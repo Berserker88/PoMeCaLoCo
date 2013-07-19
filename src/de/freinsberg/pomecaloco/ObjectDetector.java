@@ -34,6 +34,8 @@ public class ObjectDetector{
 	final public static int RIGHT_CAR = 0x01;
 	final public static int LEFT_CAR = 0x10;
 	final public static int BOTH_CAR = 0x11;
+	final private static int LEFT_LANE_THRESHOLD= 10;
+	final private static int RIGHT_LANE_THRESHOLD= -10;
 	private static Mat mInputFrame;	
 //	private Mat mStaticImage = null;
 	private Mat mRgba = null;
@@ -176,8 +178,7 @@ public class ObjectDetector{
 	 * @return The Bitmap with the found average color, Null if no color difference has been found.
 	 */
 	public Bitmap getColorInOffset(int x_offset, int y_offset, int lane){
-		mLeftCarColorScalar = null;
-		mRightCarColorScalar = null;
+		
 		Log.i("debug", "Into getColorInOffset for lane :"+lane);	
 		if(mInputFrame.empty())
 			Log.i("debug","mInputFramePortrait is empty!");
@@ -239,9 +240,8 @@ public class ObjectDetector{
 			if(!colorDetected)
 				mColorsOnLeftLane = false;
 			else{
-				mColorsOnLeftLane = true;
-				if(mLeftCarColorScalar == null)
-					mLeftCarColorScalar = new Scalar(avg_newColors);
+				mColorsOnLeftLane = true;				
+				mLeftCarColorScalar = new Scalar(avg_newColors);
 				Log.i("farbeee", "color on left lane IN ifelses: "+ mLeftCarColorScalar);
 				mLeftCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFrame.type(),mLeftCarColorScalar);				
 				mLeftCarColorImage = Bitmap.createBitmap(mLeftCarColor.cols(), mLeftCarColor.rows(), Bitmap.Config.ARGB_8888);
@@ -258,8 +258,7 @@ public class ObjectDetector{
 				mColorsOnRightLane = false;
 			else{
 				mColorsOnRightLane = true;
-				if(mRightCarColorScalar == null)
-					mRightCarColorScalar = new Scalar(avg_newColors);
+				mRightCarColorScalar = new Scalar(avg_newColors);
 				Log.i("farbeee", "color on right lane IN ifelses: "+ mRightCarColorScalar);
 				mRightCarColor = new Mat(getLanesToScanColor()[0].x,getLanesToScanColor()[0].y, mInputFrame.type(),mRightCarColorScalar);
 				mRightCarColorImage = Bitmap.createBitmap(mRightCarColor.cols(), mRightCarColor.rows(), Bitmap.Config.ARGB_8888);
@@ -458,7 +457,7 @@ public class ObjectDetector{
 					mostlyRightLeftX = (int) p.x;
 				}
 			}
-			return mostlyRightLeftX;
+			return mostlyRightLeftX + LEFT_LANE_THRESHOLD;
 		}
 		else
 			return 0;		
@@ -476,7 +475,7 @@ public class ObjectDetector{
 					mostlyLeftRightX = (int) p.x;
 				}
 			}
-			return mostlyLeftRightX;
+			return mostlyLeftRightX + RIGHT_LANE_THRESHOLD;
 		}
 		else
 			return 0;		
@@ -558,6 +557,16 @@ public class ObjectDetector{
 		return mLeftX;
 	}
 
+	
+	/**
+	 * This Function gets the x-axis value of the middleLine.
+	 * @return X-axis value for the middleLine.
+	 */
+	public int getMiddleSeparator(){
+		return mSeparatorX;
+	}
+	
+	
 	/**
 	 * This Function creates a Bitmap Array with the found color determined by getColorInOffset().
 	 * @return The Bitmap[] with 2 Bitmaps for the lanes ([0]: left-color|[1]: right-color). Index might be Null if there was no color found.
