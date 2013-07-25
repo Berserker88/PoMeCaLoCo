@@ -149,7 +149,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 		// Specify the layout to use when the list of choices appears
 		//mTracksAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		
-		mTracksAdapter = new MyTrackSpinnerAdapter(this,R.layout.choose_track_spinner,  R.layout.choose_track_spinner_item, mDbHelper.getAllTracksWithImages());
+		mTracksAdapter = new MyTrackSpinnerAdapter(this,  R.layout.choose_track_spinner, mDbHelper.getAllTracksWithImages());
 		// Apply the adapter to the spinner		
 		mTracks.setAdapter(mTracksAdapter);		
 		mTracks.setOnItemSelectedListener(new OnItemSelectedListener() {

@@ -3,20 +3,24 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/relativeLayout1"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="50dp"
     android:padding="3dip">
     <ImageView
         android:layout_width="20dp"
         android:layout_height="30dp"
-        android:id="@+id/choose_track_spinner_icon"        
+        android:id="@+id/choose_track_spinner_icon"   
+        android:layout_centerVertical="true"     
         android:layout_alignParentLeft="true"
         android:contentDescription="@string/choose_track_spinner_icon">        
     </ImageView>
     <TextView       
-        android:layout_marginTop="10dip"
+        android:layout_marginLeft="5dp"
         android:layout_width="wrap_content"
         android:id="@+id/choose_track_spinner_text"
-        android:layout_height="wrap_content"       
+        android:layout_height="wrap_content"      
+        android:layout_centerVertical="true"   
+        android:textColor="#FFFFFFFF" 
+        android:textSize="12pt"
         android:layout_toRightOf="@+id/choose_track_spinner_icon">
     </TextView>
 </RelativeLayout>

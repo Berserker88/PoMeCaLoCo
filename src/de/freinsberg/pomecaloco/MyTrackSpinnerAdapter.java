@@ -21,7 +21,7 @@ public class MyTrackSpinnerAdapter extends ArrayAdapter<Pair<String, byte[]>>{
 	//private static ArrayList <Pair<String, Bitmap>> mTracks;
  	
 
-	public MyTrackSpinnerAdapter(Context context, int resource, int textViewResourceId, List<Pair<String, byte[]>> objects) {
+	public MyTrackSpinnerAdapter(Context context, int textViewResourceId, List<Pair<String, byte[]>> objects) {
 		super(context, textViewResourceId, objects);
 		this.mObjects = objects;
 		this.mContext = context;
@@ -42,6 +42,7 @@ public class MyTrackSpinnerAdapter extends ArrayAdapter<Pair<String, byte[]>>{
     public View getCustomView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater=(LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View row=inflater.inflate(R.layout.choose_track_spinner, parent, false);
+        
         TextView label=(TextView)row.findViewById(R.id.choose_track_spinner_text);
         label.setText(mObjects.get(position).getL());
         

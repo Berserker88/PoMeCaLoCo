@@ -103,10 +103,9 @@
     <string name="finish_right_avg_speed_view">r. avg.</string>
     <string name="finish_right_timemode_driven_rounds_view">r. rounds</string>
     <string name="finish_right_roundmode_driven_time_view">r. time</string>
-    <string-array name="racemodes">
-        <item >Rundenrennen</item>
-        <item >Zeitfahren</item>
-    </string-array>
+
+    <string name="roundmode">Rundenrennen</string>
+    <string name="timermode">Zeitrennen</string>
     <string name="race_countdown">countdown</string>
     <string name="min_count_hint"># Minuten</string>
     <string name="lap_count_hint"># Runden</string>
