@@ -401,8 +401,10 @@ public class DBHelper extends SQLiteOpenHelper{
 		
 		Cursor cursor = mDB.query(TblPlayer_Track.NAME, new String[]{TblPlayer_Track.COL_ATTEMPT, TblPlayer_Track.COL_FASTESTROUND, TblPlayer_Track.COL_LASTAVERAGESPEED, TblPlayer_Track.COL_WHOLEAVERAGESPEED, TblPlayer_Track.COL_LASTDRIVENMETERS}, whereClause, new String[]{player, track}, null, null, null);
 		
-		if(!cursor.moveToFirst())
+		if(!cursor.moveToFirst()){
 			Log.i("debug", "No Infos for Player '"+player+"' on Track '" + track + "' in Player_Track table!");
+			return null;
+		}
 		
 		//Insert the Attempt into the ArrayList
 		playerinfos.add(""+cursor.getInt(0));
@@ -607,6 +609,12 @@ public class DBHelper extends SQLiteOpenHelper{
 	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
+
+	public ArrayList<String> getResultSet(String mSelectedName,	String mSelectedTrack, int mode) {
+		ArrayList<String> resultSet = new ArrayList<String>();
+		
+				return null;
+	}
 	
 	
 

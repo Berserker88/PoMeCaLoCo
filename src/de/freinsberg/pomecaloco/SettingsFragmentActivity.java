@@ -15,11 +15,14 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 public class SettingsFragmentActivity extends FragmentActivity implements
 		ActionBar.TabListener {
 	public static Context mContext;
+	private ResultsFragment mResultsFragment = new ResultsFragment();
+	private SetupFragment mSetupFragment = new SetupFragment();
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
 	 * fragments for each of the sections. We use a
@@ -124,15 +127,15 @@ public class SettingsFragmentActivity extends FragmentActivity implements
 		}
 
 		@Override
-        public Fragment getItem(int i) {
-            Fragment fragment = null;
+        public Fragment getItem(int i) {            
             if (i == 0) {
-                fragment = new ResultsFragment();
+            	return mResultsFragment;
+
             }
             if (i == 1) {
-                fragment = new SetupFragment();
+                return mSetupFragment;
             }
-            return fragment; 
+            return null; 
 		}
 
 		@Override
@@ -152,6 +155,8 @@ public class SettingsFragmentActivity extends FragmentActivity implements
 			return null;
 		}
 	}
+	
+
 
 	/**
 	 * A dummy fragment representing a section of the app, but that simply
@@ -178,5 +183,22 @@ public class SettingsFragmentActivity extends FragmentActivity implements
 					ARG_SECTION_NUMBER)));
 			return textView;
 		}
+	}
+	
+	public void onRadioButtonClicked(View view) {
+	    // Is the button now checked?
+	    boolean checked = ((RadioButton) view).isChecked();
+	    
+	    // Check which radio button was clicked
+	    switch(view.getId()) {
+	        case R.id.radio_roundmode:
+	            if (checked)
+	                mResultsFragment.setRoundModeChecked();
+	            break;
+	        case R.id.radio_timermode:
+	            if (checked)
+	                mResultsFragment.setTimerModeChecked();
+	            break;
+	    }
 	}
 	}
