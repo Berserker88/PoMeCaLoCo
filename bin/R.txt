@@ -142,6 +142,13 @@ int string attempt 0x7f06003f
 int string best_time 0x7f060027
 int string choose_track_spinner_icon 0x7f06000d
 int string complete 0x7f060020
+int string db_results_attempt 0x7f06006b
+int string db_results_fastestround 0x7f06006d
+int string db_results_lastaveragespeed 0x7f06006f
+int string db_results_lastdrivenmeters 0x7f06006e
+int string db_results_wholeaveragespeed 0x7f060070
+int string db_results_wholedrivenmeters 0x7f06006a
+int string db_results_wins 0x7f06006c
 int string dialog_cancel 0x7f06001d
 int string dialog_enter 0x7f06001b
 int string dialog_ghost 0x7f06001c

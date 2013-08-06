@@ -7,6 +7,7 @@ import java.util.List;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +53,18 @@ public class MyTrackSpinnerAdapter extends ArrayAdapter<Pair<String, byte[]>>{
 
         return row;
         }
+    
+    
+	public int getPosition(String preselectedTrack) {
+		int i = 0;
+		Log.i("debug","PreselectedTrack: " + preselectedTrack);
+		for(Pair<String, byte[]> p : mObjects) {
+			if(p.getL().equals(preselectedTrack))
+				return i;
+			i++;
+		}
+		return -1;
+	}
     
     
 

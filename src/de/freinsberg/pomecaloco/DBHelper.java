@@ -319,6 +319,14 @@ public class DBHelper extends SQLiteOpenHelper{
 				+ TblPlayer_Track.COL_WHOLEDRIVENMETERS + ") "	
 				+ "VALUES('" + playername + "', '" + trackname + "', " + mode + ", " + attempt + ", " + i_win + ", '" + fastestround + "', '" + averagespeed + "','" + averagespeed + "','" + drivenmeters + "', '" + drivenmeters + "')"
 			);
+		ContentValues values = new ContentValues();
+		values.put(TblPlayer.COL_LIFETIMEMETERS, drivenmeters);
+		int howManyRowsAffected = mDB.update(TblPlayer.NAME, values, TblPlayer.COL_NAME + "=?", new String[]{playername});
+		if(howManyRowsAffected < 1){
+			Log.i("debug","No Player to update Lifetimemeters for the first time!");
+			
+		}
+		
 	}
 	
 	public ArrayList<Pair<String,byte[]>> getAllTracksWithImages(){
@@ -393,47 +401,61 @@ public class DBHelper extends SQLiteOpenHelper{
 		return isPresent;
 	}
 	
-	public ArrayList<String> getPlayerInfos(String player, String track){
+	public ArrayList<String> getResultSet(String player, String track, int mode){
 		
-		ArrayList<String> playerinfos = new ArrayList<String>();
+		ArrayList<String> resultSet = new ArrayList<String>();
 		
-		String whereClause = TblPlayer_Track.COL_PLAYERNAME + "=? AND " + TblPlayer_Track.COL_TRACKNAME + "=?";
+		String whereClause = TblPlayer.COL_NAME + "=?";
 		
-		Cursor cursor = mDB.query(TblPlayer_Track.NAME, new String[]{TblPlayer_Track.COL_ATTEMPT, TblPlayer_Track.COL_FASTESTROUND, TblPlayer_Track.COL_LASTAVERAGESPEED, TblPlayer_Track.COL_WHOLEAVERAGESPEED, TblPlayer_Track.COL_LASTDRIVENMETERS}, whereClause, new String[]{player, track}, null, null, null);
+		Cursor cursor = mDB.query(TblPlayer.NAME, new String[]{TblPlayer.COL_LIFETIMEMETERS}, whereClause, new String[]{player}, null, null, null);
 		
 		if(!cursor.moveToFirst()){
-			Log.i("debug", "No Infos for Player '"+player+"' on Track '" + track + "' in Player_Track table!");
+			Log.i("debug", "No Player '"+player+"' in Player table!");
 			return null;
+		}		
+		//Insert the whole driven Meters into the ArrayList
+		resultSet.add(mContext.getResources().getString(R.string.db_results_wholedrivenmeters));
+		resultSet.add(""+cursor.getFloat(0));
+		
+		whereClause = TblPlayer_Track.COL_PLAYERNAME + "=? AND " + TblPlayer_Track.COL_TRACKNAME + "=? AND " + TblPlayer_Track.COL_MODE + "=?";
+		
+		
+		
+		cursor = mDB.query(TblPlayer_Track.NAME, new String[]{TblPlayer_Track.COL_ATTEMPT, TblPlayer_Track.COL_WINS, TblPlayer_Track.COL_FASTESTROUND, TblPlayer_Track.COL_LASTAVERAGESPEED, TblPlayer_Track.COL_WHOLEAVERAGESPEED, TblPlayer_Track.COL_LASTDRIVENMETERS}, whereClause, new String[]{player, track, ""+mode}, null, null, null);
+		
+		if(!cursor.moveToFirst()){
+			Log.i("debug", "No Infos for Player '"+player+"' on Track '" + track + "' with mode" + mode +" in Player_Track table!");
+			return resultSet;
 		}
 		
-		//Insert the Attempt into the ArrayList
-		playerinfos.add(""+cursor.getInt(0));
+		//Insert the #Attempt into the ArrayList
+		resultSet.add(mContext.getResources().getString(R.string.db_results_attempt));
+		resultSet.add(""+cursor.getInt(0));
+		
+		//Insert the #Wins into the ArrayList
+		resultSet.add(mContext.getResources().getString(R.string.db_results_wins));
+		resultSet.add(""+cursor.getInt(1));
 		
 		//Insert the Fastest Round into the ArrayList
-		playerinfos.add(cursor.getString(1));
+		resultSet.add(mContext.getResources().getString(R.string.db_results_fastestround));
+		resultSet.add(cursor.getString(2));
 		
 		//Insert the last average Speed into the ArrayList
-		playerinfos.add(""+cursor.getFloat(2));
+		resultSet.add(mContext.getResources().getString(R.string.db_results_lastaveragespeed));
+		resultSet.add(""+String.format("%.2f", cursor.getFloat(3)) + " m/s");
 		
 		//Insert the whole average Speed into the ArrayList
-		playerinfos.add(""+cursor.getFloat(3));
+		resultSet.add(mContext.getResources().getString(R.string.db_results_wholeaveragespeed));
+		resultSet.add(""+String.format("%.2f", cursor.getFloat(4)) + " m/s");
 		
 		//Insert the last driven Meters into the ArrayList
-		playerinfos.add(""+cursor.getFloat(4));
-		
-		whereClause = TblPlayer.COL_NAME + "=?";
-		
-		cursor = mDB.query(TblPlayer.NAME, new String[]{TblPlayer.COL_LIFETIMEMETERS}, whereClause, new String[]{player}, null, null, null);
-		
-		if(!cursor.moveToFirst())
-			Log.i("debug", "No Player '"+player+"' in Player table!");
-		
-		//Insert the whole driven Meters into the ArrayList
-		playerinfos.add(""+cursor.getFloat(0));
+		resultSet.add(mContext.getResources().getString(R.string.db_results_lastdrivenmeters));
+		resultSet.add(""+cursor.getFloat(5) + " Meter");		
+
 		
 		cursor.close();
 		
-		return playerinfos;		
+		return resultSet;		
 	}	
 
 	
@@ -512,7 +534,7 @@ public class DBHelper extends SQLiteOpenHelper{
 	
 	public void updatePlayerStats(String player, String track, int mode, boolean win, String fastestround, float avgspeed, float drivenmeters){		
 		
-		drivenmeters = getPlayerLifetimeMeters(player) + drivenmeters;
+		float lifetimemeters = getPlayerLifetimeMeters(player) + drivenmeters;
 		int i_win;
 		if(win)
 			i_win= 1;
@@ -520,7 +542,7 @@ public class DBHelper extends SQLiteOpenHelper{
 			i_win = 0;
 		ContentValues values = new ContentValues();
 		
-		values.put(TblPlayer.COL_LIFETIMEMETERS, drivenmeters);
+		values.put(TblPlayer.COL_LIFETIMEMETERS, lifetimemeters);
 		
 		mDB.update(TblPlayer.NAME, values, TblPlayer.COL_NAME + "=?", new String[]{player});
 		
@@ -610,11 +632,7 @@ public class DBHelper extends SQLiteOpenHelper{
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
 
-	public ArrayList<String> getResultSet(String mSelectedName,	String mSelectedTrack, int mode) {
-		ArrayList<String> resultSet = new ArrayList<String>();
-		
-				return null;
-	}
+
 	
 	
 

@@ -29,13 +29,13 @@ import android.widget.Toast;
  *
  */
 public class ObjectDetector{
-	
+	final private static float CANNY_THRESHOLD = (float) 0.1;
 	final public static int NO_CAR = 0x00;
 	final public static int RIGHT_CAR = 0x01;
 	final public static int LEFT_CAR = 0x10;
 	final public static int BOTH_CAR = 0x11;
-	final private static int LEFT_LANE_THRESHOLD= 10;
-	final private static int RIGHT_LANE_THRESHOLD= -10;
+	final private static int LEFT_LANE_THRESHOLD= 25;
+	final private static int RIGHT_LANE_THRESHOLD= -25;
 	private static Mat mInputFrame;	
 //	private Mat mStaticImage = null;
 	private Mat mRgba = null;
@@ -43,9 +43,9 @@ public class ObjectDetector{
 
 	private Mat mEdges = null; 
 	private Mat mHoughLines = null;
-	private int mHLthreshold = 30;
-    private int mHLminLineSize = 50;
-    private int mHLlineGap = 20;    
+	private int mHLthreshold = 5;
+    private int mHLminLineSize = 100;
+    private int mHLlineGap = 30;    
 
     private int mSeparatorX;
     private int mLeftX;
@@ -61,8 +61,8 @@ public class ObjectDetector{
 
 
 	private Mat mEmptyTrack = null;
-	private Mat track_overlay = null;
-	private Bitmap mTrackOverlay= null;
+	private Mat mMatTrackOverlay = null;
+	private Bitmap mBitmapTrackOverlay= null;
 	private Mat mCarRecognizerOverlay;
 	private Bitmap mCarRecognizer;
 	private Scalar mLeftCarColorScalar;
@@ -75,7 +75,7 @@ public class ObjectDetector{
 	double[] mScannedTrackPixelColor;
 	double[] mEmptyTrackPixelColor;
 	List <double[]> mFoundColors = new ArrayList<double[]>();	
-	private int avg_gray;
+	
 	private static ObjectDetector mObjectDetector = new ObjectDetector();
 	
 	/**
@@ -281,8 +281,8 @@ public class ObjectDetector{
 	 * Only these lines are drawed onto the track overlay. 
 	 * @return The generated track overlay with blue colored lines. If no Lines are found, the overlay is just transparent. 
 	 */
-	public Bitmap generate_track_overlay() {
-		// Load an Image to try operations on local stored files
+	public Bitmap generateTrackOverlay() {
+		
 		mFoundSeparatorLine = false;
 		mFoundLeftLine = false;
 		mFoundRightLine = false;
@@ -295,46 +295,37 @@ public class ObjectDetector{
 		ArrayList<Point> leftPointsList = new ArrayList<Point>();
 		ArrayList<Point> rightPointsList = new ArrayList<Point>();
 		//mStaticImage = Highgui.imread(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+ "track.jpg");
-
-		track_overlay = new Mat(new Size(mInputFrame.cols(), mInputFrame.rows()), mInputFrame.type(), new Scalar(0, 0, 0,0));
-		Log.i("debug", "Channels: " + track_overlay.channels());
-
-		Imgproc.cvtColor(mInputFrame, mGray, Imgproc.COLOR_RGBA2GRAY);
-
-		double[] grays = null;
-		double wert;
-		double count = 0;
-		double divider = 0;
+		Imgproc.cvtColor(mInputFrame, mGray, Imgproc.COLOR_RGBA2GRAY);		
+		int avgGray;
+		double wert = 0;	
+				
 		for (int i = 0; i < mGray.rows(); i++) {
-			for (int j = 0; j < mGray.cols(); j++) {
-				if (grays != null)
-					grays = null;
-				grays = mGray.get(i, j);
-				wert = grays[0];
-
-				divider++;
-				count = count + wert;
+			for (int j = 0; j < mGray.cols(); j++) {			
+				wert += mGray.get(i, j)[0];							
 			}
 		}
-		avg_gray = (int) (count / divider);
-		Log.i("debug", "avg_gray: " + avg_gray);
+		avgGray = (int) (wert / (mGray.rows() * mGray.cols()));
+		
+		Log.i("debug", "avg_gray: " + avgGray);
 
-		mLowerThreshold = (int) (avg_gray * 0.66);
-		mUpperThreshold = (int) (avg_gray * 1.33);
+		mLowerThreshold = (int) (avgGray * ( 1 - CANNY_THRESHOLD));
+		mUpperThreshold = (int) (avgGray * ( 1 + CANNY_THRESHOLD));
 
 		Imgproc.Canny(mGray, mEdges, mLowerThreshold, mUpperThreshold);
 		//mGray.release();
-		// Highgui.imwrite("/houghlines.png", mHoughLines);
-		//Log.i("debug","Status Sd-Karte: "+ Environment.getExternalStorageState());
-		//mStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+		//Highgui.imwrite("/houghlines.png", mEdges);
+		Log.i("debug","Status Sd-Karte: "+ Environment.getExternalStorageState());
+		File mStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
 
-//		mCannyEdgeImage = new File(mStorageDir, "canny.bmp");
-//		mPath = mCannyEdgeImage.toString();
-//		Boolean bool = Highgui.imwrite(mPath, mEdges);
-//		if (bool)
-//			Log.i("debug", "SUCCESS writing canny.bmp to external storage");
-//		else
-//			Log.i("debug", "Fail writing canny.bmp to external storage");
+		File mCannyEdgeImage = new File(mStorageDir, "canny.bmp");
+		String mPath = mCannyEdgeImage.toString();
+		Boolean bool = Highgui.imwrite(mPath, mEdges);
+		if (bool)
+			Log.i("debug", "SUCCESS writing canny.bmp to external storage");
+		else
+			Log.i("debug", "Fail writing canny.bmp to external storage");
+		
+		mMatTrackOverlay = new Mat(new Size(mInputFrame.cols(), mInputFrame.rows()), mInputFrame.type(), new Scalar(0, 0, 0,0));
 		
 		if((!mEdges.empty() && !mInputFrame.empty()))
 		{	
@@ -378,20 +369,20 @@ public class ObjectDetector{
 				}
 			}		
 			mSeparatorX = getTheMostlyMiddleX(separatorPointsList);				
-			Core.line(track_overlay, new Point(mSeparatorX, 0), new Point(mSeparatorX, mInputFrame.rows()-1),new Scalar(0, 0, 255, 255), 3);
+			Core.line(mMatTrackOverlay, new Point(mSeparatorX, 0), new Point(mSeparatorX, mInputFrame.rows()-1),new Scalar(0, 0, 255, 255), 3);
 			mLeftX = getTheMostlyRightLeftX(leftPointsList);
-			Core.line(track_overlay, new Point(mLeftX, 0), new Point(mLeftX, mInputFrame.rows()-1),new Scalar(0, 0, 255, 255), 3);
+			Core.line(mMatTrackOverlay, new Point(mLeftX, 0), new Point(mLeftX, mInputFrame.rows()-1),new Scalar(0, 0, 255, 255), 3);
 			mRightX = getTheMostlyLeftRightX(rightPointsList);
-			Core.line(track_overlay, new Point(mRightX, 0), new Point(mRightX, mInputFrame.rows()-1),new Scalar(0, 0, 255, 255), 3);
+			Core.line(mMatTrackOverlay, new Point(mRightX, 0), new Point(mRightX, mInputFrame.rows()-1),new Scalar(0, 0, 255, 255), 3);
 			
 		}						
 			
-			mTrackOverlay = Bitmap.createBitmap(track_overlay.cols(),
-					track_overlay.rows(), Bitmap.Config.ARGB_8888);
-			Utils.matToBitmap(track_overlay, mTrackOverlay);
+			mBitmapTrackOverlay = Bitmap.createBitmap(mMatTrackOverlay.cols(),
+					mMatTrackOverlay.rows(), Bitmap.Config.ARGB_8888);
+			Utils.matToBitmap(mMatTrackOverlay, mBitmapTrackOverlay);
 			
 			mInputFrame.copyTo(mEmptyTrack); 	
-			return mTrackOverlay;
+			return mBitmapTrackOverlay;
 		}
 
 		

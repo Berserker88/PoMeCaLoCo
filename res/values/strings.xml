@@ -117,5 +117,13 @@
     <string name="left_car_color">Farbe des linken Fahrzeugs</string>
     <string name="track_name">Streckenname</string>
     <string name="game_mode">Spielmodus</string>
+    <string name="db_results_wholedrivenmeters">Lifetime Meter</string>
+    <string name="db_results_attempt">Versuche</string>
+    <string name="db_results_wins">Siege</string>
+    <string name="db_results_fastestround">Schnellste Runde</string>
+    <string name="db_results_lastdrivenmeters">Letzte gefahr. Meter</string>
+    <string name="db_results_lastaveragespeed">Letzter Ø Speed</string>
+    <string name="db_results_wholeaveragespeed">Gesamter Ø Speed</string>
+    
 
 </resources>

@@ -25,8 +25,8 @@ containing a value of this type.
 <colgroup align="left" />
 <tr><th>Constant</th><th>Value</th><th>Description</th></tr>
 <tr><td><code>any</code></td><td>-1</td><td></td></tr>
-<tr><td><code>back</code></td><td>0</td><td></td></tr>
-<tr><td><code>front</code></td><td>1</td><td></td></tr>
+<tr><td><code>back</code></td><td>99</td><td></td></tr>
+<tr><td><code>front</code></td><td>98</td><td></td></tr>
 </table>
          */
         public static final int camera_id=0x7f010001;
@@ -191,6 +191,13 @@ containing a value of this type.
         public static final int best_time=0x7f060027;
         public static final int choose_track_spinner_icon=0x7f06000d;
         public static final int complete=0x7f060020;
+        public static final int db_results_attempt=0x7f06006b;
+        public static final int db_results_fastestround=0x7f06006d;
+        public static final int db_results_lastaveragespeed=0x7f06006f;
+        public static final int db_results_lastdrivenmeters=0x7f06006e;
+        public static final int db_results_wholeaveragespeed=0x7f060070;
+        public static final int db_results_wholedrivenmeters=0x7f06006a;
+        public static final int db_results_wins=0x7f06006c;
         public static final int dialog_cancel=0x7f06001d;
         public static final int dialog_enter=0x7f06001b;
         public static final int dialog_ghost=0x7f06001c;
@@ -354,8 +361,8 @@ containing a value of this type.
 <colgroup align="left" />
 <tr><th>Constant</th><th>Value</th><th>Description</th></tr>
 <tr><td><code>any</code></td><td>-1</td><td></td></tr>
-<tr><td><code>back</code></td><td>0</td><td></td></tr>
-<tr><td><code>front</code></td><td>1</td><td></td></tr>
+<tr><td><code>back</code></td><td>99</td><td></td></tr>
+<tr><td><code>front</code></td><td>98</td><td></td></tr>
 </table>
           @attr name android:camera_id
         */

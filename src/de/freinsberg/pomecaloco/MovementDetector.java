@@ -1,11 +1,15 @@
 package de.freinsberg.pomecaloco;
 
+import java.io.File;
+
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
+import android.os.Environment;
 import android.util.Log;
 
 
@@ -44,7 +48,13 @@ public class MovementDetector {
 	 */
 	public boolean colorDetected(Scalar color){
 		//Log.i("debug", "Jetzt check ich hier mal color Movement in colorDetected");
-		Mat bgrColored = new Mat(new Size(1,1),mInputFrame.type(),color);
+		Mat bgrColored = new Mat(new Size(10,10),mInputFrame.type(),color);
+		
+//		File mStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+//		File bgrFile = new File(mStorageDir, "bgred.bmp");
+//		String mPath = bgrFile.toString();
+//		Highgui.imwrite(mPath, bgrColored);
+		
 		Mat hsvColored = new Mat();
 		Mat hsvImage = new Mat();
 		Mat rgbImage = new Mat();
@@ -57,10 +67,18 @@ public class MovementDetector {
 		Mat thresholdedImage = new Mat();
 		Scalar upperColorThreshold;
 		Scalar lowerColorThreshold;
+		double[] exactColorBGR;
 		double[] exactColor;
 		
-		Imgproc.cvtColor(bgrColored, hsvColored, Imgproc.COLOR_BGR2HSV);
-		exactColor = hsvColored.get(0, 0);	
+		
+		Log.i("color", "Color detection colors----------------------start--------------------------");
+		exactColorBGR = bgrColored.get(0, 0);
+		Log.i("color", "BGR Color is --> R:" + exactColorBGR[0] + ",  G:" +  + exactColorBGR[1] + ",  B:" + exactColorBGR[2] + ", A:" + exactColorBGR[3]);
+		
+		Imgproc.cvtColor(bgrColored, hsvColored, Imgproc.COLOR_RGB2HSV);
+		exactColor = hsvColored.get(0, 0);
+		Log.i("color", "Hsv Color is --> H:" + exactColor[0] + ",  S:" +  + exactColor[1] + ",  V:" + exactColor[2] + ", A:" + exactColorBGR[3]);
+		Log.i("color", "Color detection colors-----------------------end---------------------------");
 		huePlus = (int) (exactColor[0]+HUE_THRESHOLD);
 		saturationPlus = (int) (exactColor[1]+SATURATION_THRESHOLD);
 		valuePlus = (int) (exactColor[2]+VALUE_THRESHOLD);
@@ -82,18 +100,23 @@ public class MovementDetector {
 		
 			
 		upperColorThreshold = new Scalar(huePlus,255,255);
-		lowerColorThreshold = new Scalar(hueMinus,100,100);		
+		lowerColorThreshold = new Scalar(hueMinus,180,180);		
 		
-		Imgproc.cvtColor(mInputFrame, hsvImage, Imgproc.COLOR_BGR2HSV);
+		Imgproc.cvtColor(mInputFrame, hsvImage, Imgproc.COLOR_RGB2HSV);
 		Core.inRange(hsvImage, lowerColorThreshold, upperColorThreshold, thresholdedImage);
 		
 		Imgproc.cvtColor(thresholdedImage, rgbImage, Imgproc.COLOR_GRAY2BGR);
 		
+//		bgrFile = new File(mStorageDir, "car in here.bmp");
+//		mPath = bgrFile.toString();
+//		Highgui.imwrite(mPath, rgbImage);
+		
 		double[] tmp;
 		boolean found = false;
 		
-		for(int i = 0; i < rgbImage.rows();i+=50){			
-			for(int j = ObjectDetector.getInstance().getLeftSeparator(); j < ObjectDetector.getInstance().getRightSeparator(); j+=50){
+		
+		for(int i = 0; i < rgbImage.rows();i+=25){			
+			for(int j = ObjectDetector.getInstance().getLeftSeparator(); j < ObjectDetector.getInstance().getRightSeparator(); j+=25){
 				tmp = rgbImage.get(i, j);
 				if(tmp[0] == 255){
 					found = true;
@@ -107,7 +130,7 @@ public class MovementDetector {
 		
 		rgbImage.release();
 		thresholdedImage.release();
-		hsvImage.release();		
+		hsvImage.release();
 		
 		return found;
 	}

@@ -46,7 +46,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		private int mMinLapCount;
 		private int mMode;
 		private int mPlayer;
-		
+		private boolean ichdarf = true;
 		private TextView raceview_countdown = null;
 		private ImageView visual_speed_faster = null;
 		private ImageView visual_speed_slower = null;
@@ -403,14 +403,25 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			}
 			else
 			{	
+				while(!ichdarf){
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {						
+						e.printStackTrace();
+					}					
+				}
+				ichdarf = false;
 				if(Race.getInstance().hasRaceBeenStarted()) //This is done to tell the Thread that he don't have to do this if a thread before has done this.
 				{
 					if(isOver == Race.GHOST_LANE)
-						lane = Race.GHOST_LANE;			
-					Log.i("debug", "Race is Over for LANE: " + lane);
+						lane = Race.GHOST_LANE;								
 					Race.getInstance().endRaceAndUpdateUI(lane);
+					Log.i("debug", "Race is Over for LANE: " + lane);
 					Log.i("debug", "Race stopped properly");
 				}
+				ichdarf = true;
+				
+				
 			}		
 		}
 		

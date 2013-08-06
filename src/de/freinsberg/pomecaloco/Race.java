@@ -72,6 +72,9 @@ public class Race {
 	private ArrayList<String> mLeftTimes = new ArrayList<String>();
 	private ArrayList<String> mRightTimes = new ArrayList<String>();
 	private RaceActivity mRaceActivity;	
+	private boolean mFirstCorrectMovementLeft;
+	private boolean mFirstCorrectMovementRight;
+	
 	private static Race mInstance = new Race();	
 	
 	/**
@@ -146,6 +149,8 @@ public class Race {
 			mLeftTimes.clear();
 		if(!mRightTimes.isEmpty())
 			mRightTimes.clear();
+		mFirstCorrectMovementLeft = true;
+		mFirstCorrectMovementRight = true;
 		mBestTimeOnLane  = null;
 		mNewRecord = new Pair<Boolean, Integer>(false, 0);
 		mWinner = 0;
@@ -237,8 +242,8 @@ public class Race {
 	public boolean isCorrectMovement(int lane, boolean recognized) {
 		
 		if(lane == LEFT_LANE)
-		{
-			boolean correctmovement = false;
+		{			
+			boolean correctMovement = false;
 			if(recognized) 
 			{
 				mLeftMovement = true;					
@@ -248,24 +253,30 @@ public class Race {
 				if (mLeftMovement)
 				{
 					mLeftMovement = false;	
-					correctmovement = true;
+					correctMovement = true;
+					Log.i("movement", "left lane: thread id = "+ Thread.currentThread().getId() +"' and correct move = "+ correctMovement);
 					Log.i("debug", "Linkes movement!");
 					if(getGameMode() == TIMER_MODE)
 						calcStatistics(lane, mMode, mRaceTimer.getCurrentTime());
 					else
 						calcStatistics(lane, mMode, mChronometer.getTimeElapsedString());
-					return correctmovement;
+//					if(mFirstCorrectMovementLeft){
+//						mFirstCorrectMovementLeft = false;
+//						return mFirstCorrectMovementLeft;
+//					}
+//					else
+						return correctMovement;
 				}
 				else
 				{
 					mLeftMovement = false;					
 				}
 			}
-			return correctmovement;
+			return correctMovement;
 		}
 		else
 		{
-			boolean correctmovement = false;
+			boolean correctMovement = false;
 			if(recognized) 
 			{
 				mRightMovement = true;			
@@ -275,20 +286,27 @@ public class Race {
 				if(mRightMovement)
 				{
 					mRightMovement = false;		
-					correctmovement = true;
+					correctMovement = true;
+					Log.i("movement", "right lane: thread id = "+ Thread.currentThread().getId() +"' and correct move = "+ correctMovement);
 					Log.i("debug", "Rechtes movement!");
 					if(getGameMode() == TIMER_MODE)
 						calcStatistics(lane, mMode, mRaceTimer.getCurrentTime());
 					else
 						calcStatistics(lane, mMode, mChronometer.getTimeElapsedString());
-					return correctmovement;
+//					if(mFirstCorrectMovementRight){
+//						mFirstCorrectMovementRight = false;
+//						return mFirstCorrectMovementRight;
+//					}
+//					else
+					return correctMovement;
 				}
 				else
 				{
 					mRightMovement = false;					
 				}
 			}
-			return correctmovement;			
+			
+			return correctMovement;			
 		}
 	}	
 	
@@ -999,6 +1017,7 @@ public class Race {
 	 * The truth value of mRaceStarted is set to FALSE.
 	 */
 	public void endRaceAndUpdateUI(int lane){		
+		mRaceStarted = false;
 		if(mMode == TIMER_MODE){
 			
 				for(Player p :mPlayerArray){
@@ -1006,7 +1025,7 @@ public class Race {
 				}
 				processResults(lane);
 				mRaceActivity.finishGUIElements(lane);
-				mRaceStarted = false;
+				
 			
 		}
 		else
@@ -1017,7 +1036,7 @@ public class Race {
 				}
 				processResults(lane);	
 				mRaceActivity.finishGUIElements(lane);
-			mRaceStarted = false;
+			
 		}	
 		
 	}

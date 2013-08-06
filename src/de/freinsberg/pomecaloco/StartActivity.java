@@ -187,7 +187,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				mFrameToProcess = ObjectDetector.getInstance(mInputFrame.clone());
 				if (scanner.getText() == getString(R.string.scan_track)) {
 					mAlphacounter = 100;		
-					frame_track_overlay.setImageBitmap(mFrameToProcess.generate_track_overlay());
+					frame_track_overlay.setImageBitmap(mFrameToProcess.generateTrackOverlay());
 					frame_track_overlay.setVisibility(View.VISIBLE);	
 					if(mFrameToProcess.getFoundLines() == false){
 						Toast.makeText(v.getContext(), "Bitte das Smartphone mittig über der Bahn platzieren.", Toast.LENGTH_LONG).show();

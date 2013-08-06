@@ -32,11 +32,8 @@ public class ResultsFragment  extends Fragment{
     private ArrayAdapter<String> mResultAdapter;
     private ArrayList<String> mResultSet = new ArrayList<String>();
     
-    private GridView results_grid;    
- 
-    public ResultsFragment(){
-         
-    } 
+    private GridView results_grid; 
+    public ResultsFragment(){} 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -50,14 +47,22 @@ public class ResultsFragment  extends Fragment{
 		results_track = (Spinner) v.findViewById(R.id.results_track);
 		results_name = (Spinner) v.findViewById(R.id.results_name);
 		results_racemode = (RadioGroup) v.findViewById(R.id.results_racemode);
-		results_grid = (GridView) v.findViewById(R.id.results_grid);	
-
+		results_grid = (GridView) v.findViewById(R.id.results_grid);
 		
 		mResultAdapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_list_item_1, mResultSet);
 		results_grid.setAdapter(mResultAdapter);
 		ArrayAdapter<String> nameAdapter = new ArrayAdapter<String>(mContext, R.layout.choose_name_spinner , mDbHelper.getAllPlayernames());
 		nameAdapter.setDropDownViewResource(R.layout.choose_name_spinner);
-		results_name.setAdapter(nameAdapter);
+		results_name.setAdapter(nameAdapter);		
+		
+		String preselectedPlayername = Race.getInstance().getPlayerName(0);
+		if(preselectedPlayername != null){
+			
+			int spinnerPos = nameAdapter.getPosition(preselectedPlayername);
+			Log.i("debug","Name Spinner Preselection to: " + spinnerPos);
+			results_name.setSelection(spinnerPos);
+		}
+		
 		results_name.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
@@ -77,6 +82,15 @@ public class ResultsFragment  extends Fragment{
 		
 		MyTrackSpinnerAdapter trackAdapter = new MyTrackSpinnerAdapter(mContext,  R.layout.choose_track_spinner, mDbHelper.getAllTracksWithImages());
 		results_track.setAdapter(trackAdapter);
+		
+		String preselectedTrack = Race.getInstance().getTrackName();
+		if(preselectedTrack != null){
+			
+			int spinnerPos = trackAdapter.getPosition(preselectedTrack);
+			Log.i("debug","Track Spinner Preselection to: " + spinnerPos);
+			results_name.setSelection(spinnerPos);
+		}
+		
 		results_track.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@SuppressWarnings("unchecked")
@@ -115,7 +129,7 @@ public class ResultsFragment  extends Fragment{
 			mode = Race.ROUND_MODE;
 		else if(mTimerMode)
 			mode = Race.TIMER_MODE;			
-		ArrayList<String> tempResults = mDbHelper.getPlayerInfos(mSelectedName, mSelectedTrack);
+		ArrayList<String> tempResults = mDbHelper.getResultSet(mSelectedName, mSelectedTrack, mode);
 		mResultSet.clear();
 		if(tempResults != null){
 			
