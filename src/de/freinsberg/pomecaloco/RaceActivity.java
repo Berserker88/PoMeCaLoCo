@@ -305,7 +305,14 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 	
 		@Override
 		public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-			final Mat m = inputFrame.rgba();
+			final Mat m = inputFrame.rgba();			
+			final Scalar sLeftPlayerColor = Race.getInstance().getPlayerColor(Race.LEFT_LANE);
+			final Scalar sRightPlayerColor = Race.getInstance().getPlayerColor(Race.RIGHT_LANE);
+			
+			//testing
+			//final ColorThresher threshedFrame = new ColorThresher(m, sLeftPlayerColor, sRightPlayerColor);
+			//testing
+			
 			if(Race.getInstance().hasRaceBeenStarted())
 			{
 				Thread thr = new Thread(new Runnable() {				
@@ -314,17 +321,15 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 						MovementDetector md;
 							if(!m.empty()) {				
 								md = new MovementDetector(m.clone());				
-								//detecting cars
-								Scalar s = Race.getInstance().getPlayerColor(Race.LEFT_LANE);				
-								if(s != null)
+								//detecting cars											
+								if(sLeftPlayerColor != null)
 								{
-									boolean recognized = md.colorDetected(s);	
+									boolean recognized = md.colorDetected(sLeftPlayerColor);	
 									countMovement(recognized, Race.LEFT_LANE);
-								}
-								s = Race.getInstance().getPlayerColor(Race.RIGHT_LANE);
-								if(s != null)
+								}								
+								if(sRightPlayerColor != null)
 								{
-									boolean recognized = md.colorDetected(s);			
+									boolean recognized = md.colorDetected(sRightPlayerColor);			
 									countMovement(recognized, Race.RIGHT_LANE);
 								}				
 								md.clear();			
@@ -334,6 +339,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 				thr.start();
 			}
 
+			//return threshedFrame.getThreshedImage();
 			return m;
 		}
 		

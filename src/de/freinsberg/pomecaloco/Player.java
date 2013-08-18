@@ -80,70 +80,70 @@ public class Player {
 		return mMode;	
 	}
 	
-	/**
-	 * This Method increases the number of attempts by 1.
-	 */
-	public void incAttempt(){
-		mAttempt = mAttempt + 1;
-	}
-	/**
-	 * This Mehtod returns the number of attempts this player has done.
-	 * @return The number of attempts.
-	 */
-	public int getAttempt(){
-		return mAttempt;
-	}
+//	/**
+//	 * This Method increases the number of attempts by 1.
+//	 */
+//	public void incAttempt(){
+//		mAttempt = mAttempt + 1;
+//	}
+//	/**
+//	 * This Mehtod returns the number of attempts this player has done.
+//	 * @return The number of attempts.
+//	 */
+//	public int getAttempt(){
+//		return mAttempt;
+//	}
 	
-	public void setLastDrivenMeters(double meters){
-		
-		mLastDrivenMeters = meters;		
-	}
+//	public void setLastDrivenMeters(double meters){
+//		
+//		mLastDrivenMeters = meters;		
+//	}
+//	
+//	public double getLastDrivenMeters(){
+//		
+//		return mLastDrivenMeters;
+//	}
+//	
+//	public void setWholeDrivenMeters(double meters){
+//		
+//		mWholeDrivenMeters = meters;
+//	}
+//	
+//	public double getWholeDrivenMeters(){
+//		
+//		return mWholeDrivenMeters;
+//	}
 	
-	public double getLastDrivenMeters(){
-		
-		return mLastDrivenMeters;
-	}
+//	public void setFastestRound(Track t, String time){
+//		
+//		mFastestRound.setL(t);
+//		mFastestRound.setR(time);
+//	}
+//	
+//	public String getFastestRound(Track t){
+//		return mFastestRound.getR();
+//	}
+//	
+//	public void setLastAverageSpeed(Track t, double speed){
+//		
+//		mLastAvgSpeed.setL(t);
+//		mLastAvgSpeed.setR(speed);		
+//	}
+//	
+//	public double getLastAverageSpeed(Track t){
+//		return mLastAvgSpeed.getR();
+//	}
 	
-	public void setWholeDrivenMeters(double meters){
-		
-		mWholeDrivenMeters = meters;
-	}
-	
-	public double getWholeDrivenMeters(){
-		
-		return mWholeDrivenMeters;
-	}
-	
-	public void setFastestRound(Track t, String time){
-		
-		mFastestRound.setL(t);
-		mFastestRound.setR(time);
-	}
-	
-	public String getFastestRound(Track t){
-		return mFastestRound.getR();
-	}
-	
-	public void setLastAverageSpeed(Track t, double speed){
-		
-		mLastAvgSpeed.setL(t);
-		mLastAvgSpeed.setR(speed);		
-	}
-	
-	public double getLastAverageSpeed(Track t){
-		return mLastAvgSpeed.getR();
-	}
-	
-	public void setWholeAverageSpeed(Track t, double speed){
-		
-		mWholeAvgSpeed.setL(t);
-		mWholeAvgSpeed.setR(speed);		
-	}	
-	
-	public double getWholeAverageSpeed(Track t){
-		
-		return mWholeAvgSpeed.getR();
-	}
+//	public void setWholeAverageSpeed(Track t, double speed){
+//		
+//		mWholeAvgSpeed.setL(t);
+//		mWholeAvgSpeed.setR(speed);		
+//	}	
+//	
+//	public double getWholeAverageSpeed(Track t){
+//		
+//		return mWholeAvgSpeed.getR();
+//	}
 	
 	/**
 	 * This Method gets the color of this player as a Scalar.

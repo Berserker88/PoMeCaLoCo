@@ -30,6 +30,12 @@ import android.widget.Toast;
  */
 public class ObjectDetector{
 	final private static float CANNY_THRESHOLD = (float) 0.1;
+	final private static int SEPARATORLINE_TOLERATION = 30;
+	final private static int HALF_SQUARE_SIDE_LENGTH = 15;
+	final private static int SQUARE_SIDE_LENGTH = 2*HALF_SQUARE_SIDE_LENGTH;
+	final private static int SQUARE_AREA = SQUARE_SIDE_LENGTH * SQUARE_SIDE_LENGTH;
+	final private static int COLOR_DIFFENRENCE = 50;
+	
 	final public static int NO_CAR = 0x00;
 	final public static int RIGHT_CAR = 0x01;
 	final public static int LEFT_CAR = 0x10;
@@ -149,8 +155,8 @@ public class ObjectDetector{
 	 */
 	public Rect[] getLanesToScanColor(){
 		Rect[] arr = new Rect[2];
-		arr[0] = new Rect(new Point(getCenterOfLanes()[0] - 15, (mInputFrame.rows()/2) - 15), new Point(getCenterOfLanes()[0] + 15, (mInputFrame.rows()/2) + 15));
-		arr[1] = new Rect(new Point(getCenterOfLanes()[1] - 15, (mInputFrame.rows()/2) - 15), new Point(getCenterOfLanes()[1] + 15, (mInputFrame.rows()/2) + 15));
+		arr[0] = new Rect(new Point(getCenterOfLanes()[0] - HALF_SQUARE_SIDE_LENGTH, (mInputFrame.rows()/2) - HALF_SQUARE_SIDE_LENGTH), new Point(getCenterOfLanes()[0] + HALF_SQUARE_SIDE_LENGTH, (mInputFrame.rows()/2) + HALF_SQUARE_SIDE_LENGTH));
+		arr[1] = new Rect(new Point(getCenterOfLanes()[1] - HALF_SQUARE_SIDE_LENGTH, (mInputFrame.rows()/2) - HALF_SQUARE_SIDE_LENGTH), new Point(getCenterOfLanes()[1] + HALF_SQUARE_SIDE_LENGTH, (mInputFrame.rows()/2) + HALF_SQUARE_SIDE_LENGTH));
 		
 		return arr;
 	}
@@ -172,12 +178,12 @@ public class ObjectDetector{
 	 * The Area is determined by the x- and y-offset which represents the position where a certain color should appear.
 	 * The used Method isDifferent is used to check, if the calculated average color differs from the calculated average color of the empty track.
 	 * If a color difference is found, this function creates a Bitmap with the size of the rectangle given by getLanesToScanColor(), filled with the color.
-	 * @param x_offset The x_offset to get the x-axis position to start color detection.
-	 * @param y_offset The y_offset to get the y-axis position to start color detection.
+	 * @param xOffset The x- offset to get the x-axis position to start color detection.
+	 * @param yOffset The y- offset to get the y-axis position to start color detection.
 	 * @param lane The lane to scan.
 	 * @return The Bitmap with the found average color, Null if no color difference has been found.
 	 */
-	public Bitmap getColorInOffset(int x_offset, int y_offset, int lane){
+	private Bitmap getColorInOffset(int xOffset, int yOffset, int lane){
 		
 		Log.i("debug", "Into getColorInOffset for lane :"+lane);	
 		if(mInputFrame.empty())
@@ -187,15 +193,14 @@ public class ObjectDetector{
 		double[] oldColors = new double[4];
 		double[] newColors = new double[4];
 		double[] avg_oldColors = new double[4];
-		double[] avg_newColors = new double[4];		
-		int scan_counter = 0;		
+		double[] avg_newColors = new double[4];					
 		if(lane == Race.LEFT_LANE)
 			mColorsOnLeftLane = false;
 		else if(lane == Race.RIGHT_LANE)
-			mColorsOnRightLane = false;			
+			mColorsOnRightLane = false;
 		Log.i("debug", "Before FOR getColorInOffset for lane :"+lane);			
-		for(int x = x_offset;x< x_offset +30;x++){
-			for (int y = y_offset;y < y_offset+30;y++){
+		for(int x = xOffset;x< xOffset +SQUARE_SIDE_LENGTH;x++){
+			for (int y = yOffset;y < yOffset+SQUARE_SIDE_LENGTH;y++){
 				if(mEmptyTrack.empty())
 					Log.i("debug","mEmptyTrack is empty");
 				
@@ -211,8 +216,6 @@ public class ObjectDetector{
 					Log.i("debug", "mScannedTrackPixelColor == null, at: "+x+", "+y);
 				if(mEmptyTrackPixelColor == null)
 					Log.i("debug","mEmptyTrackPixelColor == null, at: "+x+", "+y);
-				scan_counter++;
-
 				for(int i = 0; i <= 3; i++) {
 				newColors[i] += mScannedTrackPixelColor[i];
 				}
@@ -225,8 +228,8 @@ public class ObjectDetector{
 		mRgba.release();
 		Log.i("debug", "Between FOR getColorInOffset for lane :"+lane);	
 		for(int i = 0; i <= 3; i++) {
-			avg_oldColors[i] = oldColors[i] / scan_counter;
-			avg_newColors[i] = newColors[i] / scan_counter;
+			avg_oldColors[i] = oldColors[i] / SQUARE_AREA;
+			avg_newColors[i] = newColors[i] / SQUARE_AREA;
 
 		}
 		Log.i("debug", "After FOR getColorInOffset for lane :"+lane);	
@@ -335,7 +338,7 @@ public class ObjectDetector{
 				double[] vec = mHoughLines.get(0, x);
 				double x1 = vec[0], y1 = vec[1], x2 = vec[2], y2 = vec[3];
 				//check for usable Lines at the center of the frame
-				if ((x1 > mInputFrame.cols() / 2 - 30) && (x1 < mInputFrame.cols() / 2 + 30) && (x2 > mInputFrame.cols() / 2 - 30)	&& (x2 < mInputFrame.cols() / 2 + 30)) 
+				if ((x1 > mInputFrame.cols() / 2 - SEPARATORLINE_TOLERATION) && (x1 < mInputFrame.cols() / 2 + SEPARATORLINE_TOLERATION) && (x2 > mInputFrame.cols() / 2 - SEPARATORLINE_TOLERATION)	&& (x2 < mInputFrame.cols() / 2 + SEPARATORLINE_TOLERATION)) 
 				{					
 					separatorPointsList.add(new Point(x1, y1));
 					separatorPointsList.add(new Point(x2, y2));					
@@ -474,18 +477,18 @@ public class ObjectDetector{
 	
 	/**
 	 * This Function checks two given double[]'s for a value difference of certain amount in at least one value.
-	 * @param avg_oldColors The double[] with color values from the track lane.
-	 * @param avg_newColors The double[] with color values from a possible car.
+	 * @param avgOldColors The double[] with color values from the track lane.
+	 * @param avgNewColors The double[] with color values from a possible car.
 	 * @return TRUE if colors are different, FALSE if colors are the same.
 	 */
-	public boolean isDifferent(double[] avg_oldColors, double[] avg_newColors){
+	public boolean isDifferent(double[] avgOldColors, double[] avgNewColors){
 		
-		if((avg_newColors[0] == 0.0) && (avg_newColors[1] == 0.0) && (avg_newColors[2] == 0.0) && (avg_newColors[3] == 0.0))
-			return false;
+//		if((avgNewColors[0] == 0.0) && (avgNewColors[1] == 0.0) && (avgNewColors[2] == 0.0) && (avgNewColors[3] == 0.0))
+//			return false;
 		
 		for(int i = 0; i < 4; i++)
 		{
-			if(avg_newColors[i] > avg_oldColors[i] + 50 ||avg_newColors[i] < avg_oldColors[i] - 50)			
+			if(avgNewColors[i] > avgOldColors[i] + COLOR_DIFFENRENCE ||avgNewColors[i] < avgOldColors[i] - COLOR_DIFFENRENCE)			
 				return true;			
 		}
 		return false;

@@ -484,18 +484,18 @@ public class Race {
 		return mCount;
 	}
 	
-	/**
-	 * This Method gets the attempt for the given player.
-	 * @param p The Player for which the attempt is needed.
-	 * @return The attempt, 0 if there is no Player found for this lane.
-	 */
-	public int getAttempt(int lane){
-		for(Player p : mPlayerArray){
-			if(p.getLane() == lane)
-				return p.getAttempt();		
-		}
-		return 0;
-	}
+//	/**
+//	 * This Method gets the attempt for the given player.
+//	 * @param p The Player for which the attempt is needed.
+//	 * @return The attempt, 0 if there is no Player found for this lane.
+//	 */
+//	public int getAttempt(int lane){
+//		for(Player p : mPlayerArray){
+//			if(p.getLane() == lane)
+//				return p.getAttempt();		
+//		}
+//		return 0;
+//	}
 	
 	/**
 	 * This Method gets the driven meters during this race for the lane.
@@ -1020,9 +1020,9 @@ public class Race {
 		mRaceStarted = false;
 		if(mMode == TIMER_MODE){
 			
-				for(Player p :mPlayerArray){
-					p.incAttempt();
-				}
+//				for(Player p :mPlayerArray){
+//					p.incAttempt();
+//				}
 				processResults(lane);
 				mRaceActivity.finishGUIElements(lane);
 				
@@ -1031,9 +1031,9 @@ public class Race {
 		else
 		{
 			mChronometer.stop();			
-				for(Player p :mPlayerArray){
-					p.incAttempt();
-				}
+//				for(Player p :mPlayerArray){
+//					p.incAttempt();
+//				}
 				processResults(lane);	
 				mRaceActivity.finishGUIElements(lane);
 			
