@@ -1,15 +1,10 @@
 package de.freinsberg.pomecaloco;
 
-import java.io.File;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
-
-import android.os.Environment;
 import android.util.Log;
 
 
@@ -28,8 +23,7 @@ public class MovementDetector {
 	final public static int VALUE_THRESHOLD = 80;
 	private static final int X_AXIS_STEP_SIZE = 25;
 	private static final int Y_AXIS_STEP_SIZE = 25;
-	public Mat mInputFrame;	
-	public boolean mColorDetected;
+	private Mat mInputFrame;
 	
 	/**
 	 * Constructor: Creates a MovementDetector for a given Mat. This Mat is rotated 90° clock-wise by doing a transpose followed by a horizontal flip. This is done because the given Mat comes in landscape format and the Mat to work with should be the same format as it is seen on the camera frame.
@@ -52,10 +46,9 @@ public class MovementDetector {
 	 * @param color The color to detect.
 	 * @return TRUE if the given Color was found in this Frame, FALSE if the given Color wasn't found.
 	 */
-	public boolean colorDetected(Scalar color){
-		//Log.i("debug", "Jetzt check ich hier mal color Movement in colorDetected");
-		Mat bgrColored = new Mat(new Size(10,10),mInputFrame.type(),color);
+	public boolean detectColor(Scalar color){
 		
+		Mat bgrColored = new Mat(new Size(10,10),mInputFrame.type(),color);		
 //		File mStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
 //		File bgrFile = new File(mStorageDir, "bgred.bmp");
 //		String mPath = bgrFile.toString();
@@ -65,28 +58,19 @@ public class MovementDetector {
 		Mat hsvImage = new Mat();
 		Mat rgbImage = new Mat();
 		int upperHue;
-		int saturationPlus;
-		int valuePlus;
+
 		int lowerHue;
-		int saturationMinus;
-		int valueMinus;
+
 		Mat thresholdedImage = new Mat();
 		Mat thresholdedImageUpperRange = new Mat();
 		Mat thresholdedImageLowerRange = new Mat();
 		Scalar upperColorThreshold;
 		Scalar lowerColorThreshold;
-		double[] exactColorBGR;
 		double[] exactColorHSV;
-		
-		
-//		Log.i("color", "Color detection colors----------------------start--------------------------");
-		exactColorBGR = bgrColored.get(0, 0);
-//		Log.i("color", "BGR Color is --> R:" + exactColorBGR[0] + ",  G:" +  + exactColorBGR[1] + ",  B:" + exactColorBGR[2] + ", A:" + exactColorBGR[3]);
 		
 		Imgproc.cvtColor(bgrColored, hsvColored, Imgproc.COLOR_RGB2HSV);
 		exactColorHSV = hsvColored.get(0, 0);
-//		Log.i("color", "Hsv Color is --> H:" + exactColorHSV[0] + ",  S:" +  + exactColorHSV[1] + ",  V:" + exactColorHSV[2] + ", A:" + exactColorBGR[3]);
-//		Log.i("color", "Color detection colors-----------------------end---------------------------");
+
 		
 		upperHue = (int) (exactColorHSV[0]+HUE_THRESHOLD);
 		lowerHue = (int) (exactColorHSV[0]-HUE_THRESHOLD);
@@ -94,19 +78,7 @@ public class MovementDetector {
 			upperHue -= 180;
 		if(lowerHue <0)
 			lowerHue += 180;
-		
-//		saturationPlus = (int) (exactColorHSV[1]+SATURATION_THRESHOLD);
-//		saturationMinus = (int) (exactColorHSV[1]-SATURATION_THRESHOLD);
-//		valuePlus = (int) (exactColorHSV[2]+VALUE_THRESHOLD);
-//		valueMinus = (int) (exactColorHSV[2]-VALUE_THRESHOLD);		
-//		if(saturationPlus <0)			
-//			saturationPlus = 0;
-//		if(saturationMinus <0)
-//			hueMinus = 0;
-//		if(valuePlus <0)
-//			valuePlus = 0;
-//		if(valueMinus <0)
-//			huePlus = 0;		
+	
 		Imgproc.cvtColor(mInputFrame, hsvImage, Imgproc.COLOR_RGB2HSV);
 		lowerColorThreshold = new Scalar(lowerHue,LOWER_SATURATION_VALUE,LOWER_BRIGHTNESS_VALUE);				
 		upperColorThreshold = new Scalar(upperHue,UPPER_SATURATION_VALUE,UPPER_BRIGHTNESS_VALUE);
@@ -123,15 +95,12 @@ public class MovementDetector {
 		}
 			
 	
-//		Imgproc.cvtColor(thresholdedImage, rgbImage, Imgproc.COLOR_GRAY2BGR);
-		
+//		Imgproc.cvtColor(thresholdedImage, rgbImage, Imgproc.COLOR_GRAY2BGR);		
 //		bgrFile = new File(mStorageDir, "car in here.bmp");
 //		mPath = bgrFile.toString();
 //		Highgui.imwrite(mPath, rgbImage);
-		
-		double[] tmp;
-		boolean found = false;
-		
+
+		boolean found = false;		
 		
 		for(int i = 0; i < thresholdedImage.rows();i+=X_AXIS_STEP_SIZE){			
 			for(int j = ObjectDetector.getInstance().getLeftSeparator(); j < ObjectDetector.getInstance().getRightSeparator(); j+=Y_AXIS_STEP_SIZE){				

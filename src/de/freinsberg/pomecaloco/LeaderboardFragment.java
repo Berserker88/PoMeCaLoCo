@@ -8,11 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
  
-public class SetupFragment  extends Fragment {
+public class LeaderboardFragment  extends Fragment {
 	
     private Context mContext;
  
-        public SetupFragment(){
+        public LeaderboardFragment(){
          
     }
  

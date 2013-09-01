@@ -1,9 +1,5 @@
 package de.freinsberg.pomecaloco;
 
-/*
- * The Android chronometer widget revised so as to count milliseconds
- */
-
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
@@ -13,6 +9,11 @@ import android.util.Log;
 import android.widget.TextView;
 import java.text.DecimalFormat;
 
+/**
+ *  The Android chronometer widget revised so as to count milliseconds
+ * @author antoniom and modified by freinsberg
+ *
+ */
 public class MillisecondChronometer extends TextView {
     @SuppressWarnings("unused")
 	private static final String TAG = "Chronometer";
@@ -30,7 +31,7 @@ public class MillisecondChronometer extends TextView {
 
     private static final int TICK_WHAT = 2;
 
-    private long timeElapsed;
+    private long mTimeElapsed;
     private String mTimeElapsedString;
     
     public MillisecondChronometer(Context context) {    	
@@ -106,12 +107,12 @@ public class MillisecondChronometer extends TextView {
     }
 
     private synchronized void updateText(long now) {
-        timeElapsed = now - mBase;
+        mTimeElapsed = now - mBase;
         
         DecimalFormat df = new DecimalFormat("00");
         
-        int hours = (int)(timeElapsed / (3600 * 1000));
-        int remaining = (int)(timeElapsed % (3600 * 1000));
+        int hours = (int)(mTimeElapsed / (3600 * 1000));
+        int remaining = (int)(mTimeElapsed % (3600 * 1000));
         
         int minutes = (int)(remaining / (60 * 1000));
         remaining = (int)(remaining % (60 * 1000));
@@ -119,7 +120,7 @@ public class MillisecondChronometer extends TextView {
         int seconds = (int)(remaining / 1000);
         remaining = (int)(remaining % (1000));
         
-        int milliseconds = (int)(((int)timeElapsed % 1000) / 10);
+        int milliseconds = (int)(((int)mTimeElapsed % 1000) / 10);
         
         String text = "";
         
@@ -169,9 +170,13 @@ public class MillisecondChronometer extends TextView {
     }
 
 	public long getTimeElapsed() {
-		return timeElapsed;
+		return mTimeElapsed;
 	}
 
+	/**
+	 * Return the elapsed time of the chronometer as a String representative.
+	 * @return The time string.
+	 */
 	public String getTimeElapsedString() {
 		return mTimeElapsedString;
 	}

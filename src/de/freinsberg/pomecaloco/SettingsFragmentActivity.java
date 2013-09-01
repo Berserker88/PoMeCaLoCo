@@ -22,7 +22,7 @@ public class SettingsFragmentActivity extends FragmentActivity implements
 		ActionBar.TabListener {
 	public static Context mContext;
 	private ResultsFragment mResultsFragment = new ResultsFragment();
-	private SetupFragment mSetupFragment = new SetupFragment();
+	private LeaderboardFragment mSetupFragment = new LeaderboardFragment();
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
 	 * fragments for each of the sections. We use a

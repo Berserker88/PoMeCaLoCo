@@ -63,9 +63,9 @@ public class Race {
 	private float mTrackLength;
 	private int mNumberOfPlayers;
 	private Pair<String,Integer> mBestTimeOnLane;
-	public List<Player> mPlayerArray = new ArrayList<Player>();
-	public MyTimer mRaceTimer;
-	public MillisecondChronometer mChronometer;	
+	private List<Player> mPlayerArray = new ArrayList<Player>();
+	private MyTimer mRaceTimer;
+	private MillisecondChronometer mChronometer;	
 	private TextView mTimer;
 	private TextView mSpeedUpdater;
 	private TextView mBestTimeUpdater;
@@ -878,7 +878,7 @@ public class Race {
 				}
 				else
 				{
-					mDbHelper.createPlayerTrack(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), 1, i_win, getFastestRound(RIGHT_LANE), (float) getAvgSpeed(RIGHT_LANE), (float) getDrivenMeters(RIGHT_LANE));
+					mDbHelper.createPlayerTrack(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), i_win, getFastestRound(RIGHT_LANE), (float) getAvgSpeed(RIGHT_LANE), (float) getDrivenMeters(RIGHT_LANE));
 				}
 				break;
 			}
@@ -904,7 +904,7 @@ public class Race {
 				}
 				else
 				{
-					mDbHelper.createPlayerTrack(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), 1, i_win, getFastestRound(LEFT_LANE), (float) getAvgSpeed(LEFT_LANE), (float) getDrivenMeters(LEFT_LANE));
+					mDbHelper.createPlayerTrack(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), i_win, getFastestRound(LEFT_LANE), (float) getAvgSpeed(LEFT_LANE), (float) getDrivenMeters(LEFT_LANE));
 				}
 				break;
 			}
@@ -935,7 +935,7 @@ public class Race {
 				}
 				else
 				{
-					mDbHelper.createPlayerTrack(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), 1, i_win ,getFastestRound(LEFT_LANE), (float) getAvgSpeed(LEFT_LANE), (float) getDrivenMeters(LEFT_LANE));
+					mDbHelper.createPlayerTrack(mPlayerArray.get(0).getName(), mTrackName, getGameMode(), i_win ,getFastestRound(LEFT_LANE), (float) getAvgSpeed(LEFT_LANE), (float) getDrivenMeters(LEFT_LANE));
 				}
 			}
 			if(mDbHelper.isPlayerPresent(mPlayerArray.get(1).getName()))
@@ -968,7 +968,7 @@ public class Race {
 				}
 				else
 				{
-					mDbHelper.createPlayerTrack(mPlayerArray.get(1).getName(), mTrackName, getGameMode(), 1, i_win , getFastestRound(RIGHT_LANE), (float) getAvgSpeed(RIGHT_LANE), (float) getDrivenMeters(RIGHT_LANE));
+					mDbHelper.createPlayerTrack(mPlayerArray.get(1).getName(), mTrackName, getGameMode(), i_win , getFastestRound(RIGHT_LANE), (float) getAvgSpeed(RIGHT_LANE), (float) getDrivenMeters(RIGHT_LANE));
 				}
 			}
 			break;	

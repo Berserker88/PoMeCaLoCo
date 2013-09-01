@@ -1,19 +1,19 @@
 package de.freinsberg.pomecaloco;
 
-import java.text.DecimalFormat;
 import java.util.List;
-
 import android.os.CountDownTimer;
-import android.text.format.Time;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 
+/**
+ * 
+ * @author freinsberg
+ *
+ */
 public class MyTimer extends CountDownTimer{
 	
 	public int mCountdown = 0;
-	public long mMsCountdown;
-	public long mMsCountUp;
+	private long mMsCountdown;	
 	private boolean mIsFinished = false;
 	public boolean isRaceCountdown = false;
 	public boolean isTimerRace = false;
@@ -22,15 +22,14 @@ public class MyTimer extends CountDownTimer{
 	public List<String> mCountdownValues;
 
 	private MyTimer(long millisInFuture, long countDownInterval) {
-		super(millisInFuture, countDownInterval);
-		// TODO Automatisch generierter Konstruktorstub
+		super(millisInFuture, countDownInterval);		
 	}
-	public MyTimer(long millisInFuture, long countDownInterval, List<String> countdownvalues, TextView tv) {		
+	public MyTimer(long millisInFuture, long countDownInterval, List<String> countDownValues, TextView tv) {		
 		super(millisInFuture, countDownInterval);
 		isRaceCountdown = true;
 		mIsFinished = false;
 		Log.i("debug", "Im Timer für den Countdown zum Rennen");
-		mCountdownValues = countdownvalues;		
+		mCountdownValues = countDownValues;		
 		mTv = tv;
 	}
 	public MyTimer(long millisInFuture, long countDownInterval, TextView tv) {		

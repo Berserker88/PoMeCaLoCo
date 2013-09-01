@@ -70,7 +70,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		private Button end_race;
 		public MyTimer mRaceTimer;
 		public MillisecondChronometer mChronometer;	
-		public static CameraBridgeViewBase mOpenCvCameraView;
+		private static CameraBridgeViewBase mOpenCvCameraView;
 		protected PowerManager.WakeLock mWakeLock;
 		
 		@Override
@@ -279,7 +279,8 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			});							
 		
 		}				
-		@Override
+		
+		@Override		
 		public void onPause() {
 			this.mWakeLock.release();
 			
@@ -324,12 +325,12 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 								//detecting cars											
 								if(sLeftPlayerColor != null)
 								{
-									boolean recognized = md.colorDetected(sLeftPlayerColor);	
+									boolean recognized = md.detectColor(sLeftPlayerColor);	
 									countMovement(recognized, Race.LEFT_LANE);
 								}								
 								if(sRightPlayerColor != null)
 								{
-									boolean recognized = md.colorDetected(sRightPlayerColor);			
+									boolean recognized = md.detectColor(sRightPlayerColor);			
 									countMovement(recognized, Race.RIGHT_LANE);
 								}				
 								md.clear();			
@@ -351,8 +352,9 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, this,
 					mLoaderCallback);			
 		}
-		@Override
-	    public void onBackPressed() {
+		
+		@Override		
+		public void onBackPressed() {
 			new AlertDialog.Builder(this)
 				.setTitle("Beenden?")
 				.setMessage("Wollen Sie die App beenden?")
@@ -366,7 +368,6 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 	        	.setNegativeButton("Abbrechen", null)
 	        	.show();
 	    }
-
 	
 		private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 			@Override
@@ -384,6 +385,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 				}
 			}
 		};
+		
 		private Object MyShotTask;
 		
 		public void start(){			
@@ -430,9 +432,6 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 				
 			}		
 		}
-		
-		
-		
 		
 		public void updateGUIElements(final int lane) {
 			if(lane == Race.GHOST_LANE){		
@@ -541,6 +540,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		
 			
 		}
+		
 		public void finishGUIElements(final int lane){
 			runOnUiThread(new Runnable() {
 			     public void run() {

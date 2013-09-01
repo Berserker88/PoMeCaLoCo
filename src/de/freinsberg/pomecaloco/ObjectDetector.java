@@ -481,7 +481,7 @@ public class ObjectDetector{
 	 * @param avgNewColors The double[] with color values from a possible car.
 	 * @return TRUE if colors are different, FALSE if colors are the same.
 	 */
-	public boolean isDifferent(double[] avgOldColors, double[] avgNewColors){
+	private boolean isDifferent(double[] avgOldColors, double[] avgNewColors){
 		
 //		if((avgNewColors[0] == 0.0) && (avgNewColors[1] == 0.0) && (avgNewColors[2] == 0.0) && (avgNewColors[3] == 0.0))
 //			return false;

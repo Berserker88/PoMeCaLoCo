@@ -12,6 +12,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+/**
+ * This class represents the database including the databasescheme, methods and testdata. 
+ * @author freinsberg
+ *
+ */
 public class DBHelper extends SQLiteOpenHelper{
 	
 	private static final String DB_NAME = "pomecaloco.db";
@@ -19,12 +24,16 @@ public class DBHelper extends SQLiteOpenHelper{
 	private Context mContext;	
 	private SQLiteDatabase mDB;
 	
+	/**
+	 * Creates the database object
+	 * @param context The given context where the database is been used.
+	 */
 	public DBHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
 		mContext = context;
 		
 	}
-	//following section declares the database layout
+	//the following section declares the database layout
 	
 	private class TblTrack {
 		
@@ -138,6 +147,9 @@ public class DBHelper extends SQLiteOpenHelper{
 			initTracks();
 	}
 
+	/** 
+	 * This method is used to open the database connection. the running database gets assigned to be writable. 
+	 */
 	public void openDB(){
 		
 		mDB = getWritableDatabase();
@@ -161,6 +173,10 @@ public class DBHelper extends SQLiteOpenHelper{
 		createTrack("Kreuzungsbahn", true, (float)5.50, stream.toByteArray());		
 	}
 	
+/**
+ * This Method creates a player in the player-table.
+ * @param name The name of the player to be inserted into the database.
+ */
 	public void createPlayer(String name){
 		mDB.execSQL(
 				"INSERT INTO "+ TblPlayer.NAME + "(" 
@@ -168,9 +184,18 @@ public class DBHelper extends SQLiteOpenHelper{
 				+ TblPlayer.COL_LIFETIMEMETERS + ")"
 				+ "VALUES('" + name + "', " + 0 +")"
 			);
+		//TODO: exception handling!
 	}
 		
+	/**
+	 * This Method creates a track in the track-table.
+	 * @param name The Track name.
+	 * @param iscrossed Is it a crossed Track.
+	 * @param length How long is this track in meters.
+	 * @param image A picture of the track for.
+	 */
 	private void createTrack(String name, boolean iscrossed, float length, byte[] image){
+		
 		Log.i("debug", "Byte[] before insertion into tracks: " + image);
 		Log.i("debug", "mDb: " + mDB);
 		ContentValues vals = new ContentValues();
@@ -179,8 +204,17 @@ public class DBHelper extends SQLiteOpenHelper{
 		vals.put(TblTrack.COL_LENGTH, length);
 		vals.put(TblTrack.COL_IMAGE, image);
 		mDB.insert(TblTrack.NAME, null, vals);
+		//TODO: exception handling!
 	}
 	
+	/**
+	 * This Method creates a new ghost in Roundmode for the given value combination.
+	 * @param name The name of the track.
+	 * @param rounds How many round have been set for the race.
+	 * @param timesList A list of the calculated round times.
+	 * @param total_time The total time the ghost has needed.
+	 * @return true if Roundghost has been successfully stored into the database, false if not.
+	 */
 	public boolean createRoundGhost(String name, int rounds, ArrayList<String> timesList, String total_time) {
 		
 		String times = "";
@@ -227,6 +261,14 @@ public class DBHelper extends SQLiteOpenHelper{
 		}
 	}
 	
+	/**
+	 * This Method creates a new ghost in Timermode for the given value combination.
+	 * @param name The name of the track.
+	 * @param time How many minutes have been set for the race.
+	 * @param timesList A list of the calculated round times.
+	 * @param total_rounds How many round have been completed.
+	 * @return true if Timerghost has been successfully stored into the database, false if not.
+	 */
 	public boolean createTimeGhost(String name, int time, ArrayList<String> timesList, int total_rounds) {
 		
 		String times = "";
@@ -272,6 +314,12 @@ public class DBHelper extends SQLiteOpenHelper{
 		}
 	}
 	
+	/**
+	 * Gets the total_time of a Roundghost for the given parameters.
+	 * @param name The name of the track.
+	 * @param rounds The number of round the ghost has been stored with.
+	 * @return The total_time.
+	 */
 	public String getRoundGhostTotalTime(String name, int rounds) {
 		String total_time="";
 		
@@ -284,21 +332,36 @@ public class DBHelper extends SQLiteOpenHelper{
 		
 	}
 	
-	public int getTimeGhostRounds(String track, int time) {
+	/**
+	 * Gets the total_rounds of a Timerghost for the given parameters.
+	 * @param name The name of the Track.
+	 * @param time The amount of minutes the ghost has been stores with.
+	 * @return The number of rounds.
+	 */
+	public int getTimeGhostRounds(String name, int time) {
 		int rounds;
 				
 		String whereClause = TblTimeGhost.COL_NAME + "=? AND " + TblTimeGhost.COL_TIME + "=?";
-		Cursor cursor = mDB.query(TblTimeGhost.NAME, new String[]{TblTimeGhost.COL_TIMES}, whereClause, new String[]{track, ""+time}, null, null, null);
+		Cursor cursor = mDB.query(TblTimeGhost.NAME, new String[]{TblTimeGhost.COL_TIMES}, whereClause, new String[]{name, ""+time}, null, null, null);
 		cursor.moveToFirst();
 		
 		rounds = new ArrayList<String>(Arrays.asList(cursor.getString(0).split(";"))).size();
 		Log.i("debug", "TimeGhost has '" + rounds + "' rounds.");
-		return rounds;
-		
-		
+		return rounds;				
 	}
 	
-	public void createPlayerTrack(String playername, String trackname, int mode, int attempt, boolean win, String fastestround, float averagespeed, float drivenmeters){
+	/**
+	 * This method has only to be called when the method isPlayerTrackPresent() returns false.
+	 * Creates  and stores a new dataset for a combination of player-track-mode into the database. 	 * 
+	 * @param playername The name of the player.
+	 * @param trackname The name of the track.
+	 * @param mode The racemode (roundmode or rimermode).	
+	 * @param win Did this player win the race ?
+	 * @param fastestround The fastest round in this race.
+	 * @param averagespeed The average speed in this race.
+	 * @param drivenmeters The driven meters in this race.
+	 */
+	public void createPlayerTrack(String playername, String trackname, int mode, boolean win, String fastestround, float averagespeed, float drivenmeters){
 		int i_win;
 		if(win)
 			i_win= 1;
@@ -317,7 +380,7 @@ public class DBHelper extends SQLiteOpenHelper{
 				+ TblPlayer_Track.COL_WHOLEAVERAGESPEED + ", "
 				+ TblPlayer_Track.COL_LASTDRIVENMETERS + ", "	
 				+ TblPlayer_Track.COL_WHOLEDRIVENMETERS + ") "	
-				+ "VALUES('" + playername + "', '" + trackname + "', " + mode + ", " + attempt + ", " + i_win + ", '" + fastestround + "', '" + averagespeed + "','" + averagespeed + "','" + drivenmeters + "', '" + drivenmeters + "')"
+				+ "VALUES('" + playername + "', '" + trackname + "', " + mode + ", " + 1 + ", " + i_win + ", '" + fastestround + "', '" + averagespeed + "','" + averagespeed + "','" + drivenmeters + "', '" + drivenmeters + "')"
 			);
 		ContentValues values = new ContentValues();
 		values.put(TblPlayer.COL_LIFETIMEMETERS, drivenmeters);
@@ -329,6 +392,10 @@ public class DBHelper extends SQLiteOpenHelper{
 		
 	}
 	
+	/**
+	 * This Method returns all tracks with its images.
+	 * @return All pairs of track and image.
+	 */
 	public ArrayList<Pair<String,byte[]>> getAllTracksWithImages(){
 		ArrayList<Pair<String,byte[]>> tracks = new ArrayList<Pair<String,byte[]>>();
 		Cursor cursor = mDB.query(TblTrack.NAME, new String[]{TblTrack.COL_NAME,TblTrack.COL_IMAGE}, null, null, null, null, TblTrack.COL_NAME);
@@ -347,6 +414,11 @@ public class DBHelper extends SQLiteOpenHelper{
 		
 	}
 	
+	/**
+	 * Gets the track length in meters.
+	 * @param name The track which length is needed.
+	 * @return The track length in meters.
+	 */
 	public float getTrackLength(String name){
 		Log.i("debug", "Get Track Length for: "+ name);
 		float length;
@@ -361,6 +433,10 @@ public class DBHelper extends SQLiteOpenHelper{
 		
 	}
 	
+	/**
+	 * This method gets all names of the stored players in the player-table.
+	 * @return A list of all found player names.
+	 */
 	public ArrayList<String> getAllPlayernames(){
 		ArrayList<String> names = new ArrayList<String>();
 		Cursor cursor = mDB.query(TblPlayer.NAME, new String[]{TblPlayer.COL_NAME}, null, null, null, null, TblPlayer.COL_NAME);
@@ -376,6 +452,11 @@ public class DBHelper extends SQLiteOpenHelper{
 		return names;
 	}
 	
+	/**
+	 * This method checks if a player is present in the database.
+	 * @param name The name of the player to be searched.
+	 * @return true If a player with the given name is present in the player-table, false if not. 
+	 */
 	public boolean isPlayerPresent(String name){
 		
 		boolean isPresent = false;
@@ -388,6 +469,14 @@ public class DBHelper extends SQLiteOpenHelper{
 		return isPresent;	
 	}
 	
+	/**
+	 * This method has to be called before createPlayerTrack() is been called. 
+	 * It checks if a dataset for the given combination of player, track, and mode is created before and is available in the database.
+	 * @param player The player name.
+	 * @param track The track name.
+	 * @param mode The Racemode.
+	 * @return true, if a dataset for this combination has been found in the database, false if not.
+	 */
 	public boolean isPlayerTrackPresent(String player, String track, int mode) {
 	
 		boolean isPresent = false;
@@ -401,6 +490,13 @@ public class DBHelper extends SQLiteOpenHelper{
 		return isPresent;
 	}
 	
+	/**
+	 * Gets a result set for a given combination of the player, the track and the racemode.
+	 * @param player The player name.
+	 * @param track The track name.
+	 * @param mode The racemode (roundmode or timermode).
+	 * @return The resultset including the values: attempt, wins, fastest round, last average speed, whole average speed an last driven meters. They are stored with a description at the first place following the value in the array list.
+	 */
 	public ArrayList<String> getResultSet(String player, String track, int mode){
 		
 		ArrayList<String> resultSet = new ArrayList<String>();
@@ -458,7 +554,11 @@ public class DBHelper extends SQLiteOpenHelper{
 		return resultSet;		
 	}	
 
-	
+	/**
+	 * Gets the total meters a player has been driven.
+	 * @param name The player name
+	 * @return The total meters in meters.
+	 */
 	public float getPlayerLifetimeMeters(String name) {
 		float meters;
 		
@@ -473,10 +573,16 @@ public class DBHelper extends SQLiteOpenHelper{
 		
 	}
 	
-	public boolean isRoundGhostPresent(String track, int rounds){
+	/**
+	 * Checks, if a roundghost with the given parameters has been stored into the database.
+	 * @param name The track name.
+	 * @param rounds The rounds the ghost has been stored with.
+	 * @return true If a ghost has been found in the database, false if not.
+	 */
+	public boolean isRoundGhostPresent(String name, int rounds){
 		
 		boolean isPresent;		
-		Cursor cursor = mDB.query(TblRoundGhost.NAME, new String[]{TblRoundGhost.COL_TIMES}, TblRoundGhost.COL_NAME + "=? AND " + TblRoundGhost.COL_ROUNDS + "=?", new String[]{track, ""+rounds}, null, null, null);
+		Cursor cursor = mDB.query(TblRoundGhost.NAME, new String[]{TblRoundGhost.COL_TIMES}, TblRoundGhost.COL_NAME + "=? AND " + TblRoundGhost.COL_ROUNDS + "=?", new String[]{name, ""+rounds}, null, null, null);
 		isPresent = cursor.moveToFirst();
 		cursor.close();
 		
@@ -486,6 +592,12 @@ public class DBHelper extends SQLiteOpenHelper{
 			return false;		
 	}
 	
+	/**
+	 * Checks, if a timerghost with the given parameters has been stored into the database.
+	 * @param track The track name.
+	 * @param time The number of minutes the ghost has been stored with.
+	 * @return true If a ghost has been found in the database, false if not.
+	 */
 	public boolean isTimeGhostPresent(String track, int time) {
 		
 		boolean isPresent;
@@ -500,6 +612,12 @@ public class DBHelper extends SQLiteOpenHelper{
 			return false;		
 	}
 	
+	/**
+	 * This method gets a roundghost out of the database.
+	 * @param track The track name.
+	 * @param rounds The number of rounds that have been stored with the ghost.
+	 * @return A list of the round_times represented as a String Array.
+	 */
 	public ArrayList<String> getRoundGhost(String track, int rounds) {
 		String times;
 		ArrayList<String> timesList;
@@ -516,13 +634,19 @@ public class DBHelper extends SQLiteOpenHelper{
 		return timesList;		
 	}
 	
-	public ArrayList<String> getTimeGhost(String track, int time) {
+	/**
+	 * This method gets a timerghost out of the database.
+	 * @param name The track name.
+	 * @param time The number of minutes that have been stored with the ghost.
+	 * @return
+	 */
+	public ArrayList<String> getTimeGhost(String name, int time) {
 		String times;
 		ArrayList<String> timesList;
 		
 		String whereClause = TblTimeGhost.COL_TIME+"=? AND "+ TblTimeGhost.COL_NAME +"=?";
 		
-		Cursor cursor = mDB.query(TblTimeGhost.NAME, new String[]{TblTimeGhost.COL_TIMES}, whereClause, new String[]{""+time, track}, null, null, null);		
+		Cursor cursor = mDB.query(TblTimeGhost.NAME, new String[]{TblTimeGhost.COL_TIMES}, whereClause, new String[]{""+time, name}, null, null, null);		
 		cursor.moveToFirst();
 		
 		times = cursor.getString(0);
@@ -532,6 +656,17 @@ public class DBHelper extends SQLiteOpenHelper{
 		return timesList;		
 	}
 	
+	/**
+	 * This method has only to be called when the method isPlayerTrackPresent() returns true.
+	 * The player-track-mode dataset is been updated with the given parameters.
+	 * @param player The player name.
+	 * @param track The track name.
+	 * @param mode The racemode (roundmode oder timermode).
+	 * @param win Did the player win the race?
+	 * @param fastestround The fastest round the player has driven in the race.
+	 * @param avgspeed The average speed the player has driven in the race.
+	 * @param drivenmeters The driven meters the player has driven in the race.
+	 */
 	public void updatePlayerStats(String player, String track, int mode, boolean win, String fastestround, float avgspeed, float drivenmeters){		
 		
 		float lifetimemeters = getPlayerLifetimeMeters(player) + drivenmeters;
@@ -567,6 +702,13 @@ public class DBHelper extends SQLiteOpenHelper{
 		
 	}
 
+	/**
+	 * Gets the attempt the player made on the combination of player-track-mode.
+	 * @param player The player name.
+	 * @param track THe track name.
+	 * @param mode The racemode (roundmode or timermode)
+	 * @return The attempt as a decimal number.
+	 */
 	public int getPlayerTrackAttempt(String player, String track, int mode) {
 		
 		int attempt;
@@ -582,6 +724,13 @@ public class DBHelper extends SQLiteOpenHelper{
 		return attempt;
 	}
 	
+	/**
+	 * Gets the wins the player made on the combination of player-track-mode.
+	 * @param player The player name.
+	 * @param track The track name.
+	 * @param mode The racemode(roundmode or timermode).
+	 * @return The wins as a decimal number.
+	 */
 	public int getPlayerTrackWins(String player, String track, int mode) {
 		
 		int wins;
@@ -597,6 +746,13 @@ public class DBHelper extends SQLiteOpenHelper{
 		return wins;
 	}
 	
+	/**
+	 * Gets the whole meters the player has driven on the combination of player-track-mode.
+	 * @param player The player name.
+	 * @param track The track name.
+	 * @param mode The racemode (roundmode or timermode)
+	 * @return The whole driven meters in meters.
+	 */
 	public float getPlayerTrackWholeDrivenMeters(String player, String track, int mode){
 		
 		float wholedrivenmeters;
@@ -613,6 +769,13 @@ public class DBHelper extends SQLiteOpenHelper{
 		return wholedrivenmeters;	
 	}
 	
+	/**
+	 * Gets the whole average speed the player did in all races in combination of player-track-mode.
+	 * @param player The player name.
+	 * @param track The track name.
+	 * @param mode The racemode(roundmode or timermode).
+	 * @return The whole average speed as a floating point number.
+	 */
 	public float getPlayerTrackWholeAverageSpeed(String player, String track, int mode){
 		
 		float wholeavgspeed;
@@ -630,10 +793,6 @@ public class DBHelper extends SQLiteOpenHelper{
 	}
 	
 	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
-
-
-	
-	
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}	
 
 }
