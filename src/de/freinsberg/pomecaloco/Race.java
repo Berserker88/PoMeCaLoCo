@@ -3,22 +3,18 @@ package de.freinsberg.pomecaloco;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
-
 import android.content.Context;
-import android.graphics.Color;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
-import android.widget.Chronometer;
 import android.widget.TextView;
-import android.widget.Toast;
 
+/**
+ * This singletom class represents a race.
+ * @author freinsberg
+ *
+ */
 public class Race {
-	
-	private Mat mPreparedTrack;	
 	final public static int ROUND_MODE = 1;
 	final public static int TIMER_MODE = 2;	
 	final public static int LEFT_LANE = 1;
@@ -27,53 +23,56 @@ public class Race {
 	final public static int SLOWER = -1;
 	final public static int SAME = 0;
 	final public static int FASTER = 1;
-	private Pair<Double, Integer> mActVisualSpeedValueLeft;
-	private Pair<Double, Integer> mActVisualSpeedValueRight;
+	
+	private DBHelper mDbHelper;
+	
+	private RaceActivity mRaceActivity;	
+	
+	private TextView mTimer;
+	private MyTimer mRaceTimer;
+	
+	private MillisecondChronometer mChronometer;
+	
+	private Pair<Double, Integer> mActVisualSpeedValue;	
+	private Pair<String,Integer> mBestTimeOnLane;
+	private Pair<Boolean, Integer> mNewRecord;
+	
 	private boolean mLeftMovement = false;
 	private boolean mRightMovement = false;
 	private boolean mRaceStarted = false;
-	private boolean mTimeIsUp = false;
-	private Pair<Boolean, Integer> mNewRecord;
-	private int mWinner;
+	public boolean mGhostMode = false;
+
+
+	private ArrayList<String> mGhostTimes;
 	private ArrayList<Double> mGhostSpeeds;
-	private DBHelper mDbHelper;
+	private ArrayList<String> mDriveThroughTimesGhost;
+	private ArrayList<String> mLeftTimes = new ArrayList<String>();
+	private ArrayList<String> mRightTimes = new ArrayList<String>();
+	
+	private List<Player> mPlayerArray = new ArrayList<Player>();
+	
+	private int mWinner;	
 	private int mMode;
 	private int mCount;
 	private int mCarStatus;
-	public boolean mGhostMode;
 	private int mActLeftRound;
 	private int mActRightRound;
 	private int mActGhostRound;
+	
+	private float mTrackLength;
+
 	private double mActLeftSpeed;
 	private double mActRightSpeed;
 	private double mActGhostSpeed;
+	
 	private String mOldBestTimeLeft;
-	private int[] mOldBestTimeLeftArray;
-	private int[] mOldBestTimeRightArray;
 	private String mOldBestTimeRight;
 	private String mActLeftRoundTime;		
-	private String mActRightRoundTime;
-	private ArrayList<String> mGhostTimes;
+	private String mActRightRoundTime;	
 	private String mRoundGhostFinishedTime;
-	private ArrayList<String> mDriveThroughTimesGhost;
-	private String mBestTime;
 	private String mOldTimeLeft;
 	private String mOldTimeRight;
 	private String mTrackName;
-	private float mTrackLength;
-	private int mNumberOfPlayers;
-	private Pair<String,Integer> mBestTimeOnLane;
-	private List<Player> mPlayerArray = new ArrayList<Player>();
-	private MyTimer mRaceTimer;
-	private MillisecondChronometer mChronometer;	
-	private TextView mTimer;
-	private TextView mSpeedUpdater;
-	private TextView mBestTimeUpdater;
-	private ArrayList<String> mLeftTimes = new ArrayList<String>();
-	private ArrayList<String> mRightTimes = new ArrayList<String>();
-	private RaceActivity mRaceActivity;	
-	private boolean mFirstCorrectMovementLeft;
-	private boolean mFirstCorrectMovementRight;
 	
 	private static Race mInstance = new Race();	
 	
@@ -89,14 +88,17 @@ public class Race {
 	public static Race getInstance(){
 		return mInstance;
 	};
-	
+
 	/**
-	 * This Method generates a new race with the given parameters count, mode, track, numberofplayers.
-	 * These parameters are mapped to the appropriate member variables to make them usable during a race.
+	 * This Method generates a new race with the given parameters.
+	 * It is called before the StartActivity is finished and assigns the data from the race preparation into variables of this class.
+	 * @param context The context to open the database connection.
 	 * @param count The Number of Round (Roundmode) or the Number of Minutes (Timermode) the race will have.
 	 * @param mode The gamemode for this race, wether Roundmode or Timermode.
 	 * @param track The track to drive on.
-	 * @param numberofplayers The Number of players on this track.
+	 * @param carStatus Where where the cars scanned and how many cars have been scanned.
+	 * @param names The names of the player/s active in this race
+	 * @param ghostMode Is this a race againt the besttime? (Yes(true) or no(false)).
 	 */
 	@SuppressWarnings("unchecked")
 	public void newRace(Context context, int count, int mode, Object track, int carStatus, List<String> names, boolean ghostMode) {				
@@ -110,14 +112,20 @@ public class Race {
 		mCarStatus = carStatus;
 		mGhostMode = ghostMode;
 		createPlayer(names);
-		Log.i("debug","Neues Rennen:(1=Rundenrennen,2=Zeitrennen)Spielmodus"+mMode+", Counter: "+mCount+", Track: "+mTrackName+", NumberOfPlayers: "+mNumberOfPlayers+" erstellt");		
+		Log.i("debug","New race prepared! ");		
+		Log.i("debug","       racemode(roundrace = '1' | timerrace = '2'): " + mMode);
+		Log.i("debug","       how many rounds | minutes:                     " + mCount);
+		Log.i("debug","       which track:                                   " + mTrackName);
+		Log.i("debug","       car status(no_car = '0' | left_car = '10' | " +
+			          "	      right_car = '01' | both_car = '11'):           " + mCarStatus);
+		Log.i("debug","       race against besttime:                         " + mGhostMode);
 	}
 
 	/**
 	 * This Method creates players for a race, the given parameter carstatus defines the lane for the player. 
 	 * The parameter names has to contain a List of names with name at position 0 in oneplayer mode or with name for left player at position 0 and right player at position 1 in twoplayer mode.   
 	 * @param carStatus The carstatus on the track.
-	 * @param names A List of names that is been assigned to the players.
+	 * @param names A List of names containig the player driving this race.
 	 */
 	private void createPlayer(List<String> names) {
 		switch(mCarStatus){
@@ -139,8 +147,8 @@ public class Race {
 	}	
 
 	/**
-	 * This Method sets variables to initialize the race. The given Context is used to initialize the MillisecondChronometer(Roundmode) with this context.
-	 * The parameter time is used to set the timer value(Timermode). 
+	 * This Method sets variables to initialize the race. The given Context is used to initialize the MillisecondChronometer(roundmode) with this context.
+	 * The parameter time is used to set the timer value(timermode). 
 	 * @param c The Context of the actual activity
 	 * @param time The TextView that represents the Timer during Timermode.
 	 */
@@ -149,27 +157,22 @@ public class Race {
 			mLeftTimes.clear();
 		if(!mRightTimes.isEmpty())
 			mRightTimes.clear();
-		mFirstCorrectMovementLeft = true;
-		mFirstCorrectMovementRight = true;
 		mBestTimeOnLane  = null;
 		mNewRecord = new Pair<Boolean, Integer>(false, 0);
 		mWinner = 0;
-		mActVisualSpeedValueLeft = null;
-		mActVisualSpeedValueRight = null;
+		mActVisualSpeedValue = null;
 		mOldBestTimeLeft = "99:99:99";
 		mOldBestTimeRight ="99:99:99";
-		mOldBestTimeLeftArray = new int[3];
-		mOldBestTimeRightArray = new int[3];
 		mRaceStarted = false;		
 		mTimer = time;
 		mActLeftRound = 0;
 		mActRightRound = 0;
 		mActGhostRound = 0;
+		mOldTimeLeft = "00:00:00";
+		mOldTimeRight = "00:00:00";
 		mActLeftRoundTime = "00:00:00";
 		mActRightRoundTime = "00:00:00";	
 		mRoundGhostFinishedTime = "";
-		
-		Log.i("debug", "Mode: " + mMode);
 		if(mMode == TIMER_MODE)
 		{
 			mRaceTimer = new MyTimer(mCount*60000, 10, mTimer);
@@ -194,25 +197,15 @@ public class Race {
 				mRoundGhostFinishedTime = mDbHelper.getRoundGhostTotalTime(mTrackName, mCount);
 			}
 			Log.i("debug", "ghostTimes: " + mGhostTimes);
-			mOldTimeLeft = "00:00:00";
-			mOldTimeRight = "00:00:00";
+			
 			((RaceActivity) c).findViewById(R.id.raceview_time_updater).setVisibility(View.GONE);
 			((RaceActivity) c).findViewById(R.id.raceview_chronometer).setVisibility(View.VISIBLE);
 		}		
-		//TODO Start Race
-		//TODO Rennen beginnt
-		//Timer läuft
-		//Es muss bei jeder Fahrzeugerkennung ein Zähler hochgezählt werden
-		// Bei Ende processResults()		
-	}
+	}	
 	
-	
-	public void setRaceActivity(RaceActivity ra){
-		
-		mRaceActivity = ra;		
-		
-	}
-	
+	public void setRaceActivity(RaceActivity ra){		
+		mRaceActivity = ra;				
+	}	
 	
 	/**
 	 * This Method starts the Timer (Timermode) or the Counter (Roundmode).
@@ -228,7 +221,7 @@ public class Race {
 			if(mChronometer != null)
 				mChronometer.start();
 		}else
-			Log.i("debug", "Fehler beim starten des Timers, da kein korrekter Modus vorhanden ist.");			
+			Log.i("debug", "no proper to to decide which timer should be started.");			
 	}
 	
 	/**
@@ -260,11 +253,6 @@ public class Race {
 						calcStatistics(lane, mMode, mRaceTimer.getCurrentTime());
 					else
 						calcStatistics(lane, mMode, mChronometer.getTimeElapsedString());
-//					if(mFirstCorrectMovementLeft){
-//						mFirstCorrectMovementLeft = false;
-//						return mFirstCorrectMovementLeft;
-//					}
-//					else
 						return correctMovement;
 				}
 				else
@@ -293,11 +281,6 @@ public class Race {
 						calcStatistics(lane, mMode, mRaceTimer.getCurrentTime());
 					else
 						calcStatistics(lane, mMode, mChronometer.getTimeElapsedString());
-//					if(mFirstCorrectMovementRight){
-//						mFirstCorrectMovementRight = false;
-//						return mFirstCorrectMovementRight;
-//					}
-//					else
 					return correctMovement;
 				}
 				else
@@ -319,7 +302,7 @@ public class Race {
 	}
 	
 	/**
-	 * This Method sets the actual Roundcounter + 1 for a specific lane.
+	 * This Method sets the actual Roundcounter + 1 for a specific lane and update the GUI-Elements.
 	 * @param lane The lane on which the round has to be added.
 	 */
 	public void updateRoundsAndUI(int lane) {
@@ -390,27 +373,6 @@ public class Race {
 			return 0;				
 		}
 	}
-	
-//	private String generateFinishedTimeFromRounds(){
-//		
-//		DecimalFormat df = new DecimalFormat("00");
-//		int[] values = new int[3];
-//		values[0] = 0;
-//		values[1] = 0;
-//		values[2] = 0;
-//		for(String s : mGhostTimes){			
-//			values[0]+=parseTimeString(s)[0];
-//			values[1]+=parseTimeString(s)[1];
-//			values[2]+=parseTimeString(s)[2];		
-//		}
-//		values[1] += values[2] / 100;
-//		values[2] = values[2] % 100;
-//		values[0] += values[1] / 100;
-//		values[1] = values[1] % 100;
-//		
-//		Log.i("debug", "Generated finished time: " + df.format(values[0]) + ":" + df.format(values[1]) + ":" + df.format(values[2]));
-//		return df.format(values[0]) + ":" + df.format(values[1]) + ":" + df.format(values[2]);	
-//	}
 	
 	/**
 	 * This Method return the actual round according to the given lane
@@ -483,19 +445,6 @@ public class Race {
 	public int getCount() {
 		return mCount;
 	}
-	
-//	/**
-//	 * This Method gets the attempt for the given player.
-//	 * @param p The Player for which the attempt is needed.
-//	 * @return The attempt, 0 if there is no Player found for this lane.
-//	 */
-//	public int getAttempt(int lane){
-//		for(Player p : mPlayerArray){
-//			if(p.getLane() == lane)
-//				return p.getAttempt();		
-//		}
-//		return 0;
-//	}
 	
 	/**
 	 * This Method gets the driven meters during this race for the lane.
@@ -601,14 +550,8 @@ public class Race {
 			
 			_curr = (curr[0]*60)+(curr[1])+ (curr[2] / 100.0); 
 			__curr = df.format(curr[0])+":"+df.format(curr[1])+":"+df.format(curr[2]);
-//			if(mOldBestTimeLeft > _curr){
-//				mOldBestTimeLeft = _curr;
-//				if(_curr < mOldBestTimeRight){
-//					mOldBestTimeLeftArray = curr;
-//					setBestTime(df.format((curr[0]))+":"+df.format((curr[1]))+":"+df.format((curr[2])), lane);
-//				}
-//			}
-			calcVisualSpeedValue(lane);
+
+			calcVisualSpeedValue(getBestTime(),mActLeftRoundTime);
 			if(mBestTimeOnLane == null)
 				setBestTime(__curr, lane);
 			else if(mBestTimeOnLane.getL().compareTo(__curr) > 0){
@@ -631,16 +574,8 @@ public class Race {
 			mActRightRoundTime = df.format((curr[0]))+":"+df.format((curr[1]))+":"+df.format((curr[2])); 
 			_curr = (curr[0]*60) + (curr[1]) + (curr[2] / 100.0); 
 			__curr = df.format(curr[0])+":"+df.format(curr[1])+":"+df.format(curr[2]);
-			
-			
-//			if(mOldBestTimeRight > _curr){
-//				mOldBestTimeRight = _curr;
-//				if(_curr < mOldBestTimeLeft){
-//					mOldBestTimeRightArray = curr;
-//					setBestTime(df.format((curr[0]))+":"+df.format((curr[1]))+":"+df.format((curr[2])), lane);
-//				}
-//			}
-			calcVisualSpeedValue(lane);
+
+			calcVisualSpeedValue(getBestTime(),mActRightRoundTime);;
 			if(mBestTimeOnLane == null)
 				setBestTime(__curr, lane);
 			else if(mBestTimeOnLane.getL().compareTo(__curr) > 0){
@@ -659,7 +594,7 @@ public class Race {
 		}		
 
 	}	
-	
+
 	private int[] calcRoundTime(int mode, int[] old, int[] _new){
 		int[] curr = new int[3];
 		
@@ -727,12 +662,16 @@ public class Race {
 		return i;
 	}
 	
+
 	public String getRoundGhostFinishedTime() {
 		
 		return mRoundGhostFinishedTime;		
 	}
 	
-	
+	/**
+	 * This method is used to show the ghost in the ui when he drives through the start. 
+	 * @param time The time to compare the Ghost time with to decide wether the ghost is shown or not.
+	 */
 	public void checkGhostTime(String time) {
 				
 		if(!mDriveThroughTimesGhost.isEmpty())
@@ -760,6 +699,10 @@ public class Race {
 		}			
 	}
 	
+	/**
+	 * This method is used to get the ghost speed out of the calculated list.
+	 * @return The actual speed.
+	 */
 	public double getGhostSpeed(){
 		
 		if(!mGhostSpeeds.isEmpty()){
@@ -771,6 +714,10 @@ public class Race {
 			return 0;
 	}
 	
+	/**
+	 * This method calculates the speed of the ghost to access them during the race.
+	 * @return The ArrayList containing the speeds.
+	 */
 	private ArrayList<Double> calcGhostSpeeds(){
 		
 		ArrayList<Double> ghostSpeeds = new ArrayList<Double>();
@@ -786,6 +733,11 @@ public class Race {
 		return ghostSpeeds;
 	}
 	
+	/**
+	 * This method puts the drivethrough times of the ghost into an array of strings to make them usable during the race.
+	 * @param mode
+	 * @return The list of roundtimes.
+	 */
 	private ArrayList<String> calcDriveThroughTimesGhost(int mode){
 		DecimalFormat df = new DecimalFormat("00");
 		ArrayList <String> drivethroughtimes = new ArrayList <String>();
@@ -981,13 +933,19 @@ public class Race {
 		//Gibt das Ergebnis an Results-Klasse weiter.
 	}
 	
-	
+	/**
+	 * Gets the winner
+	 * @return Integer representative for the started lane of the player who win.
+	 */
 	public int whoWin(){
 		return mWinner;
 	}
 	
-	public Pair<Boolean, Integer>isRecord(){
-		
+	/**
+	 * Was this race a new record on this combination of track-mode-count?
+	 * @return
+	 */
+	public Pair<Boolean, Integer>isRecord(){		
 		return mNewRecord;		
 	}
 	/**
@@ -999,15 +957,13 @@ public class Race {
 		if(mMode == TIMER_MODE){
 			mRaceTimer.stop();
 			//mTimer.setText(mRaceTimer.getCurrentTime());
-			Log.i("debug", "Race cancelled at:"+mRaceTimer.getCurrentTime());
-			
+			Log.i("debug", "Race cancelled at:"+mRaceTimer.getCurrentTime());			
 		}
 		else
 		{
 			mChronometer.stop();
 			//mChronometer.setText(Long.toString(mChronometer.getTimeElapsed()));
-			Log.i("debug", "Race cancelled at:"+mChronometer.getTimeElapsed());
-			
+			Log.i("debug", "Race cancelled at:"+mChronometer.getTimeElapsed());			
 		}	
 	}
 	
@@ -1095,69 +1051,65 @@ public class Race {
 		return finishedTime;
 	}
 	
-	private void calcVisualSpeedValue(int lane) {
+	/**
+	 * This method calculates the visual speed updater and show the result in the ui everytime it is called.
+	 * @param lane The lane for which the calculation is needed.
+	 */
+	private void calcVisualSpeedValue(Pair<String, Integer> bestTime, String lastDrivenTime) {
 		int[] curr = new int[3];
 		double _curr;
 		int[] best = new int[3];
 		double _best;
-		if (lane == LEFT_LANE){
-			if(getBestTime() != null && !mActLeftRoundTime.isEmpty()){
-				best = parseTimeString(getBestTime().getL());			
-				curr = parseTimeString(mActLeftRoundTime);
+		
+			if(bestTime != null && !lastDrivenTime.isEmpty()){
+				best = parseTimeString(bestTime.getL());			
+				curr = parseTimeString(lastDrivenTime);
 				
 				_best = (best[0]*60) + (best[1]) + (best[2] / 100.0);
 				_curr = (curr[0]*60) + (curr[1]) + (curr[2] / 100.0);
 				Log.i("debug", "Besttime: " + _best + ", Currenttime: " + _curr);
 				if((_best - _curr) < 0){
-					mActVisualSpeedValueLeft = new Pair<Double, Integer>(((_best - _curr)*-1), SLOWER);
+					mActVisualSpeedValue = new Pair<Double, Integer>(((_best - _curr)*-1), SLOWER);
 				} else if((_best - _curr) > 0){
-					mActVisualSpeedValueLeft = new Pair<Double, Integer>((_best - _curr), FASTER);
+					mActVisualSpeedValue = new Pair<Double, Integer>((_best - _curr), FASTER);
 				}else{
-					mActVisualSpeedValueLeft = new Pair<Double, Integer>(0.0, SAME);
+					mActVisualSpeedValue = new Pair<Double, Integer>(0.0, SAME);
 				}
-			}			
-		} else if (lane == RIGHT_LANE){
-			if(getBestTime() != null && !mActRightRoundTime.isEmpty()){
-				best = parseTimeString(getBestTime().getL());			
-				curr = parseTimeString(mActRightRoundTime);
-				
-				_best = (best[0]*60) + (best[1]) + (best[2] / 100.0);
-				_curr = (curr[0]*60) + (curr[1]) + (curr[2] / 100.0);
-				
-				if((_best - _curr) < 0){
-					mActVisualSpeedValueRight = new Pair<Double, Integer>(((_best - _curr)*-1), SLOWER);
-				} else if((_best - _curr) > 0){
-					mActVisualSpeedValueRight = new Pair<Double, Integer>((_best - _curr), FASTER);
-				}else{
-					mActVisualSpeedValueRight = new Pair<Double, Integer>(0.0, SAME);
-				}
-			}			
-		}
-		
+			}		
 	}
 	
-	
-	public Pair<Integer, Integer> getVisualSpeedValue(float scale, int lane ){	
+	/**
+	 * This method is used to get the amount of pixels and the direction of the bar in the visual speed updater.
+	 * @param scale The display-density.
+	 * @param lane The lane for 
+	 * @return
+	 */	
+	public Pair<Integer, Integer> getVisualSpeedValue(float scale){	
 		//The Maximum Pixelvalue is 50 
-		int pixels;
+		int pixels;		
+			if(mActVisualSpeedValue != null){
+				int value = (int) (mActVisualSpeedValue.getL() * 10);
+				if(value > 50)
+					value = 50;
+				pixels = (int) (value * scale + 0.5f);
+				return new Pair<Integer, Integer>(pixels, mActVisualSpeedValue.getR());  		
+			}		
+			return null;
+	}
+
+	public String getActRoundTime(int lane) {
 		if(lane == LEFT_LANE){
-			if(mActVisualSpeedValueLeft != null){
-				int value = (int) (mActVisualSpeedValueLeft.getL() * 10);
-				if(value > 50)
-					value = 50;
-				pixels = (int) (value * scale + 0.5f);
-				return new Pair<Integer, Integer>(pixels, mActVisualSpeedValueLeft.getR());  		
-			}
-		}else if (lane == RIGHT_LANE){
-			if(mActVisualSpeedValueRight != null){
-				int value = (int) (mActVisualSpeedValueRight.getL() * 10);
-				if(value > 50)
-					value = 50;
-				pixels = (int) (value * scale + 0.5f);
-				return new Pair<Integer, Integer>(pixels, mActVisualSpeedValueRight.getR());  		
-			}
-		}		
-		return null;
+			Log.i("debug", "mActLeftRoundTime:"+mActLeftRoundTime);
+			return mActLeftRoundTime;			
+		}
+		else if(lane == RIGHT_LANE){
+			return mActRightRoundTime;
+		}
+		else if(lane == GHOST_LANE){
+			return mDriveThroughTimesGhost.get(0);
+		}
+		else
+			return null;
 	}
 	
 //	public void prepareRace(boolean twoplayer, int mode){

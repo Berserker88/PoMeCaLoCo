@@ -7,6 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
  
+/**
+ * This class will show the leaderboard.
+ * @author FlorianNB
+ *
+ */
 public class LeaderboardFragment  extends Fragment { 
         public LeaderboardFragment(){         
     }

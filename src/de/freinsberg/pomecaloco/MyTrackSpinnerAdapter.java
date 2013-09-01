@@ -1,11 +1,8 @@
 package de.freinsberg.pomecaloco;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.List;
-
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,9 +21,6 @@ public class MyTrackSpinnerAdapter extends ArrayAdapter<Pair<String, byte[]>>{
 	
 	private Context mContext;		
 	private List <Pair<String, byte[]>> mObjects;
-	//private static ArrayList <Pair<String, Bitmap>> mTracks;
- 	
-
 	/**
 	 * Constructor: Creates an adapter with the given params.
 	 * @param context The context where the adapter is used.
@@ -49,14 +43,7 @@ public class MyTrackSpinnerAdapter extends ArrayAdapter<Pair<String, byte[]>>{
         return getCustomView(position, convertView, parent);
     }
 
-    /**
-     * This method is used
-     * @param position
-     * @param convertView
-     * @param parent
-     * @return
-     */
-    public View getCustomView(int position, View convertView, ViewGroup parent) {
+    private View getCustomView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater=(LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View row=inflater.inflate(R.layout.choose_track_spinner, parent, false);
         
@@ -85,7 +72,4 @@ public class MyTrackSpinnerAdapter extends ArrayAdapter<Pair<String, byte[]>>{
 		}
 		return -1;
 	}
-    
-    
-
 }

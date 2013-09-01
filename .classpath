@@ -3,9 +3,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/Florian/Documents/GitHub/PoMeCaLoCo/libs/android-support-v4.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/OpenCV4Android/OpenCV-2.4.5-android-sdk/sdk/java/bin/opencv library - 2.4.5.jar"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
+	<classpathentry exported="true" kind="lib" path="libs/android-support-v4.jar"/>
+	<classpathentry kind="lib" path="/OpenCV Library - 2.4.6/bin/opencv library - 2.4.6.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

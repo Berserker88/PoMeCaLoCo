@@ -1,11 +1,7 @@
 package de.freinsberg.pomecaloco;
 
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
@@ -14,64 +10,68 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.PowerManager;
-import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class RaceActivity extends Activity implements CvCameraViewListener2{
+/**
+ * This activity is used during the active race and displays information that are calculated during the race.
+ * @author freinsberg
+ *
+ */
+public class RaceActivity extends Activity implements CvCameraViewListener2{	
 	
-		private MovementDetector mMd;
-		private Context mContext;		
+		public MyTimer mRaceTimer;
 		private static MyTimer mCountdown;
-		private Bundle mData = null;
+		
+		public MillisecondChronometer mChronometer;	
+		
+		private static CameraBridgeViewBase mOpenCvCameraView;
+		
+		protected PowerManager.WakeLock mWakeLock;		
+
 		private List<String> mCountdownValues = new ArrayList<String>();
-		private int mMinLapCount;
-		private int mMode;
-		private int mPlayer;
+		
 		private boolean ichdarf = true;
-		private TextView raceview_countdown = null;
-		private ImageView visual_speed_faster = null;
-		private ImageView visual_speed_slower = null;
+		
+		private Button end_race;
+
 		private View visual_speed_x_axis;
 		private View visual_speed_y_axis;
-		private ImageView left_car_color;
-		private ImageView right_car_color;
+
+		private TextView raceview_countdown = null;
 		private TextView raceview_time_updater = null;
 		private TextView raceview_chronometer;
 		private TextView raceview_left_name;
 		private TextView raceview_right_name;
 		private TextView raceview_round_updater_left = null;
 		private TextView raceview_round_updater_right = null;
+		private TextView raceview_round_time_left = null;
+		private TextView raceview_round_time_right = null;
 		private TextView raceview_speed_updater_left = null;
 		private TextView raceview_speed_updater_right = null;
 		private TextView raceview_finished = null;
 		private TextView raceview_best_time_updater = null;
 		public TextView raceview_game_mode;
 		public TextView raceview_track_name;
+		
+		private ImageView visual_speed_faster = null;
+		private ImageView visual_speed_slower = null;
+		private ImageView left_car_color;
+		private ImageView right_car_color;
+
 		private Bitmap[] mCarColorBitmaps;
-		private Button end_race;
-		public MyTimer mRaceTimer;
-		public MillisecondChronometer mChronometer;	
-		private static CameraBridgeViewBase mOpenCvCameraView;
-		protected PowerManager.WakeLock mWakeLock;
 		
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
@@ -84,6 +84,8 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			
 			setContentView(R.layout.race);
 			
+		    Race.getInstance().setRaceActivity(this);
+			
 			mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_stream_race);				
 				
 			mOpenCvCameraView.setCvCameraViewListener(this);
@@ -93,21 +95,9 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			 final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		        this.mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "debug");
 		        this.mWakeLock.acquire();
-		        
-		        
-			//get arguments from previous Fragment
-//			mData = getArguments();
-//			
-//			mMinLapCount = Integer.parseInt(mData.getString("count"));
-//			mMode = Integer.parseInt(mData.getString("mode"));
-//			mPlayer = Integer.parseInt(mData.getString("player"));			
-//			Log.i("debug", "Players: "+mPlayer+", Mode: "+mMode+", Count: "+mMinLapCount);
-			
-		        
-		    Race.getInstance().setRaceActivity(this);
 				
 			
-			//Making Views and Buttons from XML-View accessible via Java Code
+			//Making Views and Buttons from XML-View accessible via Java Cod
 			
 			raceview_countdown = (TextView) findViewById(R.id.raceview_countdown);
 			raceview_finished = (TextView) findViewById(R.id.raceview_finished);
@@ -127,24 +117,18 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			raceview_round_updater_right = (TextView) findViewById(R.id.raceview_round_updater_right);
 			raceview_speed_updater_left = (TextView) findViewById(R.id.raceview_speed_updater_left);
 			raceview_speed_updater_right = (TextView) findViewById(R.id.raceview_speed_updater_right);
-			raceview_best_time_updater = (TextView) findViewById(R.id.raceview_best_time_updater);
-			
-			end_race = (Button) findViewById(R.id.end_race);			
-			
-			mCountdown = new MyTimer(4001, 1000, mCountdownValues, raceview_countdown);							
-			Log.i("debug", "setting values for race countdown");
-			
-			//starting the race
-			start();
-			
-			//setting the TimerTask for the interactive overlays
-			if(Race.getInstance().mGhostMode)
-				
-			
-			//initialize the other Textviews		
+			raceview_round_time_left =(TextView) findViewById(R.id.raceview_round_time_left);
+			raceview_round_time_right = (TextView) findViewById(R.id.raceview_round_time_right);
+			raceview_best_time_updater = (TextView) findViewById(R.id.raceview_best_time_updater);			
+			end_race = (Button) findViewById(R.id.end_race);		
 			raceview_best_time_updater.setText("");
 			raceview_track_name.setText(Race.getInstance().getTrackName());
 			raceview_game_mode.setText(Race.getInstance().getNumberOfPlayers()+" Spieler Rennen");	
+				
+			mCountdown = new MyTimer(4001, 1000, mCountdownValues, raceview_countdown);				
+			
+			//starting the race
+			start();
 			
 			switch(ObjectDetector.getInstance().car_status()){
 			case ObjectDetector.BOTH_CAR:
@@ -339,7 +323,6 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 				});
 				thr.start();
 			}
-
 			//return threshedFrame.getThreshedImage();
 			return m;
 		}
@@ -386,13 +369,18 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			}
 		};
 		
-		private Object MyShotTask;
-		
+
+		/**
+		 * Start the race countdown and calls init race to set the noe active context of the raceactity to the race class.
+		 */
 		public void start(){			
 			mCountdown.start();			
 			Race.getInstance().initRace(this, raceview_time_updater);
 		}
 		
+		/**
+		 * This stops the race countdown and calls the method cancel() of the race class.
+		 */
 		public void cancel(){
 			mCountdown.stop();
 			Race.getInstance().cancel();
@@ -433,6 +421,11 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			}		
 		}
 		
+		/**
+		 * This method is used to update the UI- Elements.
+		 * The updateprocedere for the user interface runs on the UI Thread to make this work out of the class onCreate(). 
+		 * @param lane The lane for which the ui- Updates are needed.
+		 */
 		public void updateGUIElements(final int lane) {
 			if(lane == Race.GHOST_LANE){		
 				MyShotTask st = new MyShotTask(this, R.id.raceview_ghost_overlay);
@@ -453,7 +446,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			    	 }
 			    	 
 			    	 final float scale = getBaseContext().getResources().getDisplayMetrics().density;
-			    	 final Pair<Integer,Integer> pair_visual_speed = Race.getInstance().getVisualSpeedValue(scale, lane);			    	 
+			    	 final Pair<Integer,Integer> pair_visual_speed = Race.getInstance().getVisualSpeedValue(scale);			    	 
 			    	 if(pair_visual_speed != null){
 			    		 if(pair_visual_speed.getR() == Race.SLOWER){
 			    			 Log.i("debug", "Pixels slower: " + pair_visual_speed.getL());
@@ -468,22 +461,19 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			    		 }
 			    		 else
 			    			 Log.i("debug", "Pixels zero on both: ");
-			    	 }
-			    		 
-			    		 
-					
-						
-						
+			    	 }					
 			    	 	if(Race.getInstance().getGameMode() == Race.ROUND_MODE)
 			    	 	{
 							if(lane == Race.LEFT_LANE)	
 							{
-								raceview_round_updater_left.setText(Race.getInstance().getCurrentRound(Race.LEFT_LANE)+" / "+Race.getInstance().getCount());
+								raceview_round_updater_left.setText(Race.getInstance().getCurrentRound(Race.LEFT_LANE)+" /"+Race.getInstance().getCount());								
+								raceview_round_time_left.setText(Race.getInstance().getActRoundTime(Race.LEFT_LANE)+"");
 								raceview_speed_updater_left.setText(String.format("%.2f", Race.getInstance().getCurrentSpeed(Race.LEFT_LANE))+" m/s");
 							}
 							else if (lane == Race.RIGHT_LANE)
 							{
-								raceview_round_updater_right.setText(Race.getInstance().getCurrentRound(Race.RIGHT_LANE)+" / "+Race.getInstance().getCount());
+								raceview_round_updater_right.setText(Race.getInstance().getCurrentRound(Race.RIGHT_LANE)+" /"+Race.getInstance().getCount());
+								raceview_round_time_right.setText(Race.getInstance().getActRoundTime(Race.RIGHT_LANE)+"");
 								raceview_speed_updater_right.setText(String.format("%.2f", Race.getInstance().getCurrentSpeed(Race.RIGHT_LANE))+" m/s");
 							}
 							else if (lane == Race.GHOST_LANE)
@@ -491,15 +481,16 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 								double speed;
 								if(Race.getInstance().getUsedLane() == Race.LEFT_LANE)
 								{
-									raceview_round_updater_right.setText(Race.getInstance().getCurrentRound(Race.GHOST_LANE)+" / "+Race.getInstance().getCount());
-									
+									raceview_round_updater_right.setText(Race.getInstance().getCurrentRound(Race.GHOST_LANE)+" /"+Race.getInstance().getCount());
+									raceview_round_time_right.setText(Race.getInstance().getActRoundTime(Race.GHOST_LANE)+"");
 									if((speed = Race.getInstance().getGhostSpeed()) != 0)
 										raceview_speed_updater_right.setText(String.format("%.2f", speed)+" m/s");
 									
 								}
 								else if(Race.getInstance().getUsedLane() == Race.RIGHT_LANE)
 								{
-									raceview_round_updater_left.setText(Race.getInstance().getCurrentRound(Race.GHOST_LANE)+" / "+Race.getInstance().getCount());
+									raceview_round_updater_left.setText(Race.getInstance().getCurrentRound(Race.GHOST_LANE)+" /"+Race.getInstance().getCount());
+									raceview_round_time_left.setText(Race.getInstance().getActRoundTime(Race.GHOST_LANE)+"");
 									if((speed = Race.getInstance().getGhostSpeed()) != 0)
 										raceview_speed_updater_left.setText(String.format("%.2f", speed)+" m/s");
 								}
@@ -509,12 +500,14 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			    	 	{
 							if(lane == Race.LEFT_LANE)	
 							{
-								raceview_round_updater_left.setText("Runde "+Race.getInstance().getCurrentRound(Race.LEFT_LANE));
+								raceview_round_updater_left.setText(Race.getInstance().getCurrentRound(Race.LEFT_LANE)+".te");
+								raceview_round_time_left.setText(Race.getInstance().getActRoundTime(Race.LEFT_LANE)+"");
 								raceview_speed_updater_left.setText(String.format("%.2f", Race.getInstance().getCurrentSpeed(Race.LEFT_LANE))+" m/s");
 							}
 							else if (lane == Race.RIGHT_LANE)
 							{
-								raceview_round_updater_right.setText("Runde "+Race.getInstance().getCurrentRound(Race.RIGHT_LANE));
+								raceview_round_updater_right.setText(Race.getInstance().getCurrentRound(Race.RIGHT_LANE)+".te");
+								raceview_round_time_right.setText(Race.getInstance().getActRoundTime(Race.RIGHT_LANE)+"");
 								raceview_speed_updater_right.setText(String.format("%.2f", Race.getInstance().getCurrentSpeed(Race.RIGHT_LANE))+" m/s");
 							}
 							else if (lane == Race.GHOST_LANE)
@@ -522,14 +515,15 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 								double speed;
 								if(Race.getInstance().getUsedLane() == Race.LEFT_LANE)
 								{
-									raceview_round_updater_right.setText("Runde "+Race.getInstance().getCurrentRound(Race.GHOST_LANE));
-									
+									raceview_round_updater_right.setText(Race.getInstance().getCurrentRound(Race.GHOST_LANE)+".te");
+									raceview_round_time_right.setText(Race.getInstance().getActRoundTime(Race.GHOST_LANE)+"");
 									if((speed = Race.getInstance().getGhostSpeed()) != 0)
 										raceview_speed_updater_right.setText(String.format("%.2f", speed)+" m/s");
 								}
 								else if(Race.getInstance().getUsedLane() == Race.RIGHT_LANE)
 								{
 									raceview_round_updater_left.setText("Runde "+Race.getInstance().getCurrentRound(Race.GHOST_LANE));
+									raceview_round_time_left.setText(Race.getInstance().getActRoundTime(Race.GHOST_LANE)+"");
 									if((speed = Race.getInstance().getGhostSpeed()) != 0)
 										raceview_speed_updater_left.setText(String.format("%.2f", speed)+" m/s");
 								}
@@ -540,7 +534,11 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		
 			
 		}
-		
+		/**
+		 * This method should be called when the race has ended properly.
+		 * The finishing of the user interface runs on the UI Thread to make this work out of the class onCreate(). 
+		 * @param lane The lane for which the ui- finishing is needed.
+		 */
 		public void finishGUIElements(final int lane){
 			runOnUiThread(new Runnable() {
 			     public void run() {
@@ -595,6 +593,9 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 
 		}
 		
+		/**
+		 * This method is called to disable the coordination-axis that show distance to best actual round time in 2 player mode.
+		 */
 		public void disableVisualSpeedUpdater(){
 			
 			visual_speed_slower.setVisibility(View.INVISIBLE);

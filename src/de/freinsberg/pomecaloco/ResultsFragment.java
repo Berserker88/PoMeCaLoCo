@@ -1,8 +1,6 @@
 package de.freinsberg.pomecaloco;
 
-
 import java.util.ArrayList;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,17 +12,19 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
  
+/**
+ * This class represents the fragment that is used to show all the results.
+ * @author freinsberg
+ *
+ */
 public class ResultsFragment  extends Fragment{
 	
     private Context mContext;
     private DBHelper mDbHelper;
     private Spinner results_track;
     private Spinner results_name;
-    private RadioGroup results_racemode;
     private boolean mRoundMode;
     private boolean mTimerMode;
     private String mSelectedTrack = "";
@@ -46,7 +46,6 @@ public class ResultsFragment  extends Fragment{
         //Creating the LayoutViews
 		results_track = (Spinner) v.findViewById(R.id.results_track);
 		results_name = (Spinner) v.findViewById(R.id.results_name);
-		results_racemode = (RadioGroup) v.findViewById(R.id.results_racemode);
 		results_grid = (GridView) v.findViewById(R.id.results_grid);
 		
 		mResultAdapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_list_item_1, mResultSet);
@@ -120,6 +119,7 @@ public class ResultsFragment  extends Fragment{
 			
 		return v;
     }
+    
 	private void getResultSet() {
 		Log.i("debug", "Selected Item in Name Spinner: " + mSelectedName);
 		Log.i("debug", "Selected Item in Track Spinner: " + mSelectedTrack);
@@ -142,6 +142,7 @@ public class ResultsFragment  extends Fragment{
 		//results_grid.setAdapter(mResultAdapter);
 		
 	}
+	
 	public void setRoundModeChecked() {		
 		mRoundMode = true;
 		mTimerMode = false;

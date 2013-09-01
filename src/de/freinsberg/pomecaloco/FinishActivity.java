@@ -2,15 +2,11 @@ package de.freinsberg.pomecaloco;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
@@ -19,8 +15,10 @@ public class FinishActivity extends Activity {
 	
 //	private Context mContext;
 	private DBHelper mDbHelper;
+	
 	private Button go_to_results;
 	private Button new_race;	
+	
 	private TextView finish_track;
 	private TextView finish_mode;
 	private TextView finish_heading;
@@ -42,7 +40,6 @@ public class FinishActivity extends Activity {
 	private TextView finish_right_fastest;
 	private TextView finish_right_avg_speed;
 	private TextView finish_right_timemode_driven_rounds;
-	private TextView finish_right_roundmode_driven_time;
 	private TextView finish_left_name;
 	private TextView finish_right_win_status;
 	private TextView finish_left_attempt;
@@ -50,8 +47,6 @@ public class FinishActivity extends Activity {
 	private TextView finish_left_fastest;
 	private TextView finish_left_avg_speed;
 	private TextView finish_left_timemode_driven_rounds;
-	private TextView finish_left_roundmode_driven_time;
-	
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {		

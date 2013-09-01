@@ -7,6 +7,7 @@ package de.freinsberg.pomecaloco;
  * @param <L> the left side object type
  * @param <R> the right side object type
  */
+@SuppressWarnings("hiding")
 public class Pair<L,R> {
     private L l;
     private R r;

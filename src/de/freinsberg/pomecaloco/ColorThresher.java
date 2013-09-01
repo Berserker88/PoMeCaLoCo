@@ -1,16 +1,12 @@
 package de.freinsberg.pomecaloco;
 
 import java.io.File;
-
-import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
-
-import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
 

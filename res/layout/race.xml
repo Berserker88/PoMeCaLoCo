@@ -30,8 +30,7 @@
         android:layout_alignTop="@+id/visual_speed_slower"
         android:layout_marginLeft="2dp"
         android:adjustViewBounds="true"
-        android:contentDescription="@string/visual_speed_faster"
-        
+        android:contentDescription="@string/visual_speed_faster"        
         android:src="@color/winning_green" />
 
     <ImageView
@@ -43,8 +42,7 @@
         android:layout_marginRight="2dp"
         android:layout_marginTop="14dp"
         android:adjustViewBounds="true"
-        android:contentDescription="@string/visual_speed_slower"
-        
+        android:contentDescription="@string/visual_speed_slower"        
         android:src="@color/loosing_red" />
 
     <TextView
@@ -53,9 +51,20 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/round_speed_separator"
         android:layout_alignBottom="@+id/round_speed_separator"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="110dp"
         android:layout_marginBottom="6dp"        
         android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/white" />
+    
+     <TextView
+        android:id="@+id/raceview_round_time_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/round_speed_separator"
+        android:layout_alignBottom="@+id/round_speed_separator"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="6dp"        
+        android:textAppearance="?android:attr/textAppearanceLarge"       
         android:textColor="@color/white" />
 
     <TextView
@@ -64,8 +73,18 @@
         android:layout_height="wrap_content"        
         android:layout_alignBaseline="@+id/raceview_round_updater_left"
         android:layout_toRightOf="@+id/value_separator"
-        android:layout_marginLeft="10dp"       
+        android:layout_marginLeft="110dp"       
         android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/white" />
+    
+    <TextView
+        android:id="@+id/raceview_round_time_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/raceview_round_updater_left"
+        android:layout_toRightOf="@+id/value_separator"
+        android:layout_marginLeft="10dp"       
+        android:textAppearance="?android:attr/textAppearanceLarge"      
         android:textColor="@color/white" />
 
     <Button
@@ -272,4 +291,23 @@
         android:text="@string/raceview_right_name"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    <View
+        android:id="@+id/time_round_view_line_left"
+        android:layout_width="2dp"
+        android:layout_height="85dp"
+        android:layout_alignLeft="@+id/round_speed_separator"
+        android:layout_alignBottom="@+id/round_speed_separator"
+        android:layout_below="@+id/time_round_separator"        
+        android:layout_marginLeft="100dp" 
+        android:background="@android:color/white" />
+
+    <View
+        android:id="@+id/time_round_view_line_right"
+        android:layout_width="2dp"
+        android:layout_height="85dp"
+        android:layout_alignLeft="@+id/value_separator"
+        android:layout_alignBottom="@+id/round_speed_separator"
+        android:layout_below="@+id/time_round_separator"
+        android:layout_marginLeft="100dp"
+        android:background="@android:color/white" />
 </RelativeLayout>

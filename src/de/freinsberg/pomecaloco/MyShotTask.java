@@ -64,7 +64,7 @@ public class MyShotTask {
 	}
 	
 	/**
-	 * Performs the shot task.
+	 * Perform the shot task.
 	 */
 	public void perform(){				
 		mShotTimer.schedule(mShotTask, 5,5);		

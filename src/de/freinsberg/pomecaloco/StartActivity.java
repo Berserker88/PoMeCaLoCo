@@ -1,21 +1,16 @@
 package de.freinsberg.pomecaloco;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
-import org.opencv.android.Utils;
 import org.opencv.core.Mat;
-
-import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -26,84 +21,91 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
-import android.widget.RelativeLayout;
-
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ * This class represents the activity the user interact with during the race preparation.  
+ * @author freinsberg
+ *
+ */
 public class StartActivity extends Activity implements CvCameraViewListener2 {
 
 	public static final int DIALOG_RADIOBUTTON_LEFT_INPUT_ID = 1000;
 	public static final int DIALOG_RADIOBUTTON_RIGHT_INPUT_ID = 1001;
-	public static final int DIALOG_RADIOBUTTON_INPUT_ID = 1000;
-	public static boolean mScanningComplete = false;	
-	private DBHelper mDbHelper;
-	private Handler mHandler = new Handler();
-	private Timer mShotTimer = new Timer();
-	private TimerTask mShotTask;
-	private int mAlphacounter;
-	private float mAlpha;
-	private int mSpinnerPosition;
-	//private Race race;
-	private Context mContext;
+	public static final int DIALOG_RADIOBUTTON_INPUT_ID = 1000;	
+	
 	public static CameraBridgeViewBase mOpenCvCameraView;
-	private Mat mInputFrame;
+	
+	public static boolean mScanningComplete = false;
+	
+	private Context mContext;
+	
+	private DBHelper mDbHelper;
+	
+	private Handler mHandler = new Handler();
+	
+	private Timer mShotTimer = new Timer();	
+	
+	private TimerTask mShotTask;
+	
 	private InputMethodManager inputManager = null;
-	private boolean isFirstInitialisation = true;
-	private Dialog mDialogIsEmpty;
-//	private Track bridge;
-//	private Track crossed;
-//	private List<Track> tracks = new ArrayList<Track>();
+	
 	private List<String> mPlayerNames = new ArrayList<String>();
+	
 	private MyTrackSpinnerAdapter mTracksAdapter;
-	private Mat bridge_image = null; 
-	private Mat crossed_image = null;
-	ObjectDetector mFrameToProcess;
+	
+	ObjectDetector mFrameToProcess;	
+	
+	private Mat mInputFrame;
+	
+	private int mAlphacounter;
+	private int mCount;
+	protected int mMode;	
+	private int mCarStatus;
+	private int mCheckedIdLeft = 1;
+	private int mCheckedIdRight = 1;
+	private int mCheckedId = 1;
+	
+	private float mAlpha;
+	
 	private Spinner mTracks;
+	
+	private View frame_border_top = null;
+	private View frame_border_bottom = null;
+	private View frame_border_left = null;
+	private View frame_border_right = null;
+	
+	private ImageView alpha_overlay = null;
+	private ImageView frame_track_overlay = null;	
+	private ImageView lane_overlay = null;
+	private ImageView left_car_color;
+	private ImageView right_car_color;
+	
 	private TextView racemode = null;
+	
 	private Button min_mode = null;
 	private Button lap_mode = null;
 	private Button results = null;
 	private Button scanner = null;
 	private Button rescan = null;
-	private boolean mLeftRadioButtonClicked;
-	private boolean mRightRadioButtonClicked;
-	private boolean mRadioButtonClicked;
-	private int mCheckedIdLeft = 1;
-	private int mCheckedIdRight = 1;
-	private int mCheckedId = 1;
-//	private RadioGroup mFirstRadioGroup;
-//	private RadioGroup mSecondRadioGroup;	
+
 	private EditText min_count = null;
 	private EditText lap_count = null;
-	private ImageView alpha_overlay = null;
-	private View frame_border_top = null;
-	private View frame_border_bottom = null;
-	private View frame_border_left = null;
-	private View frame_border_right = null;
-	private ImageView frame_track_overlay;	
-	private ImageView lane_overlay = null;
-	private ImageView left_car_color;
-	private ImageView right_car_color;
+
 	private Bitmap[] mCarColorBitmaps;
-	private int mCount;
-	private int mCarStatus;
 	
 
 	@Override
@@ -158,7 +160,6 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 			public void onItemSelected(AdapterView<?> parent, View v,
 					int pos, long id) {
 				Log.i("debug", "Spinner Position "+pos+" gewählt.");
-				mSpinnerPosition = pos;
 			}
 
 			@Override
@@ -172,6 +173,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 		lap_count.setEnabled(false);
 		min_mode.setEnabled(false);
 		min_count.setEnabled(false);	
+		
 		//disable rescan button at the beginning
 		rescan.setVisibility(View.GONE);
 		
@@ -358,8 +360,9 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 					Toast.makeText(v.getContext(), "Bitte Rundenanzahl angeben!", Toast.LENGTH_SHORT).show();
 					return;
 				}
-				mCount = Integer.parseInt(lap_count.getText().toString());	
-				setPlayerName(Race.ROUND_MODE);										
+				mCount = Integer.parseInt(lap_count.getText().toString());
+				mMode = Race.ROUND_MODE;
+				setPlayerName();										
 				
 				
 			}
@@ -375,8 +378,9 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 					Toast.makeText(v.getContext(), "Bitte Minutenanzahl angeben!", Toast.LENGTH_SHORT).show();
 					return;
 				}
-				mCount = Integer.parseInt(min_count.getText().toString());				
-				setPlayerName(Race.TIMER_MODE);				
+				mCount = Integer.parseInt(min_count.getText().toString());		
+				mMode = Race.TIMER_MODE;
+				setPlayerName();				
 				
 				
 			}
@@ -390,6 +394,9 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 			mOpenCvCameraView.disableView();
 	}
 
+	/**
+	 * Releases the camera on call.
+	 */
 	public void onDestroy() {
 		super.onDestroy();
 		if (mOpenCvCameraView != null)
@@ -405,11 +412,11 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	public void onCameraViewStopped() {
 		
 	}
-	int i = 0;
+	
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		Mat inputFrameToTest = inputFrame.rgba();
-		if(!inputFrameToTest.empty() && (inputFrameToTest.get(1, 1)[3] != 0)) {
+		if(!inputFrameToTest.empty()) {
 			if(mInputFrame != null)
 				mInputFrame.release();
 			
@@ -426,14 +433,17 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	}
 	
 
+	/**
+	 * Displays a dialog to choose the playername or enter a new playername.
+	 * Then data is cross checked with entries in database.
+	 * No empty name allowed.
+	 * When data is ok, the race start will be initiated.
+	 */
 	@SuppressWarnings("unchecked")
-	private void setPlayerName(int mode){
-		final int _mode = mode;		
-		
-		//final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	private void setPlayerName(){		
+
 		final Dialog dialog = new Dialog(this);
-		final ArrayList<String> playerlist = mDbHelper.getAllPlayernames();
-		final LayoutInflater inflater = this.getLayoutInflater();
+		final ArrayList<String> playerlist = mDbHelper.getAllPlayernames();		
 		
 		if(ObjectDetector.getInstance().car_status() == ObjectDetector.BOTH_CAR){
 					
@@ -459,8 +469,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 						EditText left_playername = (EditText) dialog.findViewById(R.id.dialog_left_player_name);		
 						if(checkedId == DIALOG_RADIOBUTTON_LEFT_INPUT_ID)												
 							left_playername.setVisibility(View.VISIBLE);	
-						else{
-							mLeftRadioButtonClicked = true;
+						else{							
 							left_playername.setVisibility(View.INVISIBLE);	
 							if(left_radioGroup.getChildAt(mCheckedIdLeft-1) != null){
 							if(right_radioGroup.getChildAt(mCheckedIdLeft-1).isEnabled() == false)
@@ -478,8 +487,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 						EditText right_playername = (EditText) dialog.findViewById(R.id.dialog_right_player_name);								
 						if(checkedId == DIALOG_RADIOBUTTON_RIGHT_INPUT_ID)												
 							right_playername.setVisibility(View.VISIBLE);	
-						else{
-							mRightRadioButtonClicked = true;
+						else{							
 							right_playername.setVisibility(View.INVISIBLE);	
 							if(left_radioGroup.getChildAt(mCheckedIdRight-1) != null){
 								if(left_radioGroup.getChildAt(mCheckedIdRight-1).isEnabled() == false)
@@ -504,7 +512,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 					EditText right_playername = (EditText) dialog.findViewById(R.id.dialog_right_player_name);
 					if(checkDialogInputTwoPlayer(left_playername, right_playername, left_radioGroup, right_radioGroup)){
 
-						start(_mode, false);
+						start(false);
 						Log.i("debug", "Moved to Race-Activity!");
 					}
 									
@@ -520,8 +528,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 			});
 		}
 		else
-		{
-			
+		{			
 			dialog.setContentView(R.layout.one_player_name);
 			dialog.setTitle("Spielername erforderlich");
 			final RadioGroup radioGroup = inflateRadioGroup((RadioGroup) dialog.findViewById(R.id.dialog_select_playername), playerlist, DIALOG_RADIOBUTTON_INPUT_ID);
@@ -535,8 +542,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 						EditText player_name = (EditText) dialog.findViewById(R.id.dialog_player_name);		
 						if(checkedId == DIALOG_RADIOBUTTON_INPUT_ID)												
 							player_name.setVisibility(View.VISIBLE);	
-						else{
-							mRadioButtonClicked = true;
+						else{							
 							mCheckedId = checkedId;
 							player_name.setVisibility(View.INVISIBLE);								
 						}						
@@ -551,7 +557,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				public void onClick(View v) {		
 					EditText playername = (EditText) dialog.findViewById(R.id.dialog_player_name);
 					if(checkDialogInputOnePlayer(playername, radioGroup)){
-						start(_mode, false);					
+						start(false);					
 						Log.i("debug", "Moved to Race-Activity!");	
 						dialog.dismiss();
 					}
@@ -559,13 +565,13 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 			});	
 			
 			Button ghostButton = (Button) dialog.findViewById(R.id.dialog_ghost);
-			if(_mode == Race.ROUND_MODE){
+			if(mMode == Race.ROUND_MODE){
 				if(mDbHelper.isRoundGhostPresent(((Pair<String,byte[]>) mTracks.getSelectedItem()).getL(), mCount)){	
 					Log.i("debug", "Ghost is available, settings are, Trackname:" + ((Pair<String,byte[]>) mTracks.getSelectedItem()).getL() + ", Rounds: " + mCount + ", Times: " + mDbHelper.getRoundGhost(((Pair<String,byte[]>) mTracks.getSelectedItem()).getL(), mCount));
 					ghostButton.setEnabled(true);		
 				}
 			}
-			else if (_mode == Race.TIMER_MODE)
+			else if (mMode == Race.TIMER_MODE)
 			{
 				if(mDbHelper.isTimeGhostPresent(((Pair<String,byte[]>) mTracks.getSelectedItem()).getL(), mCount)){
 					Log.i("debug", "Ghost is available, settings are, Trackname:" + ((Pair<String,byte[]>) mTracks.getSelectedItem()).getL() + ", Rounds: " + mCount + ", Times: " + mDbHelper.getTimeGhost(((Pair<String,byte[]>) mTracks.getSelectedItem()).getL(), mCount));
@@ -578,7 +584,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 					public void onClick(View v) {
 						EditText playername = (EditText) dialog.findViewById(R.id.dialog_player_name);
 						if(checkDialogInputOnePlayer(playername, radioGroup)){
-							start(_mode, true);					
+							start(true);					
 							Log.i("debug", "Moved to Race-Activity!");	
 							dialog.dismiss();
 						}
@@ -598,6 +604,13 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 		dialog.show();
 	}
 	
+	
+	/**
+	 * This method is used to check if the given playername is empty or already in radiogroup
+	 * @param playername The playername.
+	 * @param radioGroup The radiogroup.
+	 * @return true, if the player has sucessfully been created in database and added to the mPlayerNames array for further operations.
+	 */
 	private boolean checkDialogInputOnePlayer(EditText playername, RadioGroup radioGroup) {
 		mPlayerNames.clear();
 		
@@ -629,6 +642,14 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 			return false;	
 	}
 	
+	/**
+	 * This method is used to check if two given playernames are not in their appropriate radio groups or empty or the same.
+	 * @param left_playername
+	 * @param right_playername
+	 * @param left_radioGroup
+	 * @param right_radioGroup
+	 * @return true, if the players have sucessfully been created in database and added to the mPlayerNames array for further operations.
+	 */
 	private boolean checkDialogInputTwoPlayer(EditText left_playername, EditText right_playername, RadioGroup left_radioGroup, RadioGroup right_radioGroup){
 		boolean all_ok = true;					
 		if(left_playername.getVisibility() != View.INVISIBLE){					
@@ -661,6 +682,10 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				right_playername.setHint(R.string.dialog_name_exists);		
 			}			
 		}
+		
+		if(left_playername.getText().toString() == right_playername.getText().toString())
+			all_ok = false;
+		
 		if(all_ok)
 		{
 			if(left_playername.getVisibility() != View.INVISIBLE){
@@ -705,9 +730,12 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 		return group;		
 	}
 	
-	private void start(int mode, boolean ghostMode){
-		int _mode = mode;	
-		Race.getInstance().newRace(mContext, mCount, _mode,mTracks.getSelectedItem(), mCarStatus, mPlayerNames, ghostMode);					
+	/**
+	 * This method finishes this activity and calls newRace() from the Race class to initiate an new Race.
+	 * @param ghostMode Is this a new race against a given best time ? yes(true) or (false);
+	 */
+	private void start(boolean ghostMode){		
+		Race.getInstance().newRace(mContext, mCount, mMode,mTracks.getSelectedItem(), mCarStatus, mPlayerNames, ghostMode);					
 		Intent intent = new Intent().setClass(mContext, RaceActivity.class);
 		startActivity(intent);
 		finish();
@@ -736,27 +764,6 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 			case LoaderCallbackInterface.SUCCESS: {
 				Log.i("debug", "OpenCV loaded successfully");					
 				mOpenCvCameraView.enableView();
-				//Static adding of tracks		
-//				if(isFirstInitialisation){
-//					try { 	
-//					    bridge_image = Utils.loadResource(mContext,R.drawable.bridge_image); 
-//					    } catch (IOException e) { 
-//					     e.printStackTrace(); 
-//					    } 
-//					try { 		
-//					    crossed_image = Utils.loadResource(mContext,R.drawable.crossed_image); 
-//					    } catch (IOException e) { 
-//					     e.printStackTrace(); 
-//					    }
-//					bridge = new Track("Brückenbahn", false, 5, bridge_image);
-//					crossed = new Track("Kreuzungsbahn", true, 7, crossed_image);		
-//					tracks.add(bridge);
-//					tracks.add(crossed);		
-//					mTracksAdapter.notifyDataSetChanged();
-//					isFirstInitialisation = false;
-//					break;
-//				}
-				
 			}
 			default: {
 				super.onManagerConnected(status);

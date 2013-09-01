@@ -3,25 +3,18 @@ package de.freinsberg.pomecaloco;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
-import org.opencv.core.Range;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
-
 import android.graphics.Bitmap;
 import android.os.Environment;
-import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.Display;
-import android.widget.Toast;
 
 /**
  * This class represents the ObjectDetector
@@ -34,50 +27,50 @@ public class ObjectDetector{
 	final private static int HALF_SQUARE_SIDE_LENGTH = 15;
 	final private static int SQUARE_SIDE_LENGTH = 2*HALF_SQUARE_SIDE_LENGTH;
 	final private static int SQUARE_AREA = SQUARE_SIDE_LENGTH * SQUARE_SIDE_LENGTH;
-	final private static int COLOR_DIFFENRENCE = 50;
-	
+	final private static int COLOR_DIFFENRENCE = 50;	
 	final public static int NO_CAR = 0x00;
 	final public static int RIGHT_CAR = 0x01;
 	final public static int LEFT_CAR = 0x10;
 	final public static int BOTH_CAR = 0x11;
 	final private static int LEFT_LANE_THRESHOLD= 25;
 	final private static int RIGHT_LANE_THRESHOLD= -25;
-	private static Mat mInputFrame;	
-//	private Mat mStaticImage = null;
-	private Mat mRgba = null;
-	private Mat mGray = null;
-
-	private Mat mEdges = null; 
-	private Mat mHoughLines = null;
+	
 	private int mHLthreshold = 5;
     private int mHLminLineSize = 100;
-    private int mHLlineGap = 30;    
-
+    private int mHLlineGap = 30; 	
+	
+	private static Mat mInputFrame;	
+	private Mat mRgba;
+	private Mat mGray;
+	private Mat mEdges; 
+	private Mat mHoughLines;
+	private Mat mEmptyTrack;
+	private Mat mMatTrackOverlay;
+	private Mat mCarRecognizerOverlay;
+	private Mat mLeftCarColor;
+	private Mat mRightCarColor;
+	
     private int mSeparatorX;
     private int mLeftX;
     private int mRightX;
-    private boolean mFoundSeparatorLine;
-    private boolean mFoundLeftLine;
-    private boolean mFoundRightLine;
-     
-    private boolean mColorsOnLeftLane;
-    private boolean mColorsOnRightLane;
 	private int mLowerThreshold;
 	private int mUpperThreshold;
+	
+    private boolean mFoundSeparatorLine;
+    private boolean mFoundLeftLine;
+    private boolean mFoundRightLine;     
+    private boolean mColorsOnLeftLane;
+    private boolean mColorsOnRightLane;
 
-
-	private Mat mEmptyTrack = null;
-	private Mat mMatTrackOverlay = null;
-	private Bitmap mBitmapTrackOverlay= null;
-	private Mat mCarRecognizerOverlay;
+	private Bitmap mBitmapTrackOverlay;
 	private Bitmap mCarRecognizer;
-	private Scalar mLeftCarColorScalar;
-	private Scalar mRightCarColorScalar;
-	private Mat mLeftCarColor;
-	private Mat mRightCarColor;
 	private Bitmap mLeftCarColorImage;
 	private Bitmap mRightCarColorImage;
 	private Bitmap[] mCarColorImages;	
+	
+	private Scalar mLeftCarColorScalar;
+	private Scalar mRightCarColorScalar;
+
 	double[] mScannedTrackPixelColor;
 	double[] mEmptyTrackPixelColor;
 	List <double[]> mFoundColors = new ArrayList<double[]>();	
@@ -120,7 +113,10 @@ public class ObjectDetector{
 	}
 	
 	/**
-	 * This Function is used to get the center x-axis values of the 2 lanes. It creates an Integer Array for the 2 Integer values. First Position(0) takes the x-axis value for the center between the Left- and SeparatorLine. Second Position(1) takes the x-axis value for the center between Separator- and RightLine.	
+	 * This Function is used to get the center x-axis values of the 2 lanes. 
+	 * It creates an Integer Array for the 2 Integer values. 
+	 * First  Position(0) takes the x-axis value for the center between the Left- and SeparatorLine. 
+	 * Second Position(1) takes the x-axis value for the center between Separator- and RightLine.	
 	 * @return The Integer Array with the x-axis center values for both lanes. (0: left-center | 1: right-center).
 	 */
 	public int[] getCenterOfLanes(){
@@ -133,7 +129,7 @@ public class ObjectDetector{
 	
 	/**
 	 * This Function draws 2 rectangles onto a Bitmap. A Mat gets the size of the input Frame. The position for the rectangles are determined by calling getCenterofLanes(). After setting an offset for them and drawing with color 'white' the Mat is converted to a Bitmap of the same size.
-	 * @return The Bitmap with drawed rectangles centered in between every lane. NULL if Function matToBitmap fails.
+	 * @return The Bitmap with drawed rectangles centered in between every lane, null if Function matToBitmap() fails.
 	 */
 	public Bitmap draw_car_recognizer(){
 		try{
@@ -151,7 +147,7 @@ public class ObjectDetector{
 	
 	/**
 	 * This Function is used to get 2 rectangles with position informations how they would be positioned on the Frame. 
-	 * @return The Rectangle Array with rectangles and there position information. (0: left-rectangle|1: right-rectangle)
+	 * @return The Rectangle Array with rectangles and there position information. (index 0: left-rectangle| index 1: right-rectangle)
 	 */
 	public Rect[] getLanesToScanColor(){
 		Rect[] arr = new Rect[2];
@@ -176,7 +172,7 @@ public class ObjectDetector{
 	/**
 	 * This Function finds a color in an area of the input Frame. 
 	 * The Area is determined by the x- and y-offset which represents the position where a certain color should appear.
-	 * The used Method isDifferent is used to check, if the calculated average color differs from the calculated average color of the empty track.
+	 * The used method isDifferent() checks, if the calculated average color differs from the calculated average color of the empty track.
 	 * If a color difference is found, this function creates a Bitmap with the size of the rectangle given by getLanesToScanColor(), filled with the color.
 	 * @param xOffset The x- offset to get the x-axis position to start color detection.
 	 * @param yOffset The y- offset to get the y-axis position to start color detection.
@@ -186,8 +182,10 @@ public class ObjectDetector{
 	private Bitmap getColorInOffset(int xOffset, int yOffset, int lane){
 		
 		Log.i("debug", "Into getColorInOffset for lane :"+lane);	
-		if(mInputFrame.empty())
-			Log.i("debug","mInputFramePortrait is empty!");
+//		if(mInputFrame.empty()){
+//			Log.i("debug","mInputFrame is empty!");
+//			return null;
+//		}			
 		mRgba = mInputFrame.clone();
 		
 		double[] oldColors = new double[4];
@@ -293,6 +291,11 @@ public class ObjectDetector{
 		mEdges = new Mat();
 		mHoughLines = new Mat();
 		mEmptyTrack = new Mat();
+	
+//		if(mInputFrame.empty()){
+//			Log.i("debug","mInputFrame is empty!");
+//			return null;
+//		}		
 		
 		ArrayList<Point> separatorPointsList = new ArrayList<Point>();
 		ArrayList<Point> leftPointsList = new ArrayList<Point>();
@@ -341,11 +344,7 @@ public class ObjectDetector{
 				if ((x1 > mInputFrame.cols() / 2 - SEPARATORLINE_TOLERATION) && (x1 < mInputFrame.cols() / 2 + SEPARATORLINE_TOLERATION) && (x2 > mInputFrame.cols() / 2 - SEPARATORLINE_TOLERATION)	&& (x2 < mInputFrame.cols() / 2 + SEPARATORLINE_TOLERATION)) 
 				{					
 					separatorPointsList.add(new Point(x1, y1));
-					separatorPointsList.add(new Point(x2, y2));					
-//					Point start = new Point(x1, y1);
-//					Point end = new Point(x2, y2);				
-					//Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);
-									
+					separatorPointsList.add(new Point(x2, y2));		
 					mFoundSeparatorLine = true;						
 				}
 				
@@ -353,10 +352,7 @@ public class ObjectDetector{
 				else if(x1 < 50 && x2 < 50)
 				{				
 					leftPointsList.add(new Point(x1, y1));
-					leftPointsList.add(new Point(x2, y2));	
-//					Point start = new Point(x1, y1);
-//					Point end = new Point(x2, y2);				
-//					Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);					
+					leftPointsList.add(new Point(x2, y2));				
 					mFoundLeftLine = true;
 				}
 				
@@ -364,10 +360,7 @@ public class ObjectDetector{
 				else if(x1 > mInputFrame.cols() - 50 && x2 > mInputFrame.cols() - 50)
 				{			
 					rightPointsList.add(new Point(x1, y1));
-					rightPointsList.add(new Point(x2, y2));	
-//					Point start = new Point(x1, y1);
-//					Point end = new Point(x2, y2);				
-//					Core.line(track_overlay, start, end,new Scalar(0, 0, 255, 255), 3);								
+					rightPointsList.add(new Point(x2, y2));								
 					mFoundRightLine = true;
 				}
 			}		
@@ -376,23 +369,21 @@ public class ObjectDetector{
 			mLeftX = getTheMostlyRightLeftX(leftPointsList);
 			Core.line(mMatTrackOverlay, new Point(mLeftX, 0), new Point(mLeftX, mInputFrame.rows()-1),new Scalar(0, 0, 255, 255), 3);
 			mRightX = getTheMostlyLeftRightX(rightPointsList);
-			Core.line(mMatTrackOverlay, new Point(mRightX, 0), new Point(mRightX, mInputFrame.rows()-1),new Scalar(0, 0, 255, 255), 3);
-			
+			Core.line(mMatTrackOverlay, new Point(mRightX, 0), new Point(mRightX, mInputFrame.rows()-1),new Scalar(0, 0, 255, 255), 3);			
 		}						
 			
-			mBitmapTrackOverlay = Bitmap.createBitmap(mMatTrackOverlay.cols(),
-					mMatTrackOverlay.rows(), Bitmap.Config.ARGB_8888);
+			mBitmapTrackOverlay = Bitmap.createBitmap(mMatTrackOverlay.cols(), mMatTrackOverlay.rows(), Bitmap.Config.ARGB_8888);
 			Utils.matToBitmap(mMatTrackOverlay, mBitmapTrackOverlay);
 			
 			mInputFrame.copyTo(mEmptyTrack); 	
 			return mBitmapTrackOverlay;
-		}
-
-		
+		}	
 	
-		
-	
-	
+	/**
+	 * This method is called with a list of point in a certain area (near the separator line) of the input frame. 
+	 * @param separatorPointsList The List containing the point near the separator line.
+	 * @return The x-axis value of the point whose x-axis values is mostly in the middle. Returns 0, if the list null or has no points in it.
+	 */
 	private int getTheMostlyMiddleX(ArrayList<Point> separatorPointsList){
 		
 		int distanceToTheMiddle = Integer.MAX_VALUE;
@@ -410,7 +401,7 @@ public class ObjectDetector{
 						distanceToTheMiddle = (int) (p.x - mInputFrame.cols()/2);
 						leftFromTheMiddle = false;
 						rightFromTheMiddle = true;
-						Log.i("debug", "It is '" + distanceToTheMiddle + "' Pixels away! Status for Left is: " + leftFromTheMiddle + " and for Right is: " + rightFromTheMiddle);
+						Log.i("debug", "It is '" + distanceToTheMiddle + "' Pixels away!");
 					}
 						
 				}
@@ -422,7 +413,7 @@ public class ObjectDetector{
 						distanceToTheMiddle = (int) (mInputFrame.cols()/2 - p.x);
 						rightFromTheMiddle = false;
 						leftFromTheMiddle = true;
-						Log.i("debug", "It is '" + distanceToTheMiddle + "' Pixels away! Status for Left is: " + leftFromTheMiddle + " and for Right is: " + rightFromTheMiddle);
+						Log.i("debug", "It is '" + distanceToTheMiddle + "' Pixels away!");
 					}
 				}
 			}
@@ -431,14 +422,17 @@ public class ObjectDetector{
 			else if(leftFromTheMiddle)
 				return mInputFrame.cols()/2 - distanceToTheMiddle;
 			else
-				return 0;
-			
+				return 0;			
 		}
 		else
 			return 0;
 	}
 	
-	
+	/**
+	 * This method is called with a list of point in a certain area (near the left separator line) of the input frame. 
+	 * @param separatorPointsList The List containing the point near the left separator line.
+	 * @return The x-axis value of the point whose x-axis values is mostly on the right side in this area. Returns 0, if the list is null.
+	 */
 	private int getTheMostlyRightLeftX(ArrayList<Point> leftPointsList){
 		int mostlyRightLeftX = Integer.MIN_VALUE;
 		
@@ -457,6 +451,11 @@ public class ObjectDetector{
 			return 0;		
 	}
 	
+	/**
+	 * This method is called with a list of point in a certain area (near the right separator line) of the input frame. 
+	 * @param separatorPointsList The List containing the point near the right separator line.
+	 * @return The x-axis value of the point whose x-axis values is mostly on the left side in this area. Returns 0, if the list is null.
+	 */
 	private int getTheMostlyLeftRightX(ArrayList<Point> rightPointsList){
 		int mostlyLeftRightX = Integer.MAX_VALUE;
 		
@@ -476,7 +475,7 @@ public class ObjectDetector{
 	}
 	
 	/**
-	 * This Function checks two given double[]'s for a value difference of certain amount in at least one value.
+	 * This Function checks two given double[]'s for a value difference of certain amount in at least one color value.
 	 * @param avgOldColors The double[] with color values from the track lane.
 	 * @param avgNewColors The double[] with color values from a possible car.
 	 * @return TRUE if colors are different, FALSE if colors are the same.
@@ -580,6 +579,7 @@ public class ObjectDetector{
 		
 	}
 	
+	/*
 	private boolean validInputFrame(Mat inputFrame)
 	{
 		if(inputFrame.get(1, 1)[3] != 0.0)
@@ -587,5 +587,6 @@ public class ObjectDetector{
 		else
 			return false;
 	}
+	*/
 
 }
