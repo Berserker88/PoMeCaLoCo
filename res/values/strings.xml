@@ -21,8 +21,8 @@
         <item>Track 4</item>
         <item>Hidden Track</item>
     </string-array>
-    <string name="settings_section1">Ergebnisse</string>
-    <string name="settings_section2">Setup</string>
+    <string name="results_section1">Ergebnisse</string>
+    <string name="results_section2">Leaderboard</string>
     <string name="choose_track_spinner_icon">Track Icon</string>
     <string name="go_to_results">Zu den Ergebnissen</string>
     <string name="race_menu_exit">Beenden</string>

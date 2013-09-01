@@ -237,7 +237,7 @@ public class FinishActivity extends Activity {
         
         go_to_results.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            	Intent intent = new Intent(v.getContext(), SettingsFragmentActivity.class);     
+            	Intent intent = new Intent(v.getContext(), ResultsFragmentActivity.class);     
             	startActivity(intent);  
             	
             }

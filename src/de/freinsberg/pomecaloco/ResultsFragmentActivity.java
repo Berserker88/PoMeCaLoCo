@@ -18,11 +18,11 @@ import android.view.WindowManager;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-public class SettingsFragmentActivity extends FragmentActivity implements
+public class ResultsFragmentActivity extends FragmentActivity implements
 		ActionBar.TabListener {
 	public static Context mContext;
 	private ResultsFragment mResultsFragment = new ResultsFragment();
-	private LeaderboardFragment mSetupFragment = new LeaderboardFragment();
+	private LeaderboardFragment mLeaderboardFragment = new LeaderboardFragment();
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
 	 * fragments for each of the sections. We use a
@@ -133,7 +133,7 @@ public class SettingsFragmentActivity extends FragmentActivity implements
 
             }
             if (i == 1) {
-                return mSetupFragment;
+                return mLeaderboardFragment;
             }
             return null; 
 		}
@@ -148,9 +148,9 @@ public class SettingsFragmentActivity extends FragmentActivity implements
 		public CharSequence getPageTitle(int position) {
 			switch (position) {
 			case 0:
-				return getString(R.string.settings_section1).toUpperCase();
+				return getString(R.string.results_section1).toUpperCase();
 			case 1:
-				return getString(R.string.settings_section2).toUpperCase();
+				return getString(R.string.results_section2).toUpperCase();
 			}
 			return null;
 		}

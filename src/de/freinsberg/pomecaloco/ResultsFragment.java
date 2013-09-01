@@ -37,7 +37,7 @@ public class ResultsFragment  extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-    	mContext = SettingsFragmentActivity.mContext;
+    	mContext = ResultsFragmentActivity.mContext;
         View v = inflater.inflate(R.layout.results, null);
         mRoundMode = false;
         mTimerMode = false;        
