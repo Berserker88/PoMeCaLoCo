@@ -12,11 +12,12 @@ import android.widget.TextView;
  */
 public class MyTimer extends CountDownTimer{
 	
-	public int mCountdown = 0;
+	private int mCountdown = 0;
 	private long mMsCountdown;	
 	private boolean mIsFinished = false;
-	public boolean isRaceCountdown = false;
-	public boolean isTimerRace = false;
+	private boolean isRaceCountdown = false;
+	@SuppressWarnings("unused")
+	private boolean isTimerRace = false;
 	
 	public TextView mTv;
 	public List<String> mCountdownValues;

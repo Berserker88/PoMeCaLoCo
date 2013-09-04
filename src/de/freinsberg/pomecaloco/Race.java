@@ -221,7 +221,7 @@ public class Race {
 			if(mChronometer != null)
 				mChronometer.start();
 		}else
-			Log.i("debug", "no proper to to decide which timer should be started.");			
+			Log.i("debug", "no proper mode to to decide which timer should be started.");			
 	}
 	
 	/**
@@ -248,12 +248,12 @@ public class Race {
 					mLeftMovement = false;	
 					correctMovement = true;
 					Log.i("movement", "left lane: thread id = "+ Thread.currentThread().getId() +"' and correct move = "+ correctMovement);
-					Log.i("debug", "Linkes movement!");
+					Log.i("debug", "left movement");
 					if(getGameMode() == TIMER_MODE)
 						calcStatistics(lane, mMode, mRaceTimer.getCurrentTime());
 					else
 						calcStatistics(lane, mMode, mChronometer.getTimeElapsedString());
-						return correctMovement;
+					return correctMovement;
 				}
 				else
 				{
@@ -276,7 +276,7 @@ public class Race {
 					mRightMovement = false;		
 					correctMovement = true;
 					Log.i("movement", "right lane: thread id = "+ Thread.currentThread().getId() +"' and correct move = "+ correctMovement);
-					Log.i("debug", "Rechtes movement!");
+					Log.i("debug", "right movement");
 					if(getGameMode() == TIMER_MODE)
 						calcStatistics(lane, mMode, mRaceTimer.getCurrentTime());
 					else

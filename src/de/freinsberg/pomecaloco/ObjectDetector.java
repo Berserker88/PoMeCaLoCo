@@ -22,16 +22,16 @@ import android.util.Log;
  *
  */
 public class ObjectDetector{
+	final public static int NO_CAR = 0x00;
+	final public static int RIGHT_CAR = 0x01;
+	final public static int LEFT_CAR = 0x10;
+	final public static int BOTH_CAR = 0x11;
 	final private static float CANNY_THRESHOLD = (float) 0.1;
 	final private static int SEPARATORLINE_TOLERATION = 30;
 	final private static int HALF_SQUARE_SIDE_LENGTH = 15;
 	final private static int SQUARE_SIDE_LENGTH = 2*HALF_SQUARE_SIDE_LENGTH;
 	final private static int SQUARE_AREA = SQUARE_SIDE_LENGTH * SQUARE_SIDE_LENGTH;
-	final private static int COLOR_DIFFENRENCE = 50;	
-	final public static int NO_CAR = 0x00;
-	final public static int RIGHT_CAR = 0x01;
-	final public static int LEFT_CAR = 0x10;
-	final public static int BOTH_CAR = 0x11;
+	final private static int COLOR_DIFFENRENCE = 50;
 	final private static int LEFT_LANE_THRESHOLD= 25;
 	final private static int RIGHT_LANE_THRESHOLD= -25;
 	
@@ -71,9 +71,10 @@ public class ObjectDetector{
 	private Scalar mLeftCarColorScalar;
 	private Scalar mRightCarColorScalar;
 
-	double[] mScannedTrackPixelColor;
-	double[] mEmptyTrackPixelColor;
-	List <double[]> mFoundColors = new ArrayList<double[]>();	
+	private double[] mScannedTrackPixelColor;
+	private double[] mEmptyTrackPixelColor;
+	@SuppressWarnings("unused")
+	private List <double[]> mFoundColors = new ArrayList<double[]>();	
 	
 	private static ObjectDetector mObjectDetector = new ObjectDetector();
 	
@@ -564,7 +565,7 @@ public class ObjectDetector{
 	 * This Function creates a Bitmap Array with the found color determined by getColorInOffset().
 	 * @return The Bitmap[] with 2 Bitmaps for the lanes ([0]: left-color|[1]: right-color). Index might be Null if there was no color found.
 	 */
-	public Bitmap[] get_cars_colors (){
+	public Bitmap[] getCarsColors (){
 		Log.i("debug", "Into get_car_colors!");		
 		int x_offset_left = getCenterOfLanes()[0]-15;
 		int y_offset_left = (mInputFrame.rows()/2)-15;	

@@ -9,7 +9,7 @@ import android.view.ViewGroup;
  
 /**
  * This class will show the leaderboard.
- * @author FlorianNB
+ * @author freinsberg
  *
  */
 public class LeaderboardFragment  extends Fragment { 

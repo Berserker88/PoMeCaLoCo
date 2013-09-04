@@ -20,9 +20,8 @@ public class MovementDetector {
 	final private static int LOWER_BRIGHTNESS_VALUE = 180;
 	final private static int UPPER_SATURATION_VALUE = 255;
 	final private static int UPPER_BRIGHTNESS_VALUE = 255;	
-	final public static int VALUE_THRESHOLD = 80;
-	private static final int X_AXIS_STEP_SIZE = 25;
-	private static final int Y_AXIS_STEP_SIZE = 25;
+	final private static int X_AXIS_STEP_SIZE = 25;
+	final private static int Y_AXIS_STEP_SIZE = 25;
 	private Mat mInputFrame;
 	
 	/**
@@ -92,8 +91,7 @@ public class MovementDetector {
 			Core.inRange(hsvImage, lowerColorThreshold, sFullDegrees, thresholdedImageLowerRange);
 			Core.inRange(hsvImage, sZeroDegrees, upperColorThreshold, thresholdedImageUpperRange);			
 			Core.add(thresholdedImageLowerRange, thresholdedImageUpperRange, thresholdedImage);
-		}
-			
+		}		
 	
 //		Imgproc.cvtColor(thresholdedImage, rgbImage, Imgproc.COLOR_GRAY2BGR);		
 //		bgrFile = new File(mStorageDir, "car in here.bmp");

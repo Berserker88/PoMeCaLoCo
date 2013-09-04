@@ -14,13 +14,13 @@ import android.widget.ImageView;
  *
  */
 public class MyShotTask {
-	int mResid;
-	Activity mActivity;
-	Timer mShotTimer = new Timer();
-	Handler mHandler = new Handler();
+	private int mResid;
+	private Activity mActivity;
+	private Timer mShotTimer = new Timer();
+	private Handler mHandler = new Handler();
 	private TimerTask mShotTask;
-	float mAlpha;
-	int mAlphaCounter = 100;
+	private float mAlpha;
+	private int mAlphaCounter = 100;
 	
 	/**
 	 * Constructor: Creates an object for the camera-flash task that operates on an ui view object.

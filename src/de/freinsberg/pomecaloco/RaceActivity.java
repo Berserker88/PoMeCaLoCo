@@ -63,8 +63,8 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 		private TextView raceview_speed_updater_right = null;
 		private TextView raceview_finished = null;
 		private TextView raceview_best_time_updater = null;
-		public TextView raceview_game_mode;
-		public TextView raceview_track_name;
+		private TextView raceview_game_mode;
+		private TextView raceview_track_name;
 		
 		private ImageView visual_speed_faster = null;
 		private ImageView visual_speed_slower = null;
@@ -125,7 +125,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 			raceview_track_name.setText(Race.getInstance().getTrackName());
 			raceview_game_mode.setText(Race.getInstance().getNumberOfPlayers()+" Spieler Rennen");	
 				
-			mCountdown = new MyTimer(4001, 1000, mCountdownValues, raceview_countdown);				
+			mCountdown = new MyTimer(4100, 1000, mCountdownValues, raceview_countdown);				
 			
 			//starting the race
 			start();
@@ -151,7 +151,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 					raceview_round_updater_right.setTextColor(getResources().getColor(R.color.white));
 					raceview_round_updater_right.setText(" / "+Race.getInstance().getCount());
 				}
-				mCarColorBitmaps = ObjectDetector.getInstance().get_cars_colors();			
+				mCarColorBitmaps = ObjectDetector.getInstance().getCarsColors();			
 				left_car_color.setImageBitmap(mCarColorBitmaps[0]);					
 				right_car_color.setImageBitmap(mCarColorBitmaps[1]);					
 				left_car_color.setVisibility(View.VISIBLE);								
@@ -197,7 +197,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 						raceview_round_updater_right.setText(" / "+Race.getInstance().getCount());						
 					}
 				}
-				mCarColorBitmaps = ObjectDetector.getInstance().get_cars_colors();			
+				mCarColorBitmaps = ObjectDetector.getInstance().getCarsColors();			
 				left_car_color.setImageBitmap(mCarColorBitmaps[0]);				
 				left_car_color.setVisibility(View.VISIBLE);
 				break;
@@ -240,7 +240,7 @@ public class RaceActivity extends Activity implements CvCameraViewListener2{
 					}				
 				}
 				
-				mCarColorBitmaps = ObjectDetector.getInstance().get_cars_colors();					
+				mCarColorBitmaps = ObjectDetector.getInstance().getCarsColors();					
 				right_car_color.setImageBitmap(mCarColorBitmaps[1]);									
 				right_car_color.setVisibility(View.VISIBLE);
 				break;

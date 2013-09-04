@@ -67,7 +67,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 	
 	private MyTrackSpinnerAdapter mTracksAdapter;
 	
-	ObjectDetector mFrameToProcess;	
+	private ObjectDetector mFrameToProcess;	
 	
 	private Mat mInputFrame;
 	
@@ -240,7 +240,7 @@ public class StartActivity extends Activity implements CvCameraViewListener2 {
 				} else if (scanner.getText() == getString(R.string.scan_cars)) {
 					mAlphacounter = 100;
 					//while(ObjectDetector.getInstance().validInputFrame())
-					mCarColorBitmaps = mFrameToProcess.get_cars_colors();
+					mCarColorBitmaps = mFrameToProcess.getCarsColors();
 					if(mCarColorBitmaps[0] != null){
 						left_car_color.setVisibility(View.VISIBLE);	
 						left_car_color.setImageBitmap(mCarColorBitmaps[0]);	

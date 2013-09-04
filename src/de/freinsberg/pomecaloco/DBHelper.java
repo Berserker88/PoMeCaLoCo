@@ -192,7 +192,7 @@ public class DBHelper extends SQLiteOpenHelper{
 	 * @param name The Track name.
 	 * @param iscrossed Is it a crossed Track.
 	 * @param length How long is this track in meters.
-	 * @param image A picture of the track for.
+	 * @param image A picture of the track.
 	 */
 	private void createTrack(String name, boolean iscrossed, float length, byte[] image){
 		

@@ -14,11 +14,9 @@ import android.widget.TextView;
 public class FinishActivity extends Activity {	
 	
 //	private Context mContext;
-	private DBHelper mDbHelper;
-	
+	private DBHelper mDbHelper;	
 	private Button go_to_results;
-	private Button new_race;	
-	
+	private Button new_race;		
 	private TextView finish_track;
 	private TextView finish_mode;
 	private TextView finish_heading;
